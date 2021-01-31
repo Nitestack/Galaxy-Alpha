@@ -2,17 +2,18 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord, { Client, Collection, Intents, MessageEmbed, StringResolvable, Guild, Message } from 'discord.js';
+import Discord from 'discord.js';
 import mongoose from 'mongoose';
 import Levels from 'discord-xp';
 //CLASSES\\
 import Command from '@root/Command';
 import Feature from '@root/Feature';
 import Event from '@root/Event';
-
+//MANAGER\\
 import GiveawayManager from '@commands/Giveaway/Giveaway';
 import TicketManager from '@commands/Utility/Ticket/Ticket';
 import DropManager from '@commands/Giveaway/Drop';
+import CacheManager from '@root/GlobalCache';
 //MODELS\\
 import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
@@ -39,7 +40,15 @@ interface GalaxyAlphaOptions {
 	defaultEmbedColor?: string;
 };
 
-export default class GalaxyAlpha extends Client {
+interface Queue {
+	title: string;
+	requesterID: string;
+	voiceChannelID: string;
+	requestChannelID: string;
+	url: string;
+};
+
+export default class GalaxyAlpha extends Discord.Client {
 	public ownerID: string;
 	public globalPrefix: string;
 	public developers: Array<string>;
@@ -48,7 +57,7 @@ export default class GalaxyAlpha extends Client {
 	public defaultColor: string;
 	public constructor(options: GalaxyAlphaOptions) {
 		super({
-			ws: { intents: Intents.ALL },
+			ws: { intents: Discord.Intents.ALL },
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
 			disableMentions: "everyone"
 		});
@@ -82,7 +91,7 @@ export default class GalaxyAlpha extends Client {
 		console.log("------------------------------------------------------------------");
 		this.readFeature(options.featuresDir);
 		console.log("------------------------------------------------------------------");
-		mongoose.connect(options.mongoDBUrl, {
+		/*mongoose.connect(options.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
@@ -91,7 +100,7 @@ export default class GalaxyAlpha extends Client {
 		mongoose.set('useNewUrlParser', true);
 		mongoose.set('useFindAndModify', false);
 		mongoose.set('useUnifiedTopology', true);
-		Levels.setURL(options.mongoDBUrl);
+		Levels.setURL(options.mongoDBUrl);*/
 		this.once("ready", async () => {
 			//GIVEAWAYS\\
 			const giveaways = await GiveawaySchema.find({});
@@ -160,10 +169,8 @@ export default class GalaxyAlpha extends Client {
 					url: 'https://code.visualstudio.com/' //only twitch links are working (only for type: STREAMING)
 				}
 			});
-			const createdAt = new Date(this.user.createdAt);
-			
 			console.log("------------------------------------------------------------------");
-			console.log('|Created At:     |', `${weekDays[createdAt.getUTCDay()]}, ${monthNames[createdAt.getUTCMonth()]} ${createdAt.getUTCDate()}, ${createdAt.getUTCFullYear()}, ${createdAt.getUTCHours()}:${createdAt.getUTCMinutes()}:${createdAt.getUTCSeconds()}:${createdAt.getUTCMilliseconds()} UTC`);
+			console.log('|Created At:     |', `${weekDays[this.user.createdAt.getUTCDay()]}, ${monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);
 			console.log('|Uptime:         |', this.ms(this.uptime));
 			console.log('|WS Status:      |', this.ws.status);
@@ -184,13 +191,17 @@ export default class GalaxyAlpha extends Client {
 	//INFOS\\
 	public dataSchemaObjectId: string = "5ffb5b87ef40ba40a0842eb5";
 	public inviteLink: string = "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=976612438&scope=bot";
-	public supportGuild: Guild;
+	public supportGuild: Discord.Guild;
 	//COLLECTIONS\\
-	public commands: Collection<string, Command> = new Collection();
-	public aliases: Collection<string, string> = new Collection();
-	public cooldowns: Collection<string, number> = new Collection();
-	public features: Collection<string, Feature> = new Collection();
-	public snipes: Collection<string, Message> = new Collection();
+	public commands: Discord.Collection<string, Command> = new Discord.Collection();
+	public aliases: Discord.Collection<string, string> = new Discord.Collection();
+	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
+	public features: Discord.Collection<string, Feature> = new Discord.Collection();
+	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public queue: Discord.Collection<string, {
+		guildID: string,
+		queue: Array<Queue>
+	}> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
@@ -223,6 +234,7 @@ export default class GalaxyAlpha extends Client {
 	public giveaways: GiveawayManager = new GiveawayManager(this);
 	public tickets: TicketManager = new TicketManager(this);
 	public drop: DropManager = new DropManager(this);
+	public cache: CacheManager = new CacheManager(this);
 	//PERMISSIONS\\
 	public permissions: Array<string> = permissions;
 	public permissionsShowCase: Array<string> = permissionsShowCase;
@@ -293,12 +305,12 @@ export default class GalaxyAlpha extends Client {
 			};
 		}
 	};
-	public createEmbed(usageField?: Boolean, usage?: StringResolvable): MessageEmbed {
+	public createEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: this.defaultColor,
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
@@ -310,21 +322,21 @@ export default class GalaxyAlpha extends Client {
 				],
 			}).setTimestamp();
 		} else {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: this.defaultColor,
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 			}).setTimestamp();
 		};
 	};
-	public createGreenEmbed(usageField?: Boolean, usage?: StringResolvable): MessageEmbed {
+	public createGreenEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#2ECC71',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
@@ -336,21 +348,21 @@ export default class GalaxyAlpha extends Client {
 				],
 			}).setTimestamp();
 		} else {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#2ECC71',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 			}).setTimestamp();
 		};
 	};
-	public createYellowEmbed(usageField?: Boolean, usage?: StringResolvable): MessageEmbed {
+	public createYellowEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#F1C40F',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
@@ -362,21 +374,21 @@ export default class GalaxyAlpha extends Client {
 				],
 			}).setTimestamp();
 		} else {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#F1C40F',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 			}).setTimestamp();
 		};
 	};
-	public createRedEmbed(usageField?: Boolean, usage?: StringResolvable): MessageEmbed {
+	public createRedEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#ff0000',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
@@ -388,10 +400,10 @@ export default class GalaxyAlpha extends Client {
 				]
 			}).setTimestamp();
 		} else {
-			return new MessageEmbed({
+			return new Discord.MessageEmbed({
 				color: '#ff0000',
 				footer: {
-					text: `Created By HydraNhani#8303`,
+					text: "Support Server: https://discord.gg/qvbFn6bXQX",
 					iconURL: this.user.displayAvatarURL()
 				}
 			}).setTimestamp();

@@ -24,7 +24,6 @@ export default class Command {
 	public aliases?: Array<string>;
 	public description?: string;
 	public category?: Categories;
-	public example?: string;
 	public usage?: string;
 	public cooldown?: number;
 	public userPermissions?: Array<PermissionString>;
@@ -40,7 +39,6 @@ export default class Command {
 		aliases?: Array<string>,
 		description: string,
 		category: Categories,
-		example?: string,
 		usage?: string,
 		cooldown?: number,
 		userPermissions?: Array<PermissionString>,
@@ -57,7 +55,6 @@ export default class Command {
 		this.aliases = info.aliases ? info.aliases : null;
 		this.description = info.description ? info.description : null;
 		this.category = info.category ? info.category : null;
-		this.example = info.example ? info.example : info.name;
 		this.usage = info.usage ? info.usage : info.name;
 		this.cooldown = info.cooldown ? info.cooldown : 3;
 		this.userPermissions = info.userPermissions ? info.userPermissions : null;
@@ -73,7 +70,6 @@ export default class Command {
 			aliases: this.aliases,
 			description: this.description,
 			category: this.category,
-			example: this.example,
 			usage: this.usage,
 			cooldown: this.cooldown,
 			userPermissions: this.userPermissions,
@@ -112,7 +108,6 @@ export default class Command {
 		aliases?: Array<string>,
 		description: string,
 		category: Categories,
-		example?: string,
 		usage?: string,
 		cooldown?: number,
 		userPermissions?: Array<PermissionString>,
@@ -140,7 +135,6 @@ export default class Command {
 		if (typeof info.description != "string") throw new TypeError("The command description must be a string!");
 		if (typeof info.category != "string") throw new TypeError("The command category must be a string!");
 		if (info.category != info.category.toLowerCase()) throw new RangeError("The command category must be in lowercase!");
-		if (info.example && typeof info.example != "string") throw new TypeError("The command example must be a string!");
 		if (typeof info.usage != "string") throw new TypeError("The command usage must be a string!");
 		if (info.cooldown && typeof info.cooldown != "number") throw new TypeError("The command cooldown must be a number in seconds!");
 		if (info.userPermissions) {

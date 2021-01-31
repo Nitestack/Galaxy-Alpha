@@ -121,3 +121,28 @@ export const validEvents = [
 export const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+export function getRandomArbitrary(min: number, max: number) {
+    return Math.random() * (max - min) + min;
+};
+
+export function getNumber(probabilities) {
+    var rnd = Math.random();
+    var total = 0;
+    var hit;
+    for (var i = 0; i < probabilities.length; i++) {
+        if (rnd > total && rnd < total + probabilities[i][0]) {
+            hit = probabilities[i];
+        };
+        total += probabilities[i][0];
+    };
+    return Number((hit[1] + (Math.random() * (hit[2] - hit[1]))).toFixed(2));
+};
+
+var number = getNumber([
+    //CHANCE, MIN, MAX
+    [0.35, 0],
+    [0.2, 11, 20],
+    [0.3, 21, 30],
+    [0.1, 31, 35]
+]);

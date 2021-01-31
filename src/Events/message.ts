@@ -90,17 +90,30 @@ module.exports = class MessageEvent extends Event {
 			};
 		};
 		if (!message.author.bot && message.channel.type != 'dm') {
-			await MessageCount.findOneAndUpdate({
-				messageGuildID: message.guild.id,
-				messageUserID: message.author.id
-			}, {
-				$inc: {
-					messageCount: 1
-				},
-				lastUpdated: new Date()
-			}, {
-				upsert: true
-			}).catch(err => console.log(err));
+			if (client.cache.messages.has(`${message.author.id}-${message.guild.id}`)) {
+				client.cache.messages.set(`${message.author.id}-${message.guild.id}`, {
+					userID: message.author.id,
+					guildID: message.guild.id,
+					messageCount: client.cache.messages.get(`${message.author.id}-${message.guild.id}`).messageCount + 1
+				});
+			} else {
+				await MessageCount.findOne({
+					messageUserID: message.author.id,
+					messageGuildID: message.guild.id
+				}, {}, {}, (err, messageProfile) => {
+					if (err) return console.log(err);
+					if (!messageProfile) client.cache.messages.set(`${message.author.id}-${message.guild.id}`, {
+						userID: message.author.id,
+						guildID: message.guild.id,
+						messageCount: 1
+					});
+					else if (messageProfile) client.cache.messages.set(`${message.author.id}-${message.guild.id}`, {
+						userID: message.author.id,
+						guildID: message.guild.id,
+						messageCount: messageProfile.messageCount + 1
+					});
+				});
+			};
 		};
 		const [, matchedPrefix] = mentionPrefix ? message.content.match(prefixRegex) : prefix;
 		if (!message.content.startsWith(mentionPrefix ? matchedPrefix : prefix)) return;
@@ -160,7 +173,7 @@ module.exports = class MessageEvent extends Event {
 					if (command.clientPermissions) {
 						let perms: number = 0;
 						for (const permission of command.clientPermissions) if (message.guild.me.hasPermission(permission)) perms++;
-						if (perms == 0){
+						if (perms == 0) {
 							let clientPerms: Array<string> = [];
 							command.clientPermissions.forEach(perm => {
 								clientPerms.push(client.permissionsShowCase[client.permissions.indexOf(perm)]);

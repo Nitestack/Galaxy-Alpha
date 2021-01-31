@@ -2,6 +2,7 @@
 import Command from "@root/Command";
 import { MessageEmbed } from "discord.js";
 import Profile from '@models/profile';
+import { getRandomArbitrary } from "@root/util";
 
 module.exports = class BetCommand extends Command {
 	constructor(client) {
@@ -113,8 +114,4 @@ module.exports = class BetCommand extends Command {
 			};
 		};
 	};
-};
-
-function getRandomArbitrary(min: number, max: number) {
-	return Math.random() * (max - min) + min;
 };

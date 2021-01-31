@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "A multifunctional bot!",
   "main": "index.ts",
+  "repository": {
+    "type": "",
+    "directory": ".",
+    "url": "https://github.com/HydraNhani/Galaxy-Alpha"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",

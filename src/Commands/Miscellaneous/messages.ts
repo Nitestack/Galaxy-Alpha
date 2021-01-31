@@ -1,7 +1,6 @@
 import Command from '@root/Command';
-import MessageCount from '@models/messageCount';
 import { User } from 'discord.js';
-import mongoose from 'mongoose';
+import GalaxyAlpha from '@root/Client';
 
 module.exports = class MessagesCommand extends Command {
     constructor(client){
@@ -13,36 +12,12 @@ module.exports = class MessagesCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
-        const usage = `${prefix}messages [@User/User ID]`;
+    async run(client: GalaxyAlpha, message, args, prefix) {
         let user: User = message.member.user;
-        if (message.mentions.users.first()) user = message.mentions.users.first();
-        if (args[0] && message.guild.members.cache.get(args[0])) user = message.guild.members.cache.get(args[0]).user;
-        const check = message.guild.members.cache.get(user.id);
-        if (check && !user.bot) {
-            await MessageCount.findOne({
-                messageGuildID: message.guild.id,
-                messageUserID: user.id
-            }, async (err: unknown, messageProfile: any) => {
-                if (err) return console.log(err);
-                if (!messageProfile) {
-                    const newProfile = new MessageCount({
-                        _id: mongoose.Types.ObjectId(),
-                        messageGuildID: message.guild.id,
-                        messageUserID: user.id,
-                        messageCount: 0,
-                        lastUpdated: Date.now()
-                    });
-                    newProfile.save().catch(err => console.log(err));
-                    return message.channel.send(client.createEmbed().setAuthor(user.username, user.displayAvatarURL()).setDescription(`${user} sent \`${newProfile.messageCount.toLocaleString()}\` messages in this server!`));
-                } else if (messageProfile) {
-                    return message.channel.send(client.createEmbed().setAuthor(user.username, user.displayAvatarURL()).setDescription(`${user} sent \`${messageProfile.messageCount.toLocaleString()}\` messages in this server!`))
-                } else {
-                    return;
-                };
-            });
-        } else {
-            return message.channel.send(client.createRedEmbed(true, usage).setTitle(`${client.arrowEmoji} Message Manager`).setDescription(`The user ${user} is a bot!`));
-        };
+        if (message.mentions.users.first() && message.guild.members.cache.filter(member => !member.user.bot).has(message.mentions.users.first().id)) user = message.mentions.users.first();
+        if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).has(args[0])) user = message.guild.members.cache.get(args[0]).user;
+        return message.channel.send(client.createEmbed()
+            .setTitle(`${client.chatEmoji} Messages`)
+            .setDescription(`${user} sent \`${client.cache.messages.has(`${user.id}-${message.guild.id}`) ? client.cache.messages.get(`${user.id}-${message.guild.id}`).messageCount.toLocaleString() : (await client.cache.getMessages(message.guild.id, user.id)).toLocaleString()}\` messages in this server!`));
     };
 };
