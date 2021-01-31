@@ -1,0 +1,24 @@
+Webhooks
+--------
+Webhooks are working without a bot! Activate the Webhook using node ./Webhook/WEBHOOK_NAME.js 
+The Webhook files have to be JavaScript-files!
+
+
+const Discord = require('discord.js');
+const { MessageEmbed, WebhookClient } = require('discord.js');
+const config = ('../config.json')
+const { profile, defaultColor } = require('../)config.json');
+/*
+ * Create a new webhook
+ * The Webhooks ID and token can be found in the URL, when you request that URL, or in the response body.
+ * https://discord.com/api/webhooks/12345678910/T0kEn0fw3Bh00K
+ *                                  ^^^^^^^^^^  ^^^^^^^^^^^^ 
+ *                                  Webhook ID  Webhook Token
+ */
+const hook = new Discord.WebhookClient('webhook id', 'webhook token');
+
+// Send a message using the webhook
+hook.send('Message');
+console.log('Run the webhook info.js!');
+
+Server Activities = new Discord.WebhookClient('787766850586017794', 'yWHXXDK592VDiaOEG1742MOURFBCXsMkxOJUdA9HOehX1m-LMh3_otHIhc9EHcDsUrY8')

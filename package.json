@@ -1,0 +1,55 @@
+{
+  "name": "galaxy-alpha",
+  "version": "1.0.0",
+  "description": "A multifunctional bot!",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts"
+  },
+  "author": "HydraNhani",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/common-tags": "^1.8.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/humanize-duration": "^3.18.1",
+    "@types/module-alias": "^2.0.0",
+    "@types/mongoose": "^5.10.3",
+    "@types/ms": "^0.7.31",
+    "@types/node": "^14.14.22",
+    "@types/node-fetch": "^2.5.8",
+    "@types/yt-search": "^2.3.0",
+    "module-alias": "^2.2.2",
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.3.3",
+    "axios": "^0.21.1",
+    "canvacord": "^5.0.8",
+    "common-tags": "^1.8.0",
+    "discord-akairo": "^8.1.0",
+    "discord-xp": "^1.1.7",
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "ffmpeg-static": "^4.2.7",
+    "humanize-duration": "^3.25.1",
+    "mongoose": "^5.11.13",
+    "ms": "^2.1.3",
+    "node-fetch": "^2.6.1",
+    "os": "^0.1.1",
+    "reconlx": "^1.0.8",
+    "yt-search": "^2.5.2",
+    "ytdl-core": "^4.4.5"
+  },
+  "_moduleAliases": {
+    "@root": "src",
+    "@models": "src/Models",
+    "@commands": "src/Commands",
+    "@features": "src/Features",
+    "@events": "src/Events",
+    "@images": "src/Images"
+  }
+}

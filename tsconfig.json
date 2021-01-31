@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"baseUrl": "src",
+		"paths": {
+			"@root/*": ["*"],
+			"@models/*": ["Models/*"],
+			"@commands/*": ["Commands/*"],
+			"@features/*": ["Features/*"],
+			"@events/*": ["Events/*"],
+			"@images/*": ["Images/*"]
+		},
+		"lib": ["ESNext"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "ESNext",
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"resolveJsonModule": true,
+		"outDir": "Dist"
+	},
+	"include": ["src", "Webhooks"],
+	"exclude": ["node_modules", "**/*.spec.ts"]
+}
