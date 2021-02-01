@@ -23,11 +23,9 @@ export default class Music {
             const dispatcher = connection.play(ytdl(videoInfos.url, { filter: 'audioonly' }), { seek: 0, volume: 1 });
             dispatcher.on("finish", () => {
                 if (noSkip) {
-                    const queue = MusicManager.client.queue.get(message.guild.id).queue;
-                    queue.shift();
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
-                        queue: queue || [],
+                        queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
                         nowPlaying: false
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {

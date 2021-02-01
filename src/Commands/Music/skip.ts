@@ -11,11 +11,9 @@ module.exports = class SkipCommand extends Command {
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
         if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
-            const queue = client.queue.get(message.guild.id).queue;
-            queue.shift();
             client.queue.set(message.guild.id, {
                 guildID: message.guild.id,
-                queue: queue,
+                queue: client.queue.get(message.guild.id).queue.slice(1),
                 nowPlaying: client.queue.get(message.guild.id).nowPlaying
             });
             client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].title, false);

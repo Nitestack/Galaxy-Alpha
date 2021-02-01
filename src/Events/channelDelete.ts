@@ -14,7 +14,6 @@ module.exports = class ChannelDeleteEvent extends Event {
 		});
 	};
 	async run(client, channel: DMChannel | GuildChannel) {
-		console.log("Channel " + channel.name);
 		if (channel.type == 'category') {
 			GuildSchema.findOne({
 				ticketCategoryID: channel.id
