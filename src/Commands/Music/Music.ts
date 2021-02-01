@@ -15,29 +15,31 @@ export default class Music {
             nowPlaying: false
         });
         const connection = await voiceChannel.join();
-        const playSong = async (keywordOrURLToPlay: string) => {
+        async function playSong(MusicManager: Music, keywordOrURLToPlay: string) {
             const videoInfos = await videoFinder(keywordOrURLToPlay);
-            if (!videoInfos) return message.channel.send(this.client.createRedEmbed(true, `${prefix}${usage}`)
+            if (!videoInfos) return message.channel.send(MusicManager.client.createRedEmbed(true, `${prefix}${usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription(`Cannot find any results, that includes \`${keywordOrURLToPlay}\``));
             const dispatcher = connection.play(ytdl(videoInfos.url, { filter: 'audioonly' }), { seek: 0, volume: 1 });
             dispatcher.on("finish", () => {
-                if (noSkip){
-                    this.client.queue.set(message.guild.id, {
+                if (noSkip) {
+                    const queue = MusicManager.client.queue.get(message.guild.id).queue;
+                    queue.shift();
+                    MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
-                        queue: this.client.queue.get(message.guild.id).queue.slice(1),
+                        queue: queue || [],
                         nowPlaying: false
                     });
-                    if (this.client.queue.get(message.guild.id).queue.length > 0) {
-                        playSong(this.client.queue.get(message.guild.id).queue[0].url);
+                    if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
+                        playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].title);
                     } else {
-                        this.client.queue.delete(message.guild.id);
+                        MusicManager.client.queue.delete(message.guild.id);
                         return voiceChannel.leave();
                     };
                 };
             });
-            dispatcher.on("close", () => this.client.queue.delete(message.guild.id));
-            const queue = this.client.queue.get(message.guild.id).queue;
+            dispatcher.on("close", () => MusicManager.client.queue.delete(message.guild.id));
+            const queue = MusicManager.client.queue.get(message.guild.id).queue;
             queue.push({
                 title: videoInfos.title,
                 url: videoInfos.url,
@@ -48,12 +50,12 @@ export default class Music {
                 image: videoInfos.image,
                 author: videoInfos.author
             });
-            this.client.queue.set(message.guild.id, {
+            MusicManager.client.queue.set(message.guild.id, {
                 queue: queue,
                 nowPlaying: true,
                 guildID: message.guild.id
             });
-            message.channel.send(this.client.createEmbed()
+            message.channel.send(MusicManager.client.createEmbed()
                 .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
                 .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
                 *uploaded by [${videoInfos.author.name}](${videoInfos.author.url})*
@@ -64,16 +66,16 @@ export default class Music {
                 **Views:** ${videoInfos.views.toLocaleString()} views`)
                 .setImage(videoInfos.image));
         };
-        playSong(keywordOrURL);
+        playSong(this, keywordOrURL);
     };
-    async getQueue(guildID: string){
+    async getQueue(guildID: string) {
         if (this.client.queue.has(guildID) && this.client.queue.get(guildID).queue.length > 0) {
             return this.client.queue.get(guildID).queue;
         } else {
             return null;
         };
     };
-    disconnect(voiceChannel: VoiceChannel): VoiceChannel{
+    disconnect(voiceChannel: VoiceChannel): VoiceChannel {
         voiceChannel.leave();
         return voiceChannel;
     };
