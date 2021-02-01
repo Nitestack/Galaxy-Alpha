@@ -1,25 +1,12 @@
 //2 CHANNEL TYPE ERRORS, 1 GUILDCHANNEL ERROR
 import GalaxyAlpha from '@root/Client';
 import { Guild, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js';
-import GiveawaySchema from '@models/Giveaways/giveaways';
+import giveawaySchema, { GiveawaySchema } from '@models/Giveaways/giveaways';
 import GuildSchema from '@models/guild';
 import MessageSchema from '@models/messageCount';
 import Level from '@models/levels';
 
 export const giveawayManager: string = "🎉 Giveaway Manager";
-
-interface Giveaways {
-    messageID: string;
-    channelID: string;
-    endsOn: Date;
-    prize: string;
-    winners: number;
-    hostedBy: User;
-    duration: number,
-    startsOn: Date;
-    hasEnded: boolean;
-    guildID: string;
-};
 
 export default class Giveaway {
     private client: GalaxyAlpha;
@@ -166,7 +153,7 @@ export default class Giveaway {
                     };
                 });
             });
-            const newGiveaway = new GiveawaySchema({
+            const newGiveaway = new giveawaySchema({
                 prize: options.prize,
                 duration: options.duration,
                 channelID: options.channelID,
@@ -186,7 +173,7 @@ export default class Giveaway {
             }, options.duration);
         });
     };
-    public async schedule(giveaway: Giveaways) {
+    public async schedule(giveaway: GiveawaySchema) {
         let { messageID, channelID, endsOn, prize, winners, hostedBy } = giveaway;
         const channel: TextChannel = this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID);
         if (channel) {
@@ -252,12 +239,12 @@ export default class Giveaway {
         };
     };
     public async fetch(messageID: string) {
-        const giveaway = await GiveawaySchema.findOne({ messageID: messageID });
+        const giveaway = await giveawaySchema.findOne({ messageID: messageID });
         if (!giveaway) return false;
         return giveaway;
     };
     public async list(guildID: string) {
-        const Giveaways = await GiveawaySchema.find({ guildID: guildID, hasEnded: false });
+        const Giveaways = await giveawaySchema.find({ guildID: guildID, hasEnded: false });
         if (Giveaways.length < 1) return false;
         const array = [];
         Giveaways.map(giveaway => array.push({
@@ -274,7 +261,7 @@ export default class Giveaway {
     public async reroll(messageID: string, channel: TextChannel | NewsChannel, usage: string) {
         channel.messages.fetch(messageID).then(async msg => {
             if (msg) {
-                const ended: Boolean = await GiveawaySchema.findOne({
+                const ended: Boolean = await giveawaySchema.findOne({
                     messageID: messageID
                 }, {}, {}, (err, giveaway) => {
                     if (err) return console.log(err);
@@ -323,7 +310,7 @@ export default class Giveaway {
         });
     };
     public async end(messageID: string) {
-        let data = await GiveawaySchema.findOne({ messageID: messageID });
+        let data = await giveawaySchema.findOne({ messageID: messageID });
         if (!data) return false;
         if (data.hasEnded) return false;
         const channel: TextChannel = this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'dm').get(data.channelID);
@@ -400,5 +387,5 @@ export default class Giveaway {
 };
 
 export async function endGiveaway(messageID: string) {
-    return await GiveawaySchema.findOneAndDelete({ messageID: messageID });
+    return await giveawaySchema.findOneAndDelete({ messageID: messageID });
 };

@@ -1,9 +1,5 @@
+import GalaxyAlpha from '@root/Client';
 import Command from '@root/Command';
-export const name = 'disconnect';
-export const description = "Disconnects the bot from a voice channel";
-export const category = "music";
-export const usage = "disconnect";
-export const aliases = ['dis'];
 
 module.exports = class DisconnectCommand extends Command {
     constructor(client) {
@@ -15,10 +11,11 @@ module.exports = class DisconnectCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    async run(client: GalaxyAlpha, message, args, prefix) {
         const botChannel = message.guild.me.voice.channel;
         if (botChannel) {
-            botChannel.leave();
+            client.music.disconnect(botChannel);
+            client.queue.delete(message.guild.id);
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
                 .setDescription(`Disconnected from \`${botChannel.name}!\``));

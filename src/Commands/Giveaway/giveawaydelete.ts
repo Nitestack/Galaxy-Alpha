@@ -28,7 +28,7 @@ module.exports = class GiveawayDeleteCommand extends Command {
                 .setTitle(giveawayManager)
                 .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
         } else {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${usage}`)
+            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle(giveawayManager)
                 .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
         };

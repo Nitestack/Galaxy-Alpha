@@ -194,9 +194,12 @@ module.exports = class MessageEvent extends Event {
 					.setDescription(`You are on a cooldown!\nYou have to wait ${cooldownTimestamp}`));
 				//COMMAND RUNNER\\
 				command.run(client, message, args, prefix).catch((error: unknown) => {
-					if (error && client.developers.includes(message.author.id)) message.channel.send(client.createRedEmbed()
-						.setTitle("ERROR")
-						.setDescription(`${error}`));
+					if (error && client.developers.includes(message.author.id)) {
+						message.channel.send(client.createRedEmbed()
+							.setTitle("ERROR")
+							.setDescription(`${error}`));
+						console.log(err);
+					};
 				});
 				client.cooldowns.set(`${message.author.id}-${command.name}`, message.createdTimestamp + (command.cooldown * 1000));
 				setTimeout(() => {

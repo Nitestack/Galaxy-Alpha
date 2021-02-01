@@ -5,6 +5,7 @@ import ms from 'ms';
 import Discord from 'discord.js';
 import mongoose from 'mongoose';
 import Levels from 'discord-xp';
+import ytSearch from "yt-search";
 //CLASSES\\
 import Command from '@root/Command';
 import Feature from '@root/Feature';
@@ -14,6 +15,7 @@ import GiveawayManager from '@commands/Giveaway/Giveaway';
 import TicketManager from '@commands/Utility/Ticket/Ticket';
 import DropManager from '@commands/Giveaway/Drop';
 import CacheManager from '@root/GlobalCache';
+import MusicManager from "@commands/Music/Music";
 //MODELS\\
 import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
@@ -43,8 +45,11 @@ interface GalaxyAlphaOptions {
 interface Queue {
 	title: string;
 	requesterID: string;
-	voiceChannelID: string;
-	requestChannelID: string;
+	author: ytSearch.Author;
+	description: string;
+	image: string;
+	duration: ytSearch.Duration;
+	views: number;
 	url: string;
 };
 
@@ -91,7 +96,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		console.log("------------------------------------------------------------------");
 		this.readFeature(options.featuresDir);
 		console.log("------------------------------------------------------------------");
-		/*mongoose.connect(options.mongoDBUrl, {
+		mongoose.connect(options.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
@@ -100,9 +105,9 @@ export default class GalaxyAlpha extends Discord.Client {
 		mongoose.set('useNewUrlParser', true);
 		mongoose.set('useFindAndModify', false);
 		mongoose.set('useUnifiedTopology', true);
-		Levels.setURL(options.mongoDBUrl);*/
+		Levels.setURL(options.mongoDBUrl);
 		this.once("ready", async () => {
-			//GIVEAWAYS\\
+			/*//GIVEAWAYS\\
 			const giveaways = await GiveawaySchema.find({});
 			giveaways.forEach(giveaway => {
 				endGiveaway(giveaway.messageID);
@@ -158,7 +163,7 @@ export default class GalaxyAlpha extends Discord.Client {
 						guildID: level.guildID
 					});
 				};
-			});
+			});*/
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
 			this.user.setPresence({
@@ -198,7 +203,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue> }> = new Discord.Collection();
+	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue>, nowPlaying: boolean }> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
@@ -232,6 +237,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public tickets: TicketManager = new TicketManager(this);
 	public drop: DropManager = new DropManager(this);
 	public cache: CacheManager = new CacheManager(this);
+	public music: MusicManager = new MusicManager(this);
 	//PERMISSIONS\\
 	public permissions: Array<string> = permissions;
 	public permissionsShowCase: Array<string> = permissionsShowCase;
@@ -247,7 +253,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, commandPath, file));
 			if (stat.isDirectory()) {
 				this.readCommand(path.join(commandPath, file));
-			} else if (file != "Giveaway.ts" && file != "Ticket.ts" && file != "Drop.ts") {
+			} else if (file != "Giveaway.ts" && file != "Ticket.ts" && file != "Drop.ts" && file != "Music.ts") {
 				if (!file.endsWith(".ts")) {
 					console.log(`|Command:        |❌ NO TypeScript file - ${file}`);
 					continue;

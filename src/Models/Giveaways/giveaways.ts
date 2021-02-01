@@ -13,7 +13,7 @@ const giveawaySchema = new mongoose.Schema({
 	prize: String,
 });
 
-interface GiveawaySchema extends mongoose.Document {
+export interface GiveawaySchema extends mongoose.Document {
 	guildID: string;
 	channelID: string;
 	hostedBy: string;
