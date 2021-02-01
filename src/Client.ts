@@ -68,13 +68,13 @@ export default class GalaxyAlpha extends Discord.Client {
 		if (!options.eventsDir) throw new Error("The event directory has to be provided!");
 		if (!options.eventsDir) throw new Error("The feature directory has to be provided!");
 		if (!options.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
-		if (options.defaultEmbedColor){
+		if (options.defaultEmbedColor) {
 			this.defaultColor = options.defaultEmbedColor;
 		} else {
 			this.defaultColor = "#808080"
 		};
 		this.ownerID = options.ownerID;
-		if (!options.developers){
+		if (!options.developers) {
 			this.developers = [options.ownerID]
 		} else {
 			this.developers = options.developers;
@@ -198,10 +198,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, {
-		guildID: string,
-		queue: Array<Queue>
-	}> = new Discord.Collection();
+	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue> }> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
@@ -250,7 +247,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, commandPath, file));
 			if (stat.isDirectory()) {
 				this.readCommand(path.join(commandPath, file));
-			} else if (file != "Giveaway.ts" && file != "Ticket.ts" && file != "Drop.ts"){
+			} else if (file != "Giveaway.ts" && file != "Ticket.ts" && file != "Drop.ts") {
 				if (!file.endsWith(".ts")) {
 					console.log(`|Command:        |❌ NO TypeScript file - ${file}`);
 					continue;
@@ -262,7 +259,7 @@ export default class GalaxyAlpha extends Discord.Client {
 					if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
 				};
 				this.commands.set(command.name, command);
-				if (command.aliases){
+				if (command.aliases) {
 					command.aliases.map(alias => this.aliases.set(alias, command.name));
 				};
 				console.log(`|Command:        |✅ ${command.name}`);
@@ -276,7 +273,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			if (stat.isDirectory()) {
 				this.readEvent(path.join(eventPath, file));
 			} else {
-				if (!file.endsWith(".ts")){
+				if (!file.endsWith(".ts")) {
 					console.log(`|Event:          |❌ NO TypeScript file ${file}`);
 					continue;
 				};
@@ -294,7 +291,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			if (stat.isDirectory()) {
 				this.readFeature(path.join(featurePath, file));
 			} else {
-				if (!file.endsWith(".ts")){
+				if (!file.endsWith(".ts")) {
 					console.log(`|Feature:        |❌ NO TypeScript file ${file}`);
 					continue;
 				};
