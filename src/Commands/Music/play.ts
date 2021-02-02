@@ -57,7 +57,7 @@ module.exports = class PlayCommand extends Command {
                     **Views:** ${video.views.toLocaleString()} views`)
                 .setImage(video.image));
         } else {
-            return client.music.play(message, voiceChannel, args.join(" "), true, prefix, this.usage);
+            return client.music.play(message, voiceChannel, args.join(" "), true, prefix, this.usage, true);
         };
     };
 };

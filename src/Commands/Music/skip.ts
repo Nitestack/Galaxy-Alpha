@@ -24,7 +24,7 @@ module.exports = class SkipCommand extends Command {
                 dispatcher: client.queue.get(message.guild.id).dispatcher,
                 voiceChannel: client.queue.get(message.guild.id).voiceChannel
             });
-            client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].title, false);
+            client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].url, false);
         } else {
             return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")

@@ -1,4 +1,5 @@
 import GalaxyAlpha from "@root/Client";
+import clientData from "@root/Models/clientData";
 import { Message, StreamDispatcher, VoiceChannel } from "discord.js";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
@@ -8,7 +9,7 @@ export default class Music {
     constructor(client: GalaxyAlpha) {
         this.client = client;
     };
-    async play(message: Message, voiceChannel: VoiceChannel, keywordOrURL: string, noSkip: boolean = true, prefix?: string, usage?: string) {
+    async play(message: Message, voiceChannel: VoiceChannel, keywordOrURL: string, noSkip: boolean = true, prefix?: string, usage?: string, newSong: boolean = false) {
         const connection = await voiceChannel.join();
         async function playSong(MusicManager: Music, keywordOrURLToPlay: string) {
             const videoInfos = await videoFinder(keywordOrURLToPlay);
@@ -28,36 +29,46 @@ export default class Music {
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
-                        nowPlaying: false,
+                        nowPlaying: true,
                         dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher,
                         voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
-                        playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].title);
+                        playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
                     } else {
                         MusicManager.client.queue.delete(message.guild.id);
                         return voiceChannel.leave();
                     };
                 };
             });
-            const queue = MusicManager.client.queue.get(message.guild.id).queue;
-            queue.push({
-                title: videoInfos.title,
-                url: videoInfos.url,
-                requesterID: message.author.id,
-                description: videoInfos.description,
-                duration: videoInfos.duration,
-                views: videoInfos.views,
-                image: videoInfos.image,
-                author: videoInfos.author
-            });
-            MusicManager.client.queue.set(message.guild.id, {
-                queue: queue,
-                nowPlaying: true,
-                guildID: message.guild.id,
-                dispatcher: dispatcher,
-                voiceChannel: voiceChannel
-            });
+            if (newSong) {
+                const queue = MusicManager.client.queue.get(message.guild.id).queue;
+                queue.push({
+                    title: videoInfos.title,
+                    url: videoInfos.url,
+                    requesterID: message.author.id,
+                    description: videoInfos.description,
+                    duration: videoInfos.duration,
+                    views: videoInfos.views,
+                    image: videoInfos.image,
+                    author: videoInfos.author
+                });
+                MusicManager.client.queue.set(message.guild.id, {
+                    queue: queue,
+                    nowPlaying: true,
+                    guildID: message.guild.id,
+                    dispatcher: dispatcher,
+                    voiceChannel: voiceChannel
+                });
+            } else {
+                MusicManager.client.queue.set(message.guild.id, {
+                    queue: MusicManager.client.queue.get(message.guild.id).queue,
+                    nowPlaying: true,
+                    guildID: message.guild.id,
+                    dispatcher: dispatcher,
+                    voiceChannel: voiceChannel
+                });
+            };
             message.channel.send(MusicManager.client.createEmbed()
                 .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
                 .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
@@ -88,9 +99,13 @@ export default class Music {
     resume(dispatcher: StreamDispatcher) {
         return dispatcher.resume();
     };
+    volume(dispatcher: StreamDispatcher, volume: number){
+        if (volume > 2 || volume < 1) throw new Error("The number has to be between 1 and 2");
+        return dispatcher.setVolume(volume);
+    };
 };
 
 export async function videoFinder(query: string) {
     const videoResult = await ytSearch(query);
-    return videoResult.videos.length > 1 ? videoResult.videos[0] : null;
+    return videoResult.videos.length > 0 ? videoResult.videos[0] : null;
 };
