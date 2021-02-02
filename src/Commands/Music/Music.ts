@@ -1,5 +1,5 @@
 import GalaxyAlpha from "@root/Client";
-import { Message, MessageEmbed, VoiceChannel } from "discord.js";
+import { Message, StreamDispatcher, VoiceChannel } from "discord.js";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
 
@@ -20,7 +20,8 @@ export default class Music {
                 guildID: message.guild.id,
                 queue: [],
                 nowPlaying: false,
-                dispatcher: null
+                dispatcher: null,
+                voiceChannel: null
             });
             dispatcher.on("finish", () => {
                 if (noSkip) {
@@ -28,7 +29,8 @@ export default class Music {
                         guildID: message.guild.id,
                         queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
                         nowPlaying: false,
-                        dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher
+                        dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher,
+                        voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
                         playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].title);
@@ -53,7 +55,8 @@ export default class Music {
                 queue: queue,
                 nowPlaying: true,
                 guildID: message.guild.id,
-                dispatcher: dispatcher
+                dispatcher: dispatcher,
+                voiceChannel: voiceChannel
             });
             message.channel.send(MusicManager.client.createEmbed()
                 .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
@@ -78,6 +81,12 @@ export default class Music {
     disconnect(voiceChannel: VoiceChannel): VoiceChannel {
         voiceChannel.leave();
         return voiceChannel;
+    };
+    stop(dispatcher: StreamDispatcher) {
+        return dispatcher.pause();
+    };
+    resume(dispatcher: StreamDispatcher) {
+        return dispatcher.resume();
     };
 };
 

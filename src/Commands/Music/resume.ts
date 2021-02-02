@@ -1,0 +1,31 @@
+import GalaxyAlpha from "@root/Client";
+import Command from "@root/Command";
+
+module.exports = class ResumeCommand extends Command {
+    constructor(client){
+        super(client, {
+            name: "resume",
+            description: "resumes the current track",
+            category: "music"
+        });
+    };
+    async run(client: GalaxyAlpha, message, args, prefix){
+        if (client.queue.has(message.guild.id) && !client.queue.get(message.guild.id).nowPlaying){
+            client.music.resume(client.queue.get(message.guild.id).dispatcher);
+            client.queue.set(message.guild.id, {
+                guildID: message.guild.id,
+                queue: client.queue.get(message.guild.id).queue,
+                nowPlaying: true,
+                dispatcher: client.queue.get(message.guild.id).dispatcher,
+                voiceChannel: client.queue.get(message.guild.id).voiceChannel
+            });
+            return message.channel.send(client.createGreenEmbed()
+                .setTitle("🎧 Music Manager")
+                .setDescription("Resumed the current track!"));
+        } else {
+            return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                .setTitle("🎧 Music Manager")
+                .setDescription("There is no song stopped or there is no voice connection!"));
+        };
+    };
+};

@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord, { StreamDispatcher } from 'discord.js';
+import Discord, { StreamDispatcher, VoiceChannel } from 'discord.js';
 import mongoose from 'mongoose';
 import Levels from 'discord-xp';
 import ytSearch from "yt-search";
@@ -203,7 +203,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue>, nowPlaying: boolean, dispatcher: StreamDispatcher }> = new Discord.Collection();
+	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue>, nowPlaying: boolean, dispatcher: StreamDispatcher, voiceChannel: VoiceChannel }> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
