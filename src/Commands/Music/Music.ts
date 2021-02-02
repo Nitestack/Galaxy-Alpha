@@ -9,11 +9,6 @@ export default class Music {
         this.client = client;
     };
     async play(message: Message, voiceChannel: VoiceChannel, keywordOrURL: string, noSkip: boolean = true, prefix?: string, usage?: string) {
-        if (!this.client.queue.has(message.guild.id) || !this.client.queue.get(message.guild.id).queue) this.client.queue.set(message.guild.id, {
-            guildID: message.guild.id,
-            queue: [],
-            nowPlaying: false
-        });
         const connection = await voiceChannel.join();
         async function playSong(MusicManager: Music, keywordOrURLToPlay: string) {
             const videoInfos = await videoFinder(keywordOrURLToPlay);
@@ -21,12 +16,19 @@ export default class Music {
                 .setTitle("🎧 Music Manager")
                 .setDescription(`Cannot find any results, that includes \`${keywordOrURLToPlay}\``));
             const dispatcher = connection.play(ytdl(videoInfos.url, { filter: 'audioonly' }), { seek: 0, volume: 1 });
+            if (!MusicManager.client.queue.has(message.guild.id) || !MusicManager.client.queue.get(message.guild.id).queue) MusicManager.client.queue.set(message.guild.id, {
+                guildID: message.guild.id,
+                queue: [],
+                nowPlaying: false,
+                dispatcher: null
+            });
             dispatcher.on("finish", () => {
                 if (noSkip) {
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
-                        nowPlaying: false
+                        nowPlaying: false,
+                        dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
                         playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].title);
@@ -36,7 +38,6 @@ export default class Music {
                     };
                 };
             });
-            dispatcher.on("close", () => MusicManager.client.queue.delete(message.guild.id));
             const queue = MusicManager.client.queue.get(message.guild.id).queue;
             queue.push({
                 title: videoInfos.title,
@@ -51,7 +52,8 @@ export default class Music {
             MusicManager.client.queue.set(message.guild.id, {
                 queue: queue,
                 nowPlaying: true,
-                guildID: message.guild.id
+                guildID: message.guild.id,
+                dispatcher: dispatcher
             });
             message.channel.send(MusicManager.client.createEmbed()
                 .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)

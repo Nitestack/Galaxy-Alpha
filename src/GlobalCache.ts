@@ -20,35 +20,37 @@ export default class GlobalCache {
     private client: GalaxyAlpha;
     constructor(client: GalaxyAlpha) {
         this.client = client;
-        setInterval(() => {
-            if (this.messages.first()) {
-                this.messages.forEach(async message => {
-                    await MessageSchema.findOneAndUpdate({
-                        messageUserID: message.userID,
-                        messageGuildID: message.guildID
-                    }, {
-                        messageCount: message.messageCount
-                    }, {
-                        upsert: true
+        this.client.on("ready", () => {
+            setInterval(() => {
+                if (this.messages.first()) {
+                    this.messages.forEach(async message => {
+                        await MessageSchema.findOneAndUpdate({
+                            messageUserID: message.userID,
+                            messageGuildID: message.guildID
+                        }, {
+                            messageCount: message.messageCount
+                        }, {
+                            upsert: true
+                        });
                     });
-                });
-            };
-            if (this.currency.first()) {
-                this.currency.forEach(async currency => {
-                    await CurrencySchema.findOneAndUpdate({
-                        profileID: currency.userID
-                    }, {
-                        bank: currency.bank,
-                        wallet: currency.wallet,
-                        messageCount: currency.messageCount
-                    }, {
-                        upsert: true
+                };
+                if (this.currency.first()) {
+                    this.currency.forEach(async currency => {
+                        await CurrencySchema.findOneAndUpdate({
+                            profileID: currency.userID
+                        }, {
+                            bank: currency.bank,
+                            wallet: currency.wallet,
+                            messageCount: currency.messageCount
+                        }, {
+                            upsert: true
+                        });
                     });
-                });
-            };
-            this.currency.clear();
-            this.messages.clear();
-        }, 1800000);
+                };
+                this.currency.clear();
+                this.messages.clear();
+            }, 1800000);
+        });
     };
     //COLLECTIONS\\
     public currency: Discord.Collection<string, Currency> = new Discord.Collection();
