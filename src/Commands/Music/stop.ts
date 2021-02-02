@@ -14,6 +14,9 @@ module.exports = class StopCommand extends Command {
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
         if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).nowPlaying) {
+            if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
+                .setTitle("🎧 Music Manager")
+                .setDescription("You have to be in the same voice channel as me!"));
             client.music.stop(client.queue.get(message.guild.id).dispatcher);
             client.queue.set(message.guild.id, {
                 guildID: message.guild.id,

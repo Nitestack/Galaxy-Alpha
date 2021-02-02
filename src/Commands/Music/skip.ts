@@ -10,7 +10,13 @@ module.exports = class SkipCommand extends Command {
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
+        if (!message.member.voice.channel) return message.channel.send(client.createEmbed()
+            .setTitle("🎧 Music Manager")
+            .setDescription("You have to be in a voice channel to use this command!"));
         if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
+            if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
+                .setTitle("🎧 Music Manager")
+                .setDescription("You have to be in the same voice channel as me!"));
             client.queue.set(message.guild.id, {
                 guildID: message.guild.id,
                 queue: client.queue.get(message.guild.id).queue.slice(1),
