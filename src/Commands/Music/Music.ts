@@ -37,8 +37,8 @@ export default class Music {
                     playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
                 } else if (MusicManager.client.queue.get(message.guild.id).multipleLoop) {
                     const queue = MusicManager.client.queue.get(message.guild.id).queue;
-                    queue.push(queue[0]);
-                    queue.slice(1);
+                    MusicManager.client.queue.get(message.guild.id).shuffle ? queue.push(queue[MusicManager.client.queue.get(message.guild.id).queue.findIndex(queue => queue.url == videoInfos.url)]) : queue.push(queue[0]);
+                    MusicManager.client.queue.get(message.guild.id).shuffle ? queue.splice(MusicManager.client.queue.get(message.guild.id).queue.findIndex(queue => queue.url == videoInfos.url), 1) : queue.slice(1);
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: queue,
@@ -51,11 +51,13 @@ export default class Music {
                         singleLoop: false,
                         shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                     });
-                    playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
+                    playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[MusicManager.client.queue.get(message.guild.id).shuffle ? Math.round(getRandomArbitrary(0, this.client.queue.get(message.guild.id).queue.length - 1)) : 0].url);
                 } else if (noSkip) {
+                    const queue = MusicManager.client.queue.get(message.guild.id).queue;
+                    MusicManager.client.queue.get(message.guild.id).shuffle ? queue.splice(MusicManager.client.queue.get(message.guild.id).queue.findIndex(queue => queue.url == videoInfos.url)) : queue.slice(1)
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
-                        queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
+                        queue: queue,
                         nowPlaying: false,
                         dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher,
                         voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel,
@@ -66,7 +68,7 @@ export default class Music {
                         shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
-                        playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
+                        playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[MusicManager.client.queue.get(message.guild.id).shuffle ? Math.round(getRandomArbitrary(0, this.client.queue.get(message.guild.id).queue.length - 1)) : 0].url);
                     } else {
                         MusicManager.client.queue.delete(message.guild.id);
                         return voiceChannel.leave();
@@ -148,7 +150,7 @@ export default class Music {
                 **Views:** ${videoInfos.views.toLocaleString()} views`)
                 .setImage(videoInfos.image));
         };
-        if (this.client.queue.has(message.guild.id) && this.client.queue.get(message.guild.id).queue && this.client.queue.get(message.guild.id).queue.length > 0 && this.client.queue.get(message.guild.id).shuffle){
+        if (this.client.queue.has(message.guild.id) && this.client.queue.get(message.guild.id).queue && this.client.queue.get(message.guild.id).queue.length > 0 && this.client.queue.get(message.guild.id).shuffle) {
             playSong(this, this.client.queue.get(message.guild.id).queue[Math.round(getRandomArbitrary(0, this.client.queue.get(message.guild.id).queue.length - 1))].url);
         } else {
             playSong(this, keywordOrURL);

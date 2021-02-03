@@ -31,7 +31,7 @@ module.exports = class VolumeCommand extends Command {
                 .setTitle("🎧 Music Manager")
                 .setDescription(`Set the volume to: \`${args[1]}\``));
         } else {
-            return message.channel.send(client.createEmbed()
+            return message.channel.send(client.createEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription(`The current volume is: \`${(dispatcher.volume - 1) * 100}\``));
         };

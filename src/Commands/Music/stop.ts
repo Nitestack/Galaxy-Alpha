@@ -28,7 +28,8 @@ module.exports = class StopCommand extends Command {
                 beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
                 stopToPlay: new Date(),
                 singleLoop: client.queue.get(message.guild.id).singleLoop,
-                multipleLoop: client.queue.get(message.guild.id).multipleLoop
+                multipleLoop: client.queue.get(message.guild.id).multipleLoop,
+                shuffle: client.queue.get(message.guild.id).shuffle
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
