@@ -42,7 +42,7 @@ interface GalaxyAlphaOptions {
 	defaultEmbedColor?: string;
 };
 
-interface Queue {
+export interface Queue {
 	title: string;
 	requesterID: string;
 	author: ytSearch.Author;
@@ -51,6 +51,7 @@ interface Queue {
 	duration: ytSearch.Duration;
 	views: number;
 	url: string;
+	videoID: string;
 };
 
 export default class GalaxyAlpha extends Discord.Client {

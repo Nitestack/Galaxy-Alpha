@@ -1,5 +1,8 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
+import { getDuration } from "@root/util";
+import { Queue } from "@root/Client";
+import { MessageEmbed } from "discord.js";
 
 module.exports = class QueueCommand extends Command {
     constructor(client) {
@@ -32,18 +35,30 @@ module.exports = class QueueCommand extends Command {
                 .setTitle("🎧 Music Manager")
                 .setDescription("Cleared the queue of this server!"));
         } else {
-            const embed = client.createEmbed().setTitle("🎧 Queue");
-            for (let i = 0; i < queue.length; i++) {
-                const song = queue[i];
-                if (i == 0) {
-                    embed.addField("Now Playing", `\`${i + 1}. \` [${song.title}](${song.url})\n\`${song.duration}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`);
-                } else if (i == 1) {
-                    embed.addField("Up next", `\`${i + 1}. \` [${song.title}](${song.url})\n\`${song.duration}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
-                } else {
-                    embed.addField("•", `\`${i + 1}. \` [${song.title}](${song.url})\n\`${song.duration}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
-                };
+            return message.channel.send(generateQueueEmbed(client.queue.get(message.guild.id).queue)).then(msg => {
+            });
+        };
+
+        function generateQueueEmbed(queue: Array<Queue>): Array<MessageEmbed> {
+            const embeds = [];
+            let k = 10;
+            let position = 1;
+            for (let i = 0; i < queue.length; i += 10) {
+                const current = queue.slice(i, k);
+                k += 10;
+                const embed = client.createEmbed();
+                current.forEach(song => {
+                    if (position == 0) {
+                        embed.addField("Now Playing", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`);
+                    } else if (position == 1) {
+                        embed.addField("Up next", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
+                    } else {
+                        embed.addField("•", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
+                    };
+                });
+                embeds.push(embed);
             };
-            return message.channel.send(embed);
+            return embeds;
         };
     };
 };

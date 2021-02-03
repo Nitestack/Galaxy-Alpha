@@ -126,17 +126,21 @@ export function getRandomArbitrary(min: number, max: number) {
     return Math.random() * (max - min) + min;
 };
 
-export function getDuration(duration: number): string {
-    return duration > 60 ?
-        (duration > 3600 ?
-            `${Math.floor(duration / 3600)}:${duration - (Math.floor(duration / 3600) * 3600) > 10 ?
-                duration - (Math.floor(duration / 3600) * 3600) :
-                `0${(duration - (Math.floor(duration / 3600) * 3600))}`}:${duration - (Math.floor(duration / 60) * 60) > 10 ?
-                    duration - (Math.floor(duration / 60) * 60) :
-                    `0${(duration - (Math.floor(duration / 60) * 60))}`}` :
-            `${Math.floor(duration / 60)}:${duration - (Math.floor(duration / 60) * 60) > 10 ? duration - (Math.floor(duration / 60) * 60) :
-                `0${(duration - (Math.floor(duration / 60) * 60))}`}`) :
-        `0:${duration > 10 ?
-            Math.round(duration) :
-            `0${Math.round(duration)}`}`
+export function getDuration(milliseconds: number): string {
+    if (!milliseconds || isNaN(milliseconds)) return "00:00";
+    const seconds = Math.floor(milliseconds % 60000 / 1000);
+    const minutes = Math.floor(milliseconds % 3600000 / 60000);
+    const hours = Math.floor(milliseconds / 3600000);
+    if (hours > 0) {
+        return `${formatInt(hours)}:${formatInt(minutes)}:${formatInt(seconds)}`;
+    };
+    if (minutes > 0) {
+        return `${formatInt(minutes)}:${formatInt(seconds)}`;
+    };
+    return `00:${formatInt(seconds)}`;
+};
+
+function formatInt(int) {
+    if (int < 10) return `0${int}`;
+    return `${int}`;
 };

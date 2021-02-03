@@ -18,7 +18,7 @@ module.exports = class ReplayCommand extends Command {
             if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
-            client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].url, false);
+            client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].videoID, false);
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
                 .setDescription("Replaying the current song!"));

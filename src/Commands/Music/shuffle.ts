@@ -15,7 +15,7 @@ module.exports = class ShuffleCommand extends Command {
         if (!message.member.voice.channel) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
-        if (client.queue.has(message.guild.id) && !client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
+        if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
             if (args[0] && args[0].toLowerCase() == "enable") {
                 client.queue.set(message.guild.id, {
                     guildID: message.guild.id,

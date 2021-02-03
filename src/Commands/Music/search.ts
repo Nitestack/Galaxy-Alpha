@@ -1,6 +1,7 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 import { videoFinder } from "@commands/Music/Music";
+import { getDuration } from "@root/util";
 
 module.exports = class SearchCommand extends Command {
     constructor(client) {
@@ -26,7 +27,7 @@ module.exports = class SearchCommand extends Command {
                     
             **${video.description}**
             
-            **Duration:** ${video.duration}
+            **Duration:** ${getDuration(video.duration.seconds * 1000)}
             **Views:** ${video.views.toLocaleString()} views`)
             .setImage(video.image));
     };

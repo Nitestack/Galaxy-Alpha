@@ -18,7 +18,7 @@ module.exports = class NowPlayingCommand extends Command {
             .setTitle("🎧 Music Manager")
             .setDescription("There is no voice connection!"));
         const video = client.queue.get(message.guild.id).queue[0];
-        const duration = (message.createdTimestamp - client.queue.get(message.guild.id).beginningToPlay.getTime()) / 1000;
+        const duration = (message.createdTimestamp - client.queue.get(message.guild.id).beginningToPlay.getTime());
         const timeUsed = client.queue.get(message.guild.id).stopToPlay ? client.queue.get(message.guild.id).stopToPlay.getTime() - client.queue.get(message.guild.id).beginningToPlay.getTime() : null;
         return message.channel.send(client.createEmbed()
             .setTitle("🎧 Music Manager")
@@ -27,9 +27,9 @@ module.exports = class NowPlayingCommand extends Command {
             
             **${video.description}**
             
-            **Duration:** ${video.duration}
+            **Duration:** ${getDuration(video.duration.seconds * 1000)}
             **Views:** ${video.views.toLocaleString()} views
             
-            **Time left: ${client.queue.get(message.guild.id).stopToPlay ? getDuration(timeUsed / 1000) : getDuration(duration)} / ${video.duration.timestamp}**`));
+            **Time left: ${client.queue.get(message.guild.id).stopToPlay ? getDuration(timeUsed) : getDuration(duration)} / ${getDuration(video.duration.seconds * 1000)}**`));
     };
 };

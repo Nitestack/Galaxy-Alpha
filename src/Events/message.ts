@@ -198,7 +198,7 @@ module.exports = class MessageEvent extends Event {
 						message.channel.send(client.createRedEmbed()
 							.setTitle("ERROR")
 							.setDescription(`${error}`));
-						console.log(err);
+						console.log(error);
 					};
 				});
 				client.cooldowns.set(`${message.author.id}-${command.name}`, message.createdTimestamp + (command.cooldown * 1000));

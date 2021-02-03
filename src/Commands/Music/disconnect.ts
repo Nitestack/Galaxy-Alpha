@@ -16,10 +16,10 @@ module.exports = class DisconnectCommand extends Command {
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
         const botChannel = message.guild.me.voice.channel;
-        if (message.member.voice.channel.id != message.guild.me.voice.channel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle("🎧 Music Manager")
-            .setDescription("You have to be in the same voice channel as me!"));
         if (botChannel) {
+            if (message.member.voice.channel.id != botChannel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                .setTitle("🎧 Music Manager")
+                .setDescription("You have to be in the same voice channel as me!"));
             client.music.disconnect(botChannel);
             client.queue.delete(message.guild.id);
             return message.channel.send(client.createGreenEmbed()
