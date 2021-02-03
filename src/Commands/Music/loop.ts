@@ -18,7 +18,7 @@ module.exports = class LoopCommand extends Command {
             .setTitle("🎧 Music Manager")
             .setDescription("You need to enable or disable the queue!"));
         if (args[0].toLowerCase() == "enable") {
-            if ((args[1] && args[1].toLowerCase() == "queue" && !client.queue.get(message.guild.id).singleLoop) || (!args[0] && !client.queue.get(message.guild.id).multipleLoop)) {
+            if ((args[1] && args[1].toLowerCase() == "queue" && !client.queue.get(message.guild.id).singleLoop) || (!args[1] && !client.queue.get(message.guild.id).multipleLoop)) {
                 client.queue.set(message.guild.id, {
                     guildID: message.guild.id,
                     queue: client.queue.get(message.guild.id).queue,
