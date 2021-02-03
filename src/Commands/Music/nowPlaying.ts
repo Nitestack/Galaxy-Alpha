@@ -8,7 +8,8 @@ module.exports = class NowPlayingCommand extends Command {
             name: "now",
             aliases: ["nowplaying", "np"],
             description: "shows some infos about the current track",
-            category: "music"
+            category: "music",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {

@@ -6,7 +6,8 @@ module.exports = class QueueCommand extends Command {
         super(client, {
             name: "queue",
             description: "shows the queue of the server",
-            category: "music"
+            category: "music",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
@@ -24,7 +25,8 @@ module.exports = class QueueCommand extends Command {
                 beginningToPlay: null,
                 stopToPlay: null,
                 multipleLoop: false,
-                singleLoop: false
+                singleLoop: false,
+                shuffle: false
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")

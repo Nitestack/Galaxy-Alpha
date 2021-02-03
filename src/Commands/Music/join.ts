@@ -7,7 +7,8 @@ module.exports = class JoinCommand extends Command {
         super(client, {
             name: "join",
             description: "joins a voice channel",
-            category: "music"
+            category: "music",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {

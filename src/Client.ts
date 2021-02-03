@@ -231,7 +231,8 @@ export default class GalaxyAlpha extends Discord.Client {
 		beginningToPlay: Date,
 		stopToPlay: Date,
 		singleLoop: boolean,
-		multipleLoop: boolean
+		multipleLoop: boolean,
+		shuffle: boolean
 	}> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";

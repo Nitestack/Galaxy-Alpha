@@ -6,7 +6,8 @@ module.exports = class ResumeCommand extends Command {
         super(client, {
             name: "resume",
             description: "resumes the current track",
-            category: "music"
+            category: "music",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
@@ -28,7 +29,8 @@ module.exports = class ResumeCommand extends Command {
                 beginningToPlay: new Date(Date.now() - timeUsed),
                 stopToPlay: null,
                 singleLoop: client.queue.get(message.guild.id).singleLoop,
-                multipleLoop: client.queue.get(message.guild.id).multipleLoop
+                multipleLoop: client.queue.get(message.guild.id).multipleLoop,
+                shuffle: client.queue.get(message.guild.id).shuffle
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")

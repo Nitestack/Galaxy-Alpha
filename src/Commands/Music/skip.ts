@@ -7,7 +7,8 @@ module.exports = class SkipCommand extends Command {
             name: "skip",
             description: "skips the song in the queue",
             category: "music",
-            usage: "skip [position as number]"
+            usage: "skip [position as number]",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
@@ -31,7 +32,8 @@ module.exports = class SkipCommand extends Command {
                     stopToPlay: null,
                     beginningToPlay: null,
                     multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                    singleLoop: client.queue.get(message.guild.id).singleLoop
+                    singleLoop: client.queue.get(message.guild.id).singleLoop,
+                    shuffle: client.queue.get(message.guild.id).shuffle
                 });
                 client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].url, false);
             } else {
@@ -53,7 +55,8 @@ module.exports = class SkipCommand extends Command {
                     stopToPlay: null,
                     beginningToPlay: null,
                     multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                    singleLoop: client.queue.get(message.guild.id).singleLoop
+                    singleLoop: client.queue.get(message.guild.id).singleLoop,
+                    shuffle: client.queue.get(message.guild.id).shuffle
                 });
                 client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].url, false);
             } else {

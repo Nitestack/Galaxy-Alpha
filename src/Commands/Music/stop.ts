@@ -6,7 +6,8 @@ module.exports = class StopCommand extends Command {
         super(client, {
             name: "stop",
             description: "stops the current track",
-            category: "music"
+            category: "music",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {

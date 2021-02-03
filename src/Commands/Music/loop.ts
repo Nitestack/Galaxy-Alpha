@@ -7,7 +7,8 @@ module.exports = class LoopCommand extends Command {
             name: "loop",
             description: "loops a single song or a queue",
             category: "music",
-            usage: "loop <enable/disable> [queue]"
+            usage: "loop <enable/disable> [queue]",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
@@ -28,7 +29,8 @@ module.exports = class LoopCommand extends Command {
                     dispatcher: client.queue.get(message.guild.id).dispatcher,
                     singleLoop: args[1] && args[1].toLowerCase() == "queue" ? false : true,
                     multipleLoop: args[1] && args[1].toLowerCase() == "queue" ? true : false,
-                    nowPlaying: client.queue.get(message.guild.id).nowPlaying
+                    nowPlaying: client.queue.get(message.guild.id).nowPlaying,
+                    shuffle: client.queue.get(message.guild.id).shuffle
                 });
                 return message.channel.send(client.createGreenEmbed()
                     .setTitle("🎧 Music Manager")
@@ -48,7 +50,8 @@ module.exports = class LoopCommand extends Command {
                 dispatcher: client.queue.get(message.guild.id).dispatcher,
                 singleLoop: args[1] && args[1].toLowerCase() == "queue" ? client.queue.get(message.guild.id).singleLoop : false,
                 multipleLoop: args[1] && args[1].toLowerCase() == "queue" ? false : client.queue.get(message.guild.id).multipleLoop,
-                nowPlaying: client.queue.get(message.guild.id).nowPlaying
+                nowPlaying: client.queue.get(message.guild.id).nowPlaying,
+                shuffle: client.queue.get(message.guild.id).shuffle
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")

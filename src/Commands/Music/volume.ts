@@ -7,7 +7,8 @@ module.exports = class VolumeCommand extends Command {
             name: "volume",
             description: "set's the volume of the voice connection",
             category: "music",
-            usage: "volume or volume set"
+            usage: "volume or volume set",
+            guildOnly: true
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
@@ -22,10 +23,10 @@ module.exports = class VolumeCommand extends Command {
             if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
-            if (!args[1] || isNaN(args[1]) || parseInt(args[1]) > 100 || parseInt(args[1]) < 1) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            if (!args[1] || isNaN(args[1])/* || parseInt(args[1]) > 100 || parseInt(args[1]) < 1*/) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to provide a volume between 1 and 100!"));
-            client.music.volume(dispatcher, (parseInt(args[1]) + 100) / 100);
+            client.music.volume(dispatcher, parseInt(args[1]));
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
                 .setDescription(`Set the volume to: \`${args[1]}\``));

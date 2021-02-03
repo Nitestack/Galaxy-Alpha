@@ -1,5 +1,6 @@
 import GalaxyAlpha from "@root/Client";
 import { Message, StreamDispatcher, VoiceChannel } from "discord.js";
+import { getRandomArbitrary } from "@root/util";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
 
@@ -28,7 +29,8 @@ export default class Music {
                 beginningToPlay: null,
                 stopToPlay: null,
                 multipleLoop: false,
-                singleLoop: false
+                singleLoop: false,
+                shuffle: false
             });
             dispatcher.on("finish", () => {
                 if (MusicManager.client.queue.get(message.guild.id).singleLoop) {
@@ -46,7 +48,8 @@ export default class Music {
                         stopToPlay: null,
                         voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel,
                         multipleLoop: true,
-                        singleLoop: false
+                        singleLoop: false,
+                        shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                     });
                     playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
                 } else if (noSkip) {
@@ -59,7 +62,8 @@ export default class Music {
                         beginningToPlay: null,
                         stopToPlay: null,
                         multipleLoop: false,
-                        singleLoop: false
+                        singleLoop: false,
+                        shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
                         playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
@@ -90,7 +94,8 @@ export default class Music {
                     beginningToPlay: new Date(),
                     stopToPlay: null,
                     multipleLoop: false,
-                    singleLoop: false
+                    singleLoop: false,
+                    shuffle: false
                 });
             } else if (MusicManager.client.queue.get(message.guild.id).singleLoop) {
                 MusicManager.client.queue.set(message.guild.id, {
@@ -102,7 +107,8 @@ export default class Music {
                     beginningToPlay: new Date(),
                     stopToPlay: null,
                     multipleLoop: false,
-                    singleLoop: true
+                    singleLoop: true,
+                    shuffle: false
                 });
             } else if (MusicManager.client.queue.get(message.guild.id).multipleLoop) {
                 MusicManager.client.queue.set(message.guild.id, {
@@ -114,7 +120,8 @@ export default class Music {
                     beginningToPlay: new Date(),
                     stopToPlay: null,
                     multipleLoop: true,
-                    singleLoop: false
+                    singleLoop: false,
+                    shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                 });
             } else {
                 MusicManager.client.queue.set(message.guild.id, {
@@ -126,7 +133,8 @@ export default class Music {
                     beginningToPlay: new Date(),
                     stopToPlay: null,
                     multipleLoop: false,
-                    singleLoop: false
+                    singleLoop: false,
+                    shuffle: MusicManager.client.queue.get(message.guild.id).shuffle
                 });
             };
             message.channel.send(MusicManager.client.createEmbed()
@@ -140,7 +148,11 @@ export default class Music {
                 **Views:** ${videoInfos.views.toLocaleString()} views`)
                 .setImage(videoInfos.image));
         };
-        playSong(this, keywordOrURL);
+        if (this.client.queue.has(message.guild.id) && this.client.queue.get(message.guild.id).queue && this.client.queue.get(message.guild.id).queue.length > 0 && this.client.queue.get(message.guild.id).shuffle){
+            playSong(this, this.client.queue.get(message.guild.id).queue[Math.round(getRandomArbitrary(0, this.client.queue.get(message.guild.id).queue.length - 1))].url);
+        } else {
+            playSong(this, keywordOrURL);
+        };
     };
     async getQueue(guildID: string) {
         if (this.client.queue.has(guildID) && this.client.queue.get(guildID).queue.length > 0) {
@@ -160,7 +172,6 @@ export default class Music {
         return dispatcher.resume();
     };
     volume(dispatcher: StreamDispatcher, volume: number) {
-        if (volume > 2 || volume < 1) throw new Error("The number has to be between 1 and 2");
         return dispatcher.setVolume(volume);
     };
 };
