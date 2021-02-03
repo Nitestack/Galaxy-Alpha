@@ -3,3 +3,6 @@ Invite System
 Auto Mute Command or if music is currently played
 Giveaways Bonus Entry Role
 4 gewinnt
+
+Music
+move
