@@ -181,12 +181,12 @@ export default class GalaxyAlpha extends Discord.Client {
 			console.log("------------------------------------------------------------------");
 			const activityArray: Array<string> = [
 				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.guilds.cache.size} servers | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.users.cache.size} users | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.channels.cache.size} channels | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.users.cache.size.toLocaleString()} users | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.channels.cache.size.toLocaleString()} channels | Support Server: discord.gg/qvbFn6bXQX`,
 				`${this.users.cache.get(this.ownerID).tag} | Support Server: discord.gg/qvbFn6bXQX`
 			];
-			const typeArray: Array<string> = [
+			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
 				"PLAYING",
 				"WATCHING",
 				"LISTENING"
@@ -222,6 +222,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
 	public queue: Discord.Collection<string, {
 		guildID: string,
 		queue: Array<Queue>,

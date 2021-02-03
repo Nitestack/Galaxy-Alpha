@@ -1,3 +1,4 @@
+import GalaxyAlpha from '@root/Client';
 import Command from '@root/Command';
 
 module.exports = class SnipeCommand extends Command {
@@ -9,8 +10,8 @@ module.exports = class SnipeCommand extends Command {
         });
     };
     async run(client, message, args, prefix) {
-        const snipes = client.snipes.get(message.channel.id);
-        if (snipes) {
+        if (client.snipes.has(message.channel.id)) {
+            const snipes = client.snipes.get(message.channel.id);
             const embed = client.createEmbed()
                 .setAuthor(snipes.author.tag, snipes.author.displayAvatarURL({ dynamic: true }))
                 .setDescription(snipes.content)
