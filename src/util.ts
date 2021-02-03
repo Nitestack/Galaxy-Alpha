@@ -125,3 +125,18 @@ export const monthNames = ['January', 'February', 'March', 'April', 'May', 'June
 export function getRandomArbitrary(min: number, max: number) {
     return Math.random() * (max - min) + min;
 };
+
+export function getDuration(duration: number): string {
+    return duration > 60 ?
+        (duration > 3600 ?
+            `${Math.floor(duration / 3600)}:${duration - (Math.floor(duration / 3600) * 3600) > 10 ?
+                duration - (Math.floor(duration / 3600) * 3600) :
+                `0${(duration - (Math.floor(duration / 3600) * 3600))}`}:${duration - (Math.floor(duration / 60) * 60) > 10 ?
+                    duration - (Math.floor(duration / 60) * 60) :
+                    `0${(duration - (Math.floor(duration / 60) * 60))}`}` :
+            `${Math.floor(duration / 60)}:${duration - (Math.floor(duration / 60) * 60) > 10 ? duration - (Math.floor(duration / 60) * 60) :
+                `0${(duration - (Math.floor(duration / 60) * 60))}`}`) :
+        `0:${duration > 10 ?
+            Math.round(duration) :
+            `0${Math.round(duration)}`}`
+};

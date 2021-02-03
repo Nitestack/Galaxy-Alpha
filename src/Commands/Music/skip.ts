@@ -22,7 +22,11 @@ module.exports = class SkipCommand extends Command {
                 queue: client.queue.get(message.guild.id).queue.slice(1),
                 nowPlaying: false,
                 dispatcher: client.queue.get(message.guild.id).dispatcher,
-                voiceChannel: client.queue.get(message.guild.id).voiceChannel
+                voiceChannel: client.queue.get(message.guild.id).voiceChannel,
+                stopToPlay: null,
+                beginningToPlay: null,
+                multipleLoop: client.queue.get(message.guild.id).multipleLoop,
+                singleLoop: client.queue.get(message.guild.id).singleLoop
             });
             client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].url, false);
         } else {

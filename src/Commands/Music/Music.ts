@@ -11,6 +11,9 @@ export default class Music {
     };
     async play(message: Message, voiceChannel: VoiceChannel, keywordOrURL: string, noSkip: boolean = true, prefix?: string, usage?: string, newSong: boolean = false) {
         const connection = await voiceChannel.join();
+        connection.on("disconnect", () => {
+            return this.client.queue.delete(connection.channel.guild.id);
+        });
         async function playSong(MusicManager: Music, keywordOrURLToPlay: string) {
             const videoInfos = await videoFinder(keywordOrURLToPlay);
             if (!videoInfos) return message.channel.send(MusicManager.client.createRedEmbed(true, `${prefix}${usage}`)
@@ -22,16 +25,42 @@ export default class Music {
                 queue: [],
                 nowPlaying: false,
                 dispatcher: null,
-                voiceChannel: null
+                voiceChannel: null,
+                beginningToPlay: null,
+                stopToPlay: null,
+                multipleLoop: false,
+                singleLoop: false
             });
             dispatcher.on("finish", () => {
-                if (noSkip) {
+                if (MusicManager.client.queue.get(message.guild.id).singleLoop) {
+                    playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
+                } else if (MusicManager.client.queue.get(message.guild.id).multipleLoop) {
+                    const queue = MusicManager.client.queue.get(message.guild.id).queue;
+                    queue.push(queue[0]);
+                    queue.slice(1);
+                    MusicManager.client.queue.set(message.guild.id, {
+                        guildID: message.guild.id,
+                        queue: queue,
+                        nowPlaying: false,
+                        dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher,
+                        beginningToPlay: null,
+                        stopToPlay: null,
+                        voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel,
+                        multipleLoop: true,
+                        singleLoop: false
+                    });
+                    playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
+                } else if (noSkip) {
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: MusicManager.client.queue.get(message.guild.id).queue.slice(1),
-                        nowPlaying: true,
+                        nowPlaying: false,
                         dispatcher: MusicManager.client.queue.get(message.guild.id).dispatcher,
-                        voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel
+                        voiceChannel: MusicManager.client.queue.get(message.guild.id).voiceChannel,
+                        beginningToPlay: null,
+                        stopToPlay: null,
+                        multipleLoop: false,
+                        singleLoop: false
                     });
                     if (MusicManager.client.queue.get(message.guild.id).queue.length > 0) {
                         playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].url);
@@ -58,7 +87,35 @@ export default class Music {
                     nowPlaying: true,
                     guildID: message.guild.id,
                     dispatcher: dispatcher,
-                    voiceChannel: voiceChannel
+                    voiceChannel: voiceChannel,
+                    beginningToPlay: new Date(),
+                    stopToPlay: null,
+                    multipleLoop: false,
+                    singleLoop: false
+                });
+            } else if (MusicManager.client.queue.get(message.guild.id).singleLoop) {
+                MusicManager.client.queue.set(message.guild.id, {
+                    queue: MusicManager.client.queue.get(message.guild.id).queue,
+                    nowPlaying: true,
+                    guildID: message.guild.id,
+                    dispatcher: dispatcher,
+                    voiceChannel: voiceChannel,
+                    beginningToPlay: new Date(),
+                    stopToPlay: null,
+                    multipleLoop: false,
+                    singleLoop: true
+                });
+            } else if (MusicManager.client.queue.get(message.guild.id).multipleLoop) {
+                MusicManager.client.queue.set(message.guild.id, {
+                    queue: MusicManager.client.queue.get(message.guild.id).queue,
+                    nowPlaying: true,
+                    guildID: message.guild.id,
+                    dispatcher: dispatcher,
+                    voiceChannel: voiceChannel,
+                    beginningToPlay: new Date(),
+                    stopToPlay: null,
+                    multipleLoop: true,
+                    singleLoop: false
                 });
             } else {
                 MusicManager.client.queue.set(message.guild.id, {
@@ -66,7 +123,11 @@ export default class Music {
                     nowPlaying: true,
                     guildID: message.guild.id,
                     dispatcher: dispatcher,
-                    voiceChannel: voiceChannel
+                    voiceChannel: voiceChannel,
+                    beginningToPlay: new Date(),
+                    stopToPlay: null,
+                    multipleLoop: false,
+                    singleLoop: false
                 });
             };
             message.channel.send(MusicManager.client.createEmbed()
@@ -99,7 +160,7 @@ export default class Music {
     resume(dispatcher: StreamDispatcher) {
         return dispatcher.resume();
     };
-    volume(dispatcher: StreamDispatcher, volume: number){
+    volume(dispatcher: StreamDispatcher, volume: number) {
         if (volume > 2 || volume < 1) throw new Error("The number has to be between 1 and 2");
         return dispatcher.setVolume(volume);
     };

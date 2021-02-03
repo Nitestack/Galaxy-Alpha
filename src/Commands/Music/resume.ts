@@ -18,12 +18,17 @@ module.exports = class ResumeCommand extends Command {
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
             client.music.resume(client.queue.get(message.guild.id).dispatcher);
+            const timeUsed = client.queue.get(message.guild.id).stopToPlay.getTime() - client.queue.get(message.guild.id).beginningToPlay.getTime();
             client.queue.set(message.guild.id, {
                 guildID: message.guild.id,
                 queue: client.queue.get(message.guild.id).queue,
                 nowPlaying: true,
                 dispatcher: client.queue.get(message.guild.id).dispatcher,
-                voiceChannel: client.queue.get(message.guild.id).voiceChannel
+                voiceChannel: client.queue.get(message.guild.id).voiceChannel,
+                beginningToPlay: new Date(Date.now() - timeUsed),
+                stopToPlay: null,
+                singleLoop: client.queue.get(message.guild.id).singleLoop,
+                multipleLoop: client.queue.get(message.guild.id).multipleLoop
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")

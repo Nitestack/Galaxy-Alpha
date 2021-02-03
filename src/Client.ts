@@ -166,14 +166,6 @@ export default class GalaxyAlpha extends Discord.Client {
 			});*/
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
-			this.user.setPresence({
-				status: 'online',
-				activity: {
-					name: `${this.globalPrefix}help | ${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
-					type: 'PLAYING',
-					url: 'https://code.visualstudio.com/' //only twitch links are working (only for type: STREAMING)
-				}
-			});
 			console.log("------------------------------------------------------------------");
 			console.log('|Created At:     |', `${weekDays[this.user.createdAt.getUTCDay()]}, ${monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);
@@ -187,6 +179,33 @@ export default class GalaxyAlpha extends Discord.Client {
 			console.log('|Client Status:  |', '✅ Online!');
 			console.log('|Author:         |', 'HydraNhani#8303');
 			console.log("------------------------------------------------------------------");
+			const activityArray: Array<string> = [
+				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.guilds.cache.size} servers | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.users.cache.size} users | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.channels.cache.size} channels | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.users.cache.get(this.ownerID).tag} | Support Server: discord.gg/qvbFn6bXQX`
+			];
+			const typeArray: Array<string> = [
+				"PLAYING",
+				"WATCHING",
+				"LISTENING"
+			];
+			let index: number = 0;
+			let typeIndex: number = 0;
+			setInterval(() => {
+				if (activityArray.length == index) index = 0;
+				if (typeArray.length == typeIndex) typeIndex = 0;
+				this.user.setPresence({
+					activity: {
+						name: `${activityArray[index]}`,
+						type: typeArray[typeIndex]
+					},
+					status: "online"
+				});
+				index++;
+				typeIndex++;
+			}, 10000);
 		});
 	};
 	//MODULES\\
@@ -203,7 +222,17 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, { guildID: string, queue: Array<Queue>, nowPlaying: boolean, dispatcher: StreamDispatcher, voiceChannel: VoiceChannel }> = new Discord.Collection();
+	public queue: Discord.Collection<string, {
+		guildID: string,
+		queue: Array<Queue>,
+		nowPlaying: boolean,
+		dispatcher: StreamDispatcher,
+		voiceChannel: VoiceChannel,
+		beginningToPlay: Date,
+		stopToPlay: Date,
+		singleLoop: boolean,
+		multipleLoop: boolean
+	}> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";

@@ -42,7 +42,11 @@ module.exports = class PlayCommand extends Command {
                 queue: queue,
                 nowPlaying: client.queue.get(message.guild.id).nowPlaying,
                 dispatcher: client.queue.get(message.guild.id).dispatcher,
-                voiceChannel: client.queue.get(message.guild.id).voiceChannel
+                voiceChannel: client.queue.get(message.guild.id).voiceChannel,
+                beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
+                stopToPlay: null,
+                multipleLoop: client.queue.get(message.guild.id).multipleLoop,
+                singleLoop: client.queue.get(message.guild.id).singleLoop
             });
             return message.channel.send(client.createEmbed()
                 .setTitle("🎧 Music Manager")
