@@ -7,7 +7,7 @@ module.exports = class BlockUserCommand extends Command {
 		super(client, {
 			name: "blockuser",
 			description: "blocks an user from using any commands",
-			category: "currency",
+			category: "developer",
 			usage: "blockuser <@User/User ID>",
 			developerOnly: true
 		});

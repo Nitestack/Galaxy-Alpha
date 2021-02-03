@@ -1,5 +1,4 @@
 import GalaxyAlpha from "@root/Client";
-import clientData from "@root/Models/clientData";
 import { Message, StreamDispatcher, VoiceChannel } from "discord.js";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";

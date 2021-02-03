@@ -48,9 +48,9 @@ module.exports = class HelpCommand extends Command {
         } else {
             const embedArray: Array<MessageEmbed> = [];
             const helpEmbed = client.createEmbed()
-                .setTitle(`❓ Galaxy Alpha Help`)
+                .setTitle(`❓ ${client.user.username}`)
                 .setThumbnail(client.user.displayAvatarURL())
-                .setDescription(`**Galaxy Alpha is a multifunctional bot with many features! From a ticket system to a basic music bot!**
+                .setDescription(`**${client.user.username} is a multifunctional bot with many features! From a ticket system to a basic music bot!**
                 **The current server prefix is \`${prefix}\`.**
                 **You have a command idea?**\nDo \`${prefix}suggest command <suggestion>\`
                 

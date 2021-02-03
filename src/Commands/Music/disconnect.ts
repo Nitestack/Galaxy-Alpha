@@ -12,7 +12,13 @@ module.exports = class DisconnectCommand extends Command {
         });
     };
     async run(client: GalaxyAlpha, message, args, prefix) {
+        if (!message.member.voice.channel) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            .setTitle("🎧 Music Manager")
+            .setDescription("You have to be in a voice channel to use this command!"));
         const botChannel = message.guild.me.voice.channel;
+        if (message.member.voice.channel.id != message.guild.me.voice.channel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            .setTitle("🎧 Music Manager")
+            .setDescription("You have to be in the same voice channel as me!"));
         if (botChannel) {
             client.music.disconnect(botChannel);
             client.queue.delete(message.guild.id);

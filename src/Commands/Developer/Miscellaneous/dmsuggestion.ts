@@ -6,7 +6,7 @@ module.exports = class DMSuggestionCommand extends Command {
         super(client, {
             name: "dmsuggestion",
             description: "DM's an user",
-            category: "currency",
+            category: "developer",
             usage: "dmsuggestion <@User/User ID> <title> <response>",
             developerOnly: true
         });

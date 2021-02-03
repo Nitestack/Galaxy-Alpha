@@ -8,7 +8,7 @@ module.exports = class RemoveCoinsCommand extends Command {
         super(client, {
             name: "removecoins",
             description: "remove coins from the target user's wallet or bank",
-            category: "currency",
+            category: "developer",
             ownerOnly: true,
             usage: "removecoins <@User/User ID> <wallet/bank> <amount of coins (limit: 1.000.000.000$)>"
         });
