@@ -4,7 +4,7 @@
   "description": "A multifunctional bot!",
   "main": "index.ts",
   "repository": {
-    "type": "",
+    "type": "git",
     "directory": ".",
     "url": "https://github.com/HydraNhani/Galaxy-Alpha"
   },

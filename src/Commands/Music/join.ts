@@ -20,5 +20,9 @@ module.exports = class JoinCommand extends Command {
         if (!permissions.has('CONNECT')) return message.channel.send(embed.setDescription("I need the permission `Connect`, `Speak` and `View Channel` to play music!"));
         if (!permissions.has('SPEAK')) return message.channel.send(embed.setDescription("I need the permission `Connect`, `Speak` and `View Channel` to play music!"));
         if (!permissions.has('VIEW_CHANNEL')) return message.channel.send(embed.setDescription("I need the permission `Connect`, `Speak` and `View Channel` to play music!"));
+        message.member.voice.channel.join();
+        return message.channel.send(client.createGreenEmbed()
+            .setTitle("🎧 Music Manager")
+            .setDescription(`Joined the voice channel \`${message.member.voice.channel.name}\`!`));
     };
 };

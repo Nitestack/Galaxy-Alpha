@@ -22,6 +22,6 @@
 		"resolveJsonModule": true,
 		"outDir": "Dist"
 	},
-	"include": ["src", "Webhooks"],
+	"include": ["src"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

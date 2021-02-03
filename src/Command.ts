@@ -20,10 +20,10 @@ export type Categories =
 
 export default class Command {
 	private client: GalaxyAlpha;
-	public name?: string;
+	public name: string;
 	public aliases?: Array<string>;
-	public description?: string;
-	public category?: Categories;
+	public description: string;
+	public category: Categories;
 	public usage?: string;
 	public cooldown?: number;
 	public userPermissions?: Array<PermissionString>;

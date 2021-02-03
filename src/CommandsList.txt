@@ -5,5 +5,4 @@ Giveaways Bonus Entry Role
 4 gewinnt
 
 Music
-move
 removeDupes
