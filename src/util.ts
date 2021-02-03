@@ -138,9 +138,13 @@ export function getDuration(milliseconds: number): string {
         return `${formatInt(minutes)}:${formatInt(seconds)}`;
     };
     return `00:${formatInt(seconds)}`;
+
+    function formatInt(int) {
+        if (int < 10) return `0${int}`;
+        return `${int}`;
+    };
 };
 
-function formatInt(int) {
-    if (int < 10) return `0${int}`;
-    return `${int}`;
+export function toUpperCaseBeginning(string: string): string{
+    return `${string[0].toUpperCase() + string.slice(1).toLowerCase()}`;
 };

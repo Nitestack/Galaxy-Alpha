@@ -34,7 +34,7 @@ module.exports = class ResumeCommand extends Command {
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
-                .setDescription("Resumed the current track!"));
+                .setDescription("▶️ Resumed the current track!"));
         } else {
             return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")

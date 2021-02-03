@@ -33,7 +33,7 @@ module.exports = class StopCommand extends Command {
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
-                .setDescription("Stopped the current track!"));
+                .setDescription("⏸️ Stopped the current track!"));
         } else {
             return message.channel.send(client.createRedEmbed()
                 .setTitle("🎧 Music Manager")

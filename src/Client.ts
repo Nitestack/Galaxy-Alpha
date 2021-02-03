@@ -46,12 +46,14 @@ export interface Queue {
 	title: string;
 	requesterID: string;
 	author: ytSearch.Author;
-	description: string;
 	image: string;
 	duration: ytSearch.Duration;
 	views: number;
 	url: string;
 	videoID: string;
+	genre: string;
+	ago: string;
+	uploadDate: string;
 };
 
 export default class GalaxyAlpha extends Discord.Client {

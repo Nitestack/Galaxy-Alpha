@@ -1,8 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import { Message, StreamDispatcher, VoiceChannel } from "discord.js";
-import { getRandomArbitrary, getDuration } from "@root/util";
+import { getRandomArbitrary, getDuration, toUpperCaseBeginning } from "@root/util";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
+import duration from "humanize-duration";
 
 export default class Music {
     private client: GalaxyAlpha;
@@ -87,12 +88,14 @@ export default class Music {
                     title: videoInfos.title,
                     url: videoInfos.url,
                     requesterID: message.author.id,
-                    description: videoInfos.description,
                     duration: videoInfos.duration,
                     views: videoInfos.views,
                     image: videoInfos.image,
                     author: videoInfos.author,
-                    videoID: videoID
+                    videoID: videoID,
+                    genre: videoInfos.genre,
+                    uploadDate: videoInfos.uploadDate,
+                    ago: videoInfos.ago
                 });
                 MusicManager.client.queue.set(message.guild.id, {
                     queue: queue,
@@ -149,12 +152,14 @@ export default class Music {
             message.channel.send(MusicManager.client.createEmbed()
                 .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
                 .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
-                *uploaded by [${videoInfos.author.name}](${videoInfos.author.url})*
+                *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
                 
-                **${videoInfos.description}**
-                
-                **Duration:** ${getDuration(videoInfos.duration.seconds * 1000)}
-                **Views:** ${videoInfos.views.toLocaleString()} views`)
+                **Duration:** ${getDuration(videoInfos.duration.seconds * 1000)} (${duration(videoInfos.duration.seconds * 1000, {
+                    units: ["h", "m", "s"],
+                    round: true
+                })})
+                **Views:** ${videoInfos.views.toLocaleString()} views
+                **Genre:** ${toUpperCaseBeginning(videoInfos.genre)}`)
                 .setImage(videoInfos.image));
         };
         if (this.client.queue.has(message.guild.id) && this.client.queue.get(message.guild.id).queue && this.client.queue.get(message.guild.id).queue.length > 0 && this.client.queue.get(message.guild.id).shuffle) {
