@@ -1,3 +1,4 @@
+import GalaxyAlpha from '@root/Client';
 import Command, { Categories } from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
@@ -11,7 +12,7 @@ export default class HelpCommand extends Command {
             clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
-    async run(client, message, args, prefix) {
+    async run(client: GalaxyAlpha, message, args, prefix) {
         if (args[0]) {
             const command = client.commands.get(args[0].toLowerCase()) || client.commands.get(client.aliases.get(args[0].toLowerCase()));
             if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
@@ -64,25 +65,18 @@ export default class HelpCommand extends Command {
                 💰 \`Currency\`
                 <:discord:786334157109592125> \`Management\``);
             embedArray.push(helpEmbed);
-            let pages: number = 9;
-            const miscEmbed = client.createEmbed().setTitle(`${client.infoEmoji} Miscellaneous`).setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const utilityEmbed = client.createEmbed().setTitle(`${client.developerToolsEmoji} Utility`).setFooter(`Page 2/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const moderationEmbed = client.createEmbed().setTitle(`${client.desktopEmoji} Moderation`).setFooter(`Page 3/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const musicEmbed = client.createEmbed().setTitle("🎵 Music").setFooter(`Page 4/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const giveawayEmbed = client.createEmbed().setTitle("🎉 Giveaway").setFooter(`Page 5/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const ticketEmbed = client.createEmbed().setTitle("🎟️ Ticket").setFooter(`Page 6/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const currencyEmbed = client.createEmbed().setTitle("💰 Currency").setFooter(`Page 7/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const managerEmbed = client.createEmbed().setTitle("<:discord:786334157109592125> Management").setFooter(`Page 8/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            const gameEmbed = client.createEmbed().setTitle("🎮 Games").setFooter(`Page 9/${pages} • <> = REQUIRED | [] = OPTIONAL`);
-            autoImportCommands("miscellaneous", miscEmbed);
-            autoImportCommands("utility", utilityEmbed);
-            autoImportCommands("moderation", moderationEmbed);
-            autoImportCommands("music", musicEmbed);
-            autoImportCommands("giveaway", giveawayEmbed);
-            autoImportCommands("ticket", ticketEmbed);
-            autoImportCommands("currency", currencyEmbed);
-            autoImportCommands("management", managerEmbed);
-            autoImportCommands("games", gameEmbed);
+            const arrayOfCategories: Array<Categories> = [];
+            client.categories.forEach(commands => {
+                if (!arrayOfCategories.includes(commands[0].category) && commands[0].category != "developer") arrayOfCategories.push(commands[0].category);
+            });
+            let pages: number = arrayOfCategories.length;
+            for (let i = 0; i < arrayOfCategories.length; i++){
+                const embed = client.createEmbed().setTitle(client.util.toUpperCaseBeginning(arrayOfCategories[i])).setFooter(`Page ${i + 1}/${pages} • <> = REQUIRED | [] = OPTIONAL`);
+                client.commands.filter(command => command.category == arrayOfCategories[i]).forEach(command => {
+                    embed.addField(client.util.toUpperCaseBeginning(command.name.toLowerCase()), `${command.description}\n\`${prefix}${command.usage}\``, true);
+                });
+                embedArray.push(embed);
+            };
             let page: number = 0;
             return message.channel.send(embedArray[0]).then(async msg => {
                 await msg.react('ℹ️');
@@ -134,12 +128,6 @@ export default class HelpCommand extends Command {
                     };
                 });
             });
-            function autoImportCommands(category: Categories, embed: MessageEmbed) {
-                client.commands.filter(command => command.category == category).forEach(command => {
-                    embed.addField(`${command.name}`, `${command.description}\n\`${prefix}${command.usage}\``, true);
-                });
-                embedArray.push(embed);
-            };
         };
     };
 };

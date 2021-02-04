@@ -2,12 +2,12 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord, { Message, StreamDispatcher, VoiceChannel } from 'discord.js';
+import Discord from 'discord.js';
 import mongoose from 'mongoose';
-import Levels from 'discord-xp';
 import ytSearch from "yt-search";
+import duration from "humanize-duration";
 //CLASSES\\
-import Command from '@root/Command';
+import Command, { Categories } from '@root/Command';
 import Feature from '@root/Feature';
 import Event from '@root/Event';
 //MANAGER\\
@@ -37,6 +37,7 @@ interface GalaxyAlphaOptions {
 	featuresDir: string;
 	mongoDBUrl: string;
 	developers?: Array<string>;
+	ignoreFiles?: Array<string>;
 	contributors?: Array<string>;
 	supportGuildID?: string;
 	defaultEmbedColor?: string;
@@ -63,6 +64,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public contributors: Array<string>;
 	public supportGuildID: string;
 	public defaultColor: string;
+	public ignoreFiles: Array<string>;
 	public constructor(options: GalaxyAlphaOptions) {
 		super({
 			ws: { intents: Discord.Intents.ALL },
@@ -87,11 +89,17 @@ export default class GalaxyAlpha extends Discord.Client {
 		} else {
 			this.developers = options.developers;
 		};
+		if (options.ignoreFiles){
+			this.ignoreFiles = options.ignoreFiles;
+		} else {
+			this.ignoreFiles = [];
+		};
 		this.globalPrefix = options.globalPrefix;
 		this.contributors = options.contributors;
 		if (options.supportGuildID) this.supportGuildID = options.supportGuildID;
-		//START\\
+		//LOGIN\\
 		this.login(options.token).catch((error: unknown) => console.log(error));
+		//READ COMMANDS, EVENTS, FEATURES\\
 		console.log("------------------------------------------------------------------");
 		this.readCommand(options.commandsDir);
 		console.log("------------------------------------------------------------------");
@@ -99,6 +107,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		console.log("------------------------------------------------------------------");
 		this.readFeature(options.featuresDir);
 		console.log("------------------------------------------------------------------");
+		//MONGO DB\\
 		mongoose.connect(options.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
@@ -108,6 +117,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		mongoose.set('useNewUrlParser', true);
 		mongoose.set('useFindAndModify', false);
 		mongoose.set('useUnifiedTopology', true);
+		//READY EVENT\\
 		this.once("ready", async () => {
 			//GIVEAWAYS\\
 			const giveaways = await GiveawaySchema.find({});
@@ -224,19 +234,20 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
 	public queue: Discord.Collection<string, {
 		guildID: string,
 		queue: Array<Queue>,
 		nowPlaying: boolean,
-		dispatcher: StreamDispatcher,
-		voiceChannel: VoiceChannel,
+		dispatcher: Discord.StreamDispatcher,
+		voiceChannel: Discord.VoiceChannel,
 		beginningToPlay: Date,
 		stopToPlay: Date,
 		singleLoop: boolean,
 		multipleLoop: boolean,
 		shuffle: boolean,
-		panel?: Message;
+		panel?: Discord.Message;
 	}> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
@@ -288,7 +299,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, commandPath, file));
 			if (stat.isDirectory()) {
 				this.readCommand(path.join(commandPath, file));
-			} else if (file != "Giveaway.ts" && file != "Ticket.ts" && file != "Drop.ts" && file != "Music.ts") {
+			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					console.log(`|Command:        |❌ NO TypeScript file - ${file}`);
 					continue;
@@ -300,6 +311,9 @@ export default class GalaxyAlpha extends Discord.Client {
 					if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
 				};
 				this.commands.set(command.name, command);
+				const commandsArray: Array<Command> = this.categories.get(command.category) || [];
+				commandsArray.push(command);
+				this.categories.set(command.category, commandsArray);
 				if (command.aliases) {
 					command.aliases.map(alias => this.aliases.set(alias, command.name));
 				};
@@ -313,7 +327,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, eventPath, file));
 			if (stat.isDirectory()) {
 				this.readEvent(path.join(eventPath, file));
-			} else {
+			} else if (!this.ignoreFiles.includes(file)){
 				if (!file.endsWith(".ts")) {
 					console.log(`|Event:          |❌ NO TypeScript file ${file}`);
 					continue;
@@ -331,7 +345,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, featurePath, file));
 			if (stat.isDirectory()) {
 				this.readFeature(path.join(featurePath, file));
-			} else {
+			} else if (!this.ignoreFiles.includes(file)){
 				if (!file.endsWith(".ts")) {
 					console.log(`|Feature:        |❌ NO TypeScript file ${file}`);
 					continue;
@@ -344,6 +358,9 @@ export default class GalaxyAlpha extends Discord.Client {
 		}
 	};
 	//PUBLIC METHODS\\
+	public humanizer(ms: number, options?: duration.Options): string {
+		return duration(ms, options);
+	};
 	public createEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({

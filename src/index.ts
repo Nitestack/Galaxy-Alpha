@@ -15,5 +15,6 @@ export const Bot =  new GalaxyAlpha({
     mongoDBUrl: process.env.MONGOPATH,
     contributors: ['694162762020159539'],
     supportGuildID: "783440776285651024",
-    defaultEmbedColor: "#365b88"
+    defaultEmbedColor: "#365b88",
+    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts"]
 });
