@@ -5,7 +5,7 @@ import GalaxyAlpha from '@root/Client';
 dotenv.config();
 const token = process.env.TOKEN;
 const betaToken = process.env.BETA_TOKEN;
-new GalaxyAlpha({
+export const Bot =  new GalaxyAlpha({
     ownerID: "700277649347575870",
     globalPrefix: "!!",
     token: token,

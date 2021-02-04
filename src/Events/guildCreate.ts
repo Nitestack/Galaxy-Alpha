@@ -5,8 +5,8 @@ import Event from '@root/Event';
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class GuildCreateEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: "guildCreate"
 		});
 	};

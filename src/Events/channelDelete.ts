@@ -8,8 +8,8 @@ import CounterSchema from '@models/counter';
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class ChannelDeleteEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: "channelDelete"
 		});
 	};

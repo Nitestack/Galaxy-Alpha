@@ -273,7 +273,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public drop: DropManager = new DropManager(this);
 	public cache: CacheManager = new CacheManager(this);
 	public music: MusicManager = new MusicManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil(this);
 	//PERMISSIONS\\
 	public permissions: Array<string> = this.util.permissions;
 	public permissionsShowCase: Array<string> = this.util.permissionsShowCase;
@@ -294,8 +294,8 @@ export default class GalaxyAlpha extends Discord.Client {
 					console.log(`|Command:        |❌ NO TypeScript file - ${file}`);
 					continue;
 				};
-				const CommandModule = require(path.join(__dirname, commandPath, file));
-				const command: Command = new CommandModule(this);
+				const { default: Command } = await import(path.join(__dirname, commandPath, file));
+				const command: Command = new Command();
 				if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)) continue;
 				for (const alias of command.aliases ? command.aliases : []) {
 					if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
@@ -319,8 +319,8 @@ export default class GalaxyAlpha extends Discord.Client {
 					console.log(`|Event:          |❌ NO TypeScript file ${file}`);
 					continue;
 				};
-				const EventModule = require(path.join(__dirname, eventPath, file));
-				const event: Event = new EventModule(this);
+				const { default: Event } = await import(path.join(__dirname, eventPath, file));
+				const event: Event = new Event();
 				this.on(event.name, event.run.bind(null, this));
 				console.log(`|Event:          |✅ ${event.name}`);
 			};
@@ -337,8 +337,8 @@ export default class GalaxyAlpha extends Discord.Client {
 					console.log(`|Feature:        |❌ NO TypeScript file ${file}`);
 					continue;
 				};
-				const FeatureModule = require(path.join(__dirname, featurePath, file));
-				const feature: Feature = new FeatureModule(this);
+				const { default: Feature } = await import(path.join(__dirname, featurePath, file));
+				const feature: Feature = new Feature();
 				this.features.set(feature.name, feature);
 				console.log(`|Feature:        |✅ ${feature.name}`);
 			};

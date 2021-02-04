@@ -5,8 +5,8 @@ import LevelSchema from '@models/levels';
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class GuildMemberRemoveEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: "guildMemberRemove"
 		});
 	};

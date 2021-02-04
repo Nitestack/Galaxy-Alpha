@@ -6,7 +6,7 @@ import duration from "humanize-duration";
 
 export default class Music {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha) {
+    constructor(client){
         this.client = client;
     };
     async play(message: Message, voiceChannel: VoiceChannel, videoID: string, noSkip: boolean = true, prefix?: string, usage?: string, newSong: boolean = false, panel: boolean = false) {

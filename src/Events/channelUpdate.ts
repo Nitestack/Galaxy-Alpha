@@ -5,8 +5,8 @@ import { GuildChannel, DMChannel, Guild, Role } from 'discord.js';
 import GuildSchema from '@models/guild';
 
 module.exports = class ChannelUpdateEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: 'channelUpdate'
 		});
 	};

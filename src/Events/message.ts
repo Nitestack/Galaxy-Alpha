@@ -11,8 +11,8 @@ import GalaxyAlpha from '@root/Client';
 import LevelSchema from '@root/Models/levels';
 
 module.exports = class MessageEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: 'message'
 		});
 	};

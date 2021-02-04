@@ -4,8 +4,8 @@ import Event from '@root/Event';
 export const name: string = 'warn';
 
 module.exports = class WarnEvent extends Event {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: "warn"
         });
     };

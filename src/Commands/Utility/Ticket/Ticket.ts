@@ -7,9 +7,6 @@ export const ticketsManager: string = "🎫 Ticket Manager";
 export default class Ticket {
     private client: GalaxyAlpha;
     public transcript: Collection<string, string> = new Collection();
-    constructor(client: GalaxyAlpha) {
-        this.client = client;
-    };
     public async create(guild: Guild, ticketCategory: CategoryChannel, user: User, ticketManager: Role, reason?: string) {
         await guild.channels.create(`ticket-${user.username}`, {
             type: 'text',

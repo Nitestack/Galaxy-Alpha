@@ -7,8 +7,8 @@ import GalaxyAlpha from '@root/Client';
 const openedTicket = new Map();
 
 module.exports = class ModMail extends Event {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: "modMail"
         });
     };

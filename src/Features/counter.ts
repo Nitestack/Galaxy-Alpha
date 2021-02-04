@@ -2,9 +2,9 @@ import Feature from '@root/Feature';
 import { Guild, VoiceChannel } from 'discord.js';
 import CounterSchema from '@models/counter';
 
-module.exports = class CounterFeature extends Feature {
+export default class CounterFeature extends Feature {
     constructor(client){
-        super(client, {
+        super({
             name: "counter"
         });
     };

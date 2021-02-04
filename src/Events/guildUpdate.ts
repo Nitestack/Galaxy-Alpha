@@ -3,8 +3,8 @@ import Event from '@root/Event';
 import { Guild, Role } from 'discord.js';
 
 module.exports = class GuildUpdateEvent extends Event {
-    constructor(client){
-        super(client, {
+    constructor(){
+        super({
             name: "guildUpdate"
         });
     };

@@ -5,8 +5,8 @@ import GuildSchema from '@models/guild';
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class ChannelCreateEvent extends Event {
-	constructor(client){
-		super(client, {
+	constructor(){
+		super({
 			name: "channelCreate"
 		});
 	};

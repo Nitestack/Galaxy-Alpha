@@ -18,9 +18,9 @@ interface Messages {
 
 export default class GlobalCache {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha) {
+    constructor(client) {
         this.client = client;
-        this.client.on("ready", () => {
+        this.client.once("ready", () => {
             setInterval(() => {
                 if (this.messages.first()) {
                     this.messages.forEach(async message => {

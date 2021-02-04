@@ -5,8 +5,8 @@ import DropSchema from '@models/Giveaways/drops';
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class MessageDeleteEvent extends Event {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: "messageDelete"
         });
     };

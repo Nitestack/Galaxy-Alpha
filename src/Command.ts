@@ -34,7 +34,7 @@ export default class Command {
 	public dmOnly?: boolean;
 	public nsfw?: boolean;
 	public newsChannelOnly?: boolean;
-	constructor(client: GalaxyAlpha, info: {
+	constructor(info: {
 		name: string,
 		aliases?: Array<string>,
 		description: string,
@@ -50,7 +50,6 @@ export default class Command {
 		nsfw?: boolean,
 		newsChannelOnly?: boolean
 	}) {
-		this.client = client;
 		this.name = info.name ? info.name : null;
 		this.aliases = info.aliases ? info.aliases : null;
 		this.description = info.description ? info.description : null;
@@ -65,7 +64,7 @@ export default class Command {
 		this.dmOnly = info.dmOnly ? info.dmOnly : false;
 		this.nsfw = info.nsfw ? info.nsfw : false;
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
-		this.validateInfo(this.client, {
+		this.validateInfo({
 			name: this.name,
 			aliases: this.aliases,
 			description: this.description,
@@ -85,7 +84,7 @@ export default class Command {
 	async run(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void> {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
-	validateInfo(client: GalaxyAlpha, info: {
+	validateInfo(info: {
 		name: string,
 		aliases?: Array<string>,
 		description: string,
@@ -101,7 +100,6 @@ export default class Command {
 		nsfw?: boolean,
 		newsChannelOnly?: boolean
 	}) {
-		if (!client) throw new Error("A client must be specified!");
 		if (!info.name) throw new Error("A command name must be specified!");
 		if (!info.description) throw new Error("A command description must be specified!");
 		if (!info.category) throw new Error("A command category must be specified!");
@@ -121,11 +119,11 @@ export default class Command {
 		if (info.cooldown && typeof info.cooldown != "number") throw new TypeError("The command cooldown must be a number in seconds!");
 		if (info.userPermissions) {
 			if (!Array.isArray(info.userPermissions)) throw new TypeError("The command user permissions must be an Array of strings!");
-			for (const permission of info.userPermissions) if (!client.permissions.includes(permission)) throw new RangeError(`Invalid command user permission: ${permission}`);
+			for (const permission of info.userPermissions) if (!this.client.permissions.includes(permission)) throw new RangeError(`Invalid command user permission: ${permission}`);
 		};
 		if (info.clientPermissions) {
 			if (!Array.isArray(info.clientPermissions)) throw new TypeError("The command client permissions must be an Array of strings!");
-			for (const permission of info.clientPermissions) if (!client.permissions.includes(permission)) throw new RangeError(`Invalid command client permission: ${permission}`);
+			for (const permission of info.clientPermissions) if (!this.client.permissions.includes(permission)) throw new RangeError(`Invalid command client permission: ${permission}`);
 		};
 	};
 };

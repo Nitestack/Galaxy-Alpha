@@ -5,7 +5,7 @@ import { Message, NewsChannel, TextChannel, User } from 'discord.js';
 export const dropManager: string = `🎁 Drop Manager`
 export default class Drop {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha) {
+    constructor(client){
         this.client = client;
     };
     async create(options: { prize: string, guildID: string, channelID: string, createdBy: User }, message: Message) {

@@ -4,8 +4,8 @@ import Event from '@root/Event';
 import { Role } from 'discord.js';
 
 module.exports = class RoleDeleteEvent extends Event {
-	constructor(client) {
-		super(client, {
+	constructor() {
+		super({
 			name: "roleDelete"
 		});
 	};
