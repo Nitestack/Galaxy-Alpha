@@ -1,6 +1,6 @@
 import Command from '@root/Command';
 import TicketSchema from '@models/ticket';
-import { ticketsManager } from '@commands/utility/Ticket/Ticket';
+import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 
 module.exports = class CloseTicketCommand extends Command {
     constructor(client){
