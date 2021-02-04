@@ -110,7 +110,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		mongoose.set('useUnifiedTopology', true);
 		Levels.setURL(options.mongoDBUrl);
 		this.once("ready", async () => {
-			/*//GIVEAWAYS\\
+			//GIVEAWAYS\\
 			const giveaways = await GiveawaySchema.find({});
 			giveaways.forEach(giveaway => {
 				endGiveaway(giveaway.messageID);
@@ -166,7 +166,7 @@ export default class GalaxyAlpha extends Discord.Client {
 						guildID: level.guildID
 					});
 				};
-			});*/
+			});
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
 			console.log("------------------------------------------------------------------");
