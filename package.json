@@ -57,5 +57,9 @@
     "@features": "src/Features",
     "@events": "src/Events",
     "@images": "src/Images"
+  },
+  "engines": {
+    "node": "14.x",
+    "vscode": "^1.22.0"
   }
 }
