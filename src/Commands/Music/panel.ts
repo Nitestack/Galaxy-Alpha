@@ -2,6 +2,7 @@ import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 import { ReactionCollector } from "discord.js";
 import duration from "humanize-duration";
+import canvacord from "canvacord";
 
 module.exports = class MusicPanelCommand extends Command {
     constructor(client) {
@@ -22,6 +23,7 @@ module.exports = class MusicPanelCommand extends Command {
                 .setDescription("You have to be in the same voice channel as me!"));
             let queue = client.queue.get(message.guild.id).queue;
             let song = 0;
+            const panel = canvacord.Spotify();
             return message.channel.send(client.createEmbed()
                 .setTitle("🎧 Music Manager")
                 .setDescription(`**<:youtube:786675436733857793> [${queue[0].title}](${queue[0].url})**

@@ -11,9 +11,6 @@ export default class Music {
     };
     async play(message: Message, voiceChannel: VoiceChannel, videoID: string, noSkip: boolean = true, prefix?: string, usage?: string, newSong: boolean = false, panel: boolean = false) {
         const connection = await voiceChannel.join();
-        connection.on("disconnect", () => {
-            return this.client.queue.delete(connection.channel.guild.id);
-        });
         async function playSong(MusicManager: Music, videoID: string) {
             const videoInfos = await ytSearch({ videoId: videoID });
             const dispatcher = connection.play(ytdl(videoInfos.url, {

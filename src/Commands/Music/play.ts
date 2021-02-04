@@ -2,7 +2,6 @@ import GalaxyAlpha from '@root/Client';
 import Command from '@root/Command';
 import { VoiceChannel } from 'discord.js';
 import { videoFinder, playlistFinder } from "@commands/Music/Music";
-import { getDuration, toUpperCaseBeginning } from '@root/util';
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
 
@@ -37,7 +36,7 @@ module.exports = class PlayCommand extends Command {
                     .setDescription(`Added the playlist with \`${playList.videos.length}\` videos to the queue!
                     
                     **<:youtube:786675436733857793> [${playList.title}](${playList.url})**
-                    *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList}`));
+                    *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList.date}`));
             } else {
                 addToQueue(videoResults.videoId);
                 const video = await ytSearch({ videoId: videoResults.videoId });
@@ -48,12 +47,12 @@ module.exports = class PlayCommand extends Command {
                     **<:youtube:786675436733857793> [${video.title}](${video.url})**
                     *uploaded by [${video.author.name}](${video.author.url}) on ${video.uploadDate} (${video.ago})*
                     
-                    **Duration:** ${getDuration(video.duration.seconds * 1000)} (${duration(video.duration.seconds * 1000, {
+                    **Duration:** ${client.util.getDuration(video.duration.seconds * 1000)} (${duration(video.duration.seconds * 1000, {
                         units: ["h", "m", "s"],
                         round: true
                     })})
                     **Views:** ${video.views.toLocaleString()} views
-                    **Genre:** ${toUpperCaseBeginning(video.genre)}`)
+                    **Genre:** ${client.util.toUpperCaseBeginning(video.genre)}`)
                     .setImage(video.image));
             };
         } else {
