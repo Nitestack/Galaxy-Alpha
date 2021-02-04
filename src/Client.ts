@@ -108,7 +108,6 @@ export default class GalaxyAlpha extends Discord.Client {
 		mongoose.set('useNewUrlParser', true);
 		mongoose.set('useFindAndModify', false);
 		mongoose.set('useUnifiedTopology', true);
-		Levels.setURL(options.mongoDBUrl);
 		this.once("ready", async () => {
 			//GIVEAWAYS\\
 			const giveaways = await GiveawaySchema.find({});
@@ -282,7 +281,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";
 	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
 	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
-	//START\\
+	//PRIVATE METHODS\\
 	private async readCommand(commandPath: string) {
 		const files = fs.readdirSync(path.join(__dirname, commandPath))
 		for (const file of files) {
@@ -344,6 +343,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			};
 		}
 	};
+	//PUBLIC METHODS\\
 	public createEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
