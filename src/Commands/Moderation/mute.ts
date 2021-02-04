@@ -5,9 +5,9 @@ import GuildSchema from '@models/guild';
 
 export const name: string = 'mute';
 
-module.exports = class MuteCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class MuteCommand extends Command {
+    constructor() {
+        super({
             name: "mute",
             description: "mutes a member of the server",
             category: "moderation",

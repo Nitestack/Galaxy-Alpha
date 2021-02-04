@@ -1,9 +1,9 @@
 import GalaxyAlpha from '@root/Client';
 import Command from '@root/Command';
 
-module.exports = class DisconnectCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DisconnectCommand extends Command {
+    constructor() {
+        super({
             name: "disconnect",
             description: "disconnects the bot from a voice channel",
             category: "music",

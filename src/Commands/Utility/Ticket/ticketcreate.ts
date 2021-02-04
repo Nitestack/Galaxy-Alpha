@@ -4,9 +4,9 @@ import { CategoryChannel, Role } from 'discord.js';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 import TicketSchema from '@models/ticket';
 
-module.exports = class CreateTicketCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class CreateTicketCommand extends Command {
+    constructor(){
+        super({
             name: "ticketcreate",
             description: "creates a new ticket",
             aliases: ["tcreate"],

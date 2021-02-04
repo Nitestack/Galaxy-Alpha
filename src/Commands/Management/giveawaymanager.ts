@@ -2,9 +2,9 @@ import Command, { CommandRunner } from '@root/Command';
 import { Role } from 'discord.js';
 import Guild from '@models/guild';
 
-module.exports = class GiveawayManagerRoleCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class GiveawayManagerRoleCommand extends Command {
+    constructor(){
+        super({
             name: "giveawaymanager",
             description: "giveawaymanager role commands",
             category: "management",

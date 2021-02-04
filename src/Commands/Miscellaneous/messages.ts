@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { User } from 'discord.js';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class MessagesCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class MessagesCommand extends Command {
+    constructor(){
+        super({
             name: "messages",
             description: "shows the amount of messages sent by an user",
             guildOnly: true,

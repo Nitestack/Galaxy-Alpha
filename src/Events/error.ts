@@ -1,7 +1,7 @@
 import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 
-module.exports = class ErrorEvent extends Event {
+export default class ErrorEvent extends Event {
 	constructor(){
 		super({
 			name: "error"

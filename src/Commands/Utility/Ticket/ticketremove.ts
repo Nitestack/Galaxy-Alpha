@@ -3,9 +3,9 @@ import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 import TicketSchema from '@models/ticket';
 import { GuildMember } from 'discord.js';
 
-module.exports = class RemoveUserFromTicketCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class RemoveUserFromTicketCommand extends Command {
+    constructor() {
+        super({
             name: "ticketremove",
             description: "removes an user from the ticket",
             aliases: ["tremove"],

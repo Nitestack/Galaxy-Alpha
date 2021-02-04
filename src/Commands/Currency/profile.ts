@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Profile from '@models/profile';
 import { User } from 'discord.js';
 
-module.exports = class ProfileCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class ProfileCommand extends Command {
+    constructor() {
+        super({
             name: "profile",
             description: "deposit money to your bank",
             category: "currency",

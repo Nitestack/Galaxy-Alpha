@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
 import WebhookSchema from '@models/modlogs';
 
-module.exports = class BanCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class BanCommand extends Command {
+    constructor(){
+        super({
             name: "ban",
             description: "bans a member from the server",
             category: "moderation",

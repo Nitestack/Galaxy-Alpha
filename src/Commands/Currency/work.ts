@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import Profile from '@models/profile';
 
-module.exports = class WorkCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class WorkCommand extends Command {
+    constructor() {
+        super({
             name: "work",
             description: "work to get payed for money",
             category: "currency",

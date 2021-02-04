@@ -3,9 +3,9 @@ import { Message, NewsChannel, TextChannel } from 'discord.js';
 import ReactionRolesSchema from '@models/reactionroles';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class ReactionRolesCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class ReactionRolesCommand extends Command {
+    constructor() {
+        super({
             name: "reactionroles",
             description: "reaction role commands",
             category: "utility",

@@ -2,9 +2,9 @@ import Command from '@root/Command';
 
 export const name: string = 'serverinfo';
 
-module.exports = class ServerInfoCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class ServerInfoCommand extends Command {
+    constructor(){
+        super({
             name: "serverinfo",
             description: "shows some stats about the server",
             guildOnly: true,

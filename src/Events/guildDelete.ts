@@ -3,7 +3,7 @@ import { Guild } from 'discord.js';
 import Event from '@root/Event';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class GuildDeleteEvent extends Event {
+export default class GuildDeleteEvent extends Event {
 	constructor() {
 		super({
 			name: "guildDelete"

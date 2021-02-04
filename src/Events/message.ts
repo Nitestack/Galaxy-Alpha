@@ -10,7 +10,7 @@ import GuildSchema from '@models/guild';
 import GalaxyAlpha from '@root/Client';
 import LevelSchema from '@root/Models/levels';
 
-module.exports = class MessageEvent extends Event {
+export default class MessageEvent extends Event {
 	constructor() {
 		super({
 			name: 'message'

@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class ClearCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class ClearCommand extends Command {
+    constructor(){
+        super({
             name: "clear",
             description: "deletes an amount of messages or delete messages, that includes a specific content",
             aliases: ["purge", "delete", "clean"],

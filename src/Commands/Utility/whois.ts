@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { GuildMember } from 'discord.js';
 
-module.exports = class WhoisCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class WhoisCommand extends Command {
+    constructor(){
+        super({
             name: "whois",
             description: "shows some infos about a member",
             usage: "whois [@User/User ID]",

@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class PingCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class PingCommand extends Command {
+    constructor() {
+        super({
             name: 'ping',
             description: "Get's the bot's API latency and the ping",
             category: "utility"

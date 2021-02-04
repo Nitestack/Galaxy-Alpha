@@ -3,9 +3,9 @@ import { NewsChannel, TextChannel } from 'discord.js';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import GuildSchema from '@models/guild';
 
-module.exports = class GiveawayCreateCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class GiveawayCreateCommand extends Command {
+    constructor() {
+        super({
             name: "giveawaycreate",
             description: "creates a giveaway with requirements",
             aliases: ["gcreate"],

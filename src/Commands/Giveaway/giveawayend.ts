@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { giveawayManager } from '@root/Commands/Giveaway/Giveaway';
 import Guild from '@models/guild';
 
-module.exports = class GiveawayEndCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class GiveawayEndCommand extends Command {
+    constructor() {
+        super({
             name: "giveawayend",
             description: "ends a giveaway",
             usage: "giveawayend <Message ID>",

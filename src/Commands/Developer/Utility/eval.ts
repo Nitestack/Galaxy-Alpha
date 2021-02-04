@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { inspect } from 'util';
 
-module.exports = class EvalCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class EvalCommand extends Command {
+    constructor(){
+        super({
             name: "eval",
             description: "evaluates JavaScript code",
             developerOnly: true,

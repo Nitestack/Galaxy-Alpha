@@ -1,8 +1,8 @@
 import Command from "@root/Command";
 
-module.exports = class VoteCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class VoteCommand extends Command {
+    constructor() {
+        super({
             name: "vote",
             description: "sends a message to show how to vote for the bot or for the support server",
             category: "miscellaneous"

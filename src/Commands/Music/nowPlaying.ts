@@ -2,9 +2,9 @@ import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 import durationConverter from "humanize-duration";
 
-module.exports = class NowPlayingCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class NowPlayingCommand extends Command {
+    constructor() {
+        super({
             name: "now",
             aliases: ["nowplaying", "np"],
             description: "shows some infos about the current track",

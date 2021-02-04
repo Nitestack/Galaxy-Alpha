@@ -3,9 +3,9 @@ import canvacord from "canvacord";
 import { Message, User, MessageAttachment } from "discord.js";
 import LevelSchema from "@models/levels";
 
-module.exports = class LevelCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class LevelCommand extends Command {
+    constructor(){
+        super({
             name: "level",
             description: "shows the current level of an user",
             aliases: ["rank"],

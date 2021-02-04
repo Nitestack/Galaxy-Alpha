@@ -4,7 +4,7 @@ import MessageSchema from '@models/messageCount';
 import LevelSchema from '@models/levels';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class GuildMemberRemoveEvent extends Event {
+export default class GuildMemberRemoveEvent extends Event {
 	constructor() {
 		super({
 			name: "guildMemberRemove"

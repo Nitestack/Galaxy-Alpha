@@ -4,7 +4,7 @@ import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class MessageDeleteEvent extends Event {
+export default class MessageDeleteEvent extends Event {
     constructor() {
         super({
             name: "messageDelete"

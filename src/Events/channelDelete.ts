@@ -7,7 +7,7 @@ import ModLogsSchema from '@models/modlogs';
 import CounterSchema from '@models/counter';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class ChannelDeleteEvent extends Event {
+export default class ChannelDeleteEvent extends Event {
 	constructor() {
 		super({
 			name: "channelDelete"

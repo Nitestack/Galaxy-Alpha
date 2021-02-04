@@ -1,9 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 
-module.exports = class SkipCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class SkipCommand extends Command {
+    constructor() {
+        super({
             name: "skip",
             description: "skips the song in the queue",
             category: "music",

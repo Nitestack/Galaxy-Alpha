@@ -4,7 +4,7 @@ import { Guild } from 'discord.js';
 import Event from '@root/Event';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class GuildCreateEvent extends Event {
+export default class GuildCreateEvent extends Event {
 	constructor() {
 		super({
 			name: "guildCreate"

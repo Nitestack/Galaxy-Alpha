@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class RepeatCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class RepeatCommand extends Command {
+    constructor(){
+        super({
             name: "repeat",
             description: "repeats a text",
             category: "utility",

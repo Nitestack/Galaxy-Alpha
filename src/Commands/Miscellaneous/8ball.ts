@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class EightBallCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class EightBallCommand extends Command {
+    constructor() {
+        super({
             name: "8ball",
             description: "ask a question and the magic 8 ball will answer you",
             usage: "8ball <question>",

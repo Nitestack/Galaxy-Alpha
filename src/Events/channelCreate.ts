@@ -4,7 +4,7 @@ import { DMChannel, Guild, GuildChannel, Role } from 'discord.js';
 import GuildSchema from '@models/guild';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class ChannelCreateEvent extends Event {
+export default class ChannelCreateEvent extends Event {
 	constructor(){
 		super({
 			name: "channelCreate"

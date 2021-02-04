@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import GuildSchema from '@models/guild';
 
-module.exports = class JoinMessageCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class JoinMessageCommand extends Command {
+    constructor(){
+        super({
             name: "joinmessage",
             description: "join message commands",
             category: "management",

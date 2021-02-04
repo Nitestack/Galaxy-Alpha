@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Guild from '@models/guild';
 import { Role } from 'discord.js';
 
-module.exports = class BlackListRoleCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class BlackListRoleCommand extends Command {
+    constructor(){
+        super({
             name: "blacklistrole",
             description: "blacklist role commands",
             guildOnly: true,

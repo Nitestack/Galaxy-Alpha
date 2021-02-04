@@ -1,9 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 
-module.exports = class LoopCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class LoopCommand extends Command {
+    constructor() {
+        super({
             name: "loop",
             description: "loops a single song or a queue",
             category: "music",

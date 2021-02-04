@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class DMSuggestionCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DMSuggestionCommand extends Command {
+    constructor() {
+        super({
             name: "dmsuggestion",
             description: "DM's an user",
             category: "developer",

@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import axios from 'axios';
 
-module.exports = class MemeCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class MemeCommand extends Command {
+    constructor(){
+        super({
             name: "meme",
             description: "sends a random meme",
             category: "miscellaneous"

@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { Message } from 'discord.js';
 
-module.exports = class HangManCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class HangManCommand extends Command {
+    constructor() {
+        super({
             name: "hangman",
             description: "starts a hangman game",
             category: "games",

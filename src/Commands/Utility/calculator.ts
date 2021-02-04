@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class CalculatorCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class CalculatorCommand extends Command {
+    constructor(){
+        super({
             name: "calculator",
             aliases: ["calc", "cal"],
             description: "a device that performs arithmetic operations on numbers",

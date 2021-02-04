@@ -1,9 +1,9 @@
 import Command, { Categories } from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
-module.exports = class HelpCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class HelpCommand extends Command {
+    constructor() {
+        super({
             name: 'help',
             description: "shows a list of all commands or shows infos about one command",
             category: "miscellaneous",

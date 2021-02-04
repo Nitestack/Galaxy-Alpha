@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Guild from '@models/guild';
 import { Role } from 'discord.js';
 
-module.exports = class MuteRoleCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class MuteRoleCommand extends Command {
+    constructor(){
+        super({
             name: "muterole",
             description: "mute role commands",
             category: "management",

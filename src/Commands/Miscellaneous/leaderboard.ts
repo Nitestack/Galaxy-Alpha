@@ -4,9 +4,9 @@ import Profile, { ProfileSchema } from '@models/profile';
 import Levels, { LevelSchema } from "@models/levels";
 import Vouches, { VouchSchema } from '@models/vouches';
 
-module.exports = class LeaderboardCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class LeaderboardCommand extends Command {
+    constructor(){
+        super({
             name: "leaderboard",
             description: "shows the server's leaderboard of a category",
             guildOnly: true,

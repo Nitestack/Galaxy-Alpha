@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import ModLogsSchema from '@models/modlogs';
 import { GuildChannel, NewsChannel, TextChannel } from 'discord.js';
 
-module.exports = class ModLogsCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class ModLogsCommand extends Command {
+    constructor(){
+        super({
             name: "modlogs",
             description: "modlogs command",
             usage: "modlogs set <#channel/channel ID>",

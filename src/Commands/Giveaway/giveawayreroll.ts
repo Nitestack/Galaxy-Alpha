@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import Guild from '@models/guild';
 
-module.exports = class GiveawayRerollCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class GiveawayRerollCommand extends Command {
+    constructor() {
+        super({
             name: "giveawayreroll",
             description: "rerolls a giveaway",
             category: "giveaway",

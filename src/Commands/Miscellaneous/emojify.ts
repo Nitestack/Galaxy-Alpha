@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class EmojifyCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class EmojifyCommand extends Command {
+    constructor(){
+        super({
             name: "emojify",
             description: "converts an user's name into emojis",
             category: "miscellaneous",

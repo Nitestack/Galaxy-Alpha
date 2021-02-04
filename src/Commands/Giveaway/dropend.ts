@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { dropManager } from '@commands/Giveaway/Drop';
 
-module.exports = class DropEndCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DropEndCommand extends Command {
+    constructor() {
+        super({
             name: "dropend",
             description: "ends a drop",
             category: "giveaway",

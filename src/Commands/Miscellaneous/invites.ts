@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class InvitesCommand extends Command {
+export default class InvitesCommand extends Command {
     constructor(client){
-        super(client, {
+        super({
             name: "invites",
             description: "get's the user's current invite stats",
             category: "miscellaneous",

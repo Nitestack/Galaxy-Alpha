@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import TicketSchema from '@models/ticket';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 
-module.exports = class RenameTicketChannelCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class RenameTicketChannelCommand extends Command {
+    constructor() {
+        super({
             name: "ticketrename",
             description: "renames the ticket channel",
             usage: "ticketrename <new name>",

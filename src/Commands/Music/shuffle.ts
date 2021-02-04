@@ -1,9 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 
-module.exports = class ShuffleCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class ShuffleCommand extends Command {
+    constructor() {
+        super({
             name: "shuffle",
             description: "shuffles the current queue",
             category: "music",

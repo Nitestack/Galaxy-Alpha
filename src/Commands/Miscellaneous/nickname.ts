@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { GuildMember } from 'discord.js';
 
-module.exports = class NickNameCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class NickNameCommand extends Command {
+    constructor() {
+        super({
             name: "nickname",
             aliases: ["nick"],
             userPermissions: ["CHANGE_NICKNAME", "MANAGE_NICKNAMES"],

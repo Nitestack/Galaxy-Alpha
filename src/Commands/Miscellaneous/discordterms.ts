@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { MessageAttachment } from 'discord.js';
 
-module.exports = class DiscordTermsCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DiscordTermsCommand extends Command {
+    constructor() {
+        super({
             name: "discordterms",
             description: "sends the introduction of the Discord Terms of Service",
             aliases: ["discordtos"],

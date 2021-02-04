@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { WebhookClient } from 'discord.js';
 
-module.exports = class SuggestCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class SuggestCommand extends Command {
+    constructor(){
+        super({
             name: "suggest",
             category: "utility",
             description: "sends a suggestion to the staff of the server",

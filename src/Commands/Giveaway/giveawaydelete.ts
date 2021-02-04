@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import Guild from '@models/guild';
 
-module.exports = class GiveawayDeleteCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class GiveawayDeleteCommand extends Command {
+    constructor() {
+        super({
             name: "giveawaydelete",
             description: "deletes a giveaway",
             category: "giveaway",

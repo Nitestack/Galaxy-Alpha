@@ -2,9 +2,9 @@ import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 import { VoiceChannel } from "discord.js";
 
-module.exports = class JoinCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class JoinCommand extends Command {
+    constructor() {
+        super({
             name: "join",
             description: "joins a voice channel",
             category: "music",

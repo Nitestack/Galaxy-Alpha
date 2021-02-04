@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import Profile from '@models/profile';
 
-module.exports = class WeeklyCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class WeeklyCommand extends Command {
+    constructor() {
+        super({
             name: "weekly",
             description: "claim your weekly coins",
             category: "currency",

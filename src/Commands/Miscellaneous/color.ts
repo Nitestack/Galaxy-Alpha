@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import fetch from 'node-fetch';
 
-module.exports = class ColorCommand extends Command {
-	constructor(client) {
-		super(client, {
+export default class ColorCommand extends Command {
+	constructor() {
+		super({
 			name: "color",
 			description: "sends a random embed with the color and it's infos",
 			category: "miscellaneous",

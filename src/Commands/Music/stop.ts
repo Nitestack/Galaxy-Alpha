@@ -1,9 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 
-module.exports = class StopCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class StopCommand extends Command {
+    constructor() {
+        super({
             name: "stop",
             description: "stops the current track",
             category: "music",

@@ -3,9 +3,9 @@ import { GuildMember } from 'discord.js';
 import TicketSchema from '@models/ticket';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 
-module.exports = class AddUserToTicketCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class AddUserToTicketCommand extends Command {
+    constructor(){
+        super({
             name: "ticketadd",
             description: "adds an user to the ticket",
             guildOnly: true,

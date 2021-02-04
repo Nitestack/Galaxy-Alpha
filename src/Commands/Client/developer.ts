@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class DeveloperCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DeveloperCommand extends Command {
+    constructor() {
+        super({
             name: 'developer',
             description: 'shows all developers and contributors of this bot',
             category: "miscellaneous"

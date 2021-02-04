@@ -273,7 +273,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public drop: DropManager = new DropManager(this);
 	public cache: CacheManager = new CacheManager(this);
 	public music: MusicManager = new MusicManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil(this);
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//PERMISSIONS\\
 	public permissions: Array<string> = this.util.permissions;
 	public permissionsShowCase: Array<string> = this.util.permissionsShowCase;

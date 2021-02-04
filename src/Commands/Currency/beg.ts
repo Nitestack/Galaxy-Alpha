@@ -3,9 +3,9 @@ import Profile from '@models/profile';
 import { MessageEmbed } from 'discord.js';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class BegCommand extends Command {
-	constructor(client) {
-		super(client, {
+export default class BegCommand extends Command {
+	constructor() {
+		super({
 			name: "beg",
 			description: "beg for some coins",
 			category: "currency",

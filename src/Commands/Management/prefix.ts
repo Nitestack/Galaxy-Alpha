@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import Guild from '@models/guild';
 
-module.exports = class PrefixCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class PrefixCommand extends Command {
+    constructor(){
+        super({
             name: "prefix",
             description: "prefix commands",
             category: "management",

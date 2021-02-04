@@ -3,9 +3,9 @@ import { Message, User } from 'discord.js';
 
 let inGame: Array<string> = [];
 
-module.exports = class TicTacToeCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class TicTacToeCommand extends Command {
+    constructor() {
+        super({
             name: "tictactoe",
             description: "starts a tic tac toe game",
             usage: "tictactoe [@User/User ID]",

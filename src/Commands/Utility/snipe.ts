@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class SnipeCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class SnipeCommand extends Command {
+    constructor() {
+        super({
             name: "snipe",
             description: "get's the last deleted message of the channel",
             category: "utility"

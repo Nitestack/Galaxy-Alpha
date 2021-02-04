@@ -2,6 +2,7 @@ import Discord from "discord.js";
 import GalaxyAlpha from "@root/Client";
 import MessageSchema from "@models/messageCount";
 import CurrencySchema from "@models/profile";
+import { Bot } from "@root/index";
 
 interface Currency {
     userID: string;
@@ -16,9 +17,16 @@ interface Messages {
     messageCount: number;
 };
 
+interface Profile {
+    userID: string;
+    bank: number;
+    wallet: number;
+    messageCount: number;
+};
+
 export default class GlobalCache {
-    private client: GalaxyAlpha;
-    constructor(client) {
+    private client: GalaxyAlpha = Bot;
+    constructor(client: GalaxyAlpha) {
         this.client = client;
         this.client.once("ready", () => {
             setInterval(() => {
@@ -64,31 +72,19 @@ export default class GlobalCache {
         if (Message) return Message.messageCount;
         if (!Message) return 0;
     };
-    public async getCurrency(userID: string): Promise<{
-        userID: string,
-        bank: number,
-        wallet: number,
-        messageCount: number
-    }> {
-        return await CurrencySchema.findOne({
-            profileID: userID
-        }, {}, {}, (err, currency) => {
-            if (err) return console.log(err);
-            if (!currency) {
-                return {
-                    userID: userID,
-                    bank: 0,
-                    wallet: 0,
-                    messageCount: 0
-                };
-            } else if (currency) {
-                return {
-                    userID: userID,
-                    bank: currency.bank,
-                    wallet: currency.wallet,
-                    messageCount: currency.messageCount
-                };
-            };
+    public async getCurrency(userID: string): Promise<Profile> {
+        const profile = await CurrencySchema.findOne({ profileID: userID });
+        if (profile) return ({
+            userID: userID,
+            bank: profile.bank,
+            wallet: profile.wallet,
+            messageCount: profile.messageCount
+        } as Profile);
+        if (!profile) return ({
+            userID: userID,
+            bank: 0,
+            wallet: 0,
+            messageCount: 0
         });
     };
 };

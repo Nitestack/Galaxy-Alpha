@@ -5,9 +5,9 @@ import { TextChannel, NewsChannel } from 'discord.js';
 
 export const name: string = 'kick';
 
-module.exports = class KickCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class KickCommand extends Command {
+    constructor(){
+        super({
             name: "kick",
             description: "kicks a member from the server",
             userPermissions: ["ADMINISTRATOR", "KICK_MEMBERS"],

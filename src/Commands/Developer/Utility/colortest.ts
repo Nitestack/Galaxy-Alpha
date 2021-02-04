@@ -1,9 +1,9 @@
-import Command, { CommandRunner } from '@root/Command';
+import Command from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
-module.exports = class ColortestCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class ColortestCommand extends Command {
+    constructor(){
+        super({
             name: "colortest",
             description: "sends an embed with the color as the embed color",
             usage: "colortest <color hex code>",

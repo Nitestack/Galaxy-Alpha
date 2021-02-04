@@ -5,9 +5,9 @@ import { videoFinder, playlistFinder } from "@commands/Music/Music";
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
 
-module.exports = class PlayCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class PlayCommand extends Command {
+    constructor() {
+        super({
             name: "play",
             description: "plays an YouTube audio",
             usage: "play <YouTube link/keywords>",

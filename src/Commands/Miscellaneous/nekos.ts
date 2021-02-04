@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import axios from 'axios';
 
-module.exports = class NekosCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class NekosCommand extends Command {
+    constructor() {
+        super({
             name: "nekos",
             description: "sends random pictures of a category",
             usage: "nekos <keyword>",

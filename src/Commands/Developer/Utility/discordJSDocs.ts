@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import axios from 'axios';
 
-module.exports = class DiscordJSDocumentationCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class DiscordJSDocumentationCommand extends Command {
+    constructor(){
+        super({
             name: "discordjsdocs",
             description: "sends an embed help message with the keywords",
             category: "developer",

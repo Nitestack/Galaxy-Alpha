@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class TimeCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class TimeCommand extends Command {
+    constructor(){
+        super({
             name: "time",
             description: "shows the current time",
             category: "miscellaneous"

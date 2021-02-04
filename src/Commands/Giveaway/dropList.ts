@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 
-module.exports = class DropListCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DropListCommand extends Command {
+    constructor() {
+        super({
             name: 'droplist',
             description: "lists all drops of the guild",
             category: "giveaway",

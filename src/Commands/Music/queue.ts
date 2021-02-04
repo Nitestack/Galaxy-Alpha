@@ -3,9 +3,9 @@ import Command from "@root/Command";
 import { Queue } from "@root/Client";
 import { MessageEmbed } from "discord.js";
 
-module.exports = class QueueCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class QueueCommand extends Command {
+    constructor() {
+        super({
             name: "queue",
             description: "shows the queue of the server",
             category: "music",

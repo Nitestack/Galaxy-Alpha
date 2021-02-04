@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class AvatarCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class AvatarCommand extends Command {
+    constructor() {
+        super({
             name: "avatar",
             category: "miscellaneous",
             description: "sends the avatar image of the user",

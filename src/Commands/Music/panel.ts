@@ -4,9 +4,9 @@ import { ReactionCollector } from "discord.js";
 import duration from "humanize-duration";
 import canvacord from "canvacord";
 
-module.exports = class MusicPanelCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class MusicPanelCommand extends Command {
+    constructor() {
+        super({
             name: "panel",
             description: "sends a music panel to control the music",
             guildOnly: true,

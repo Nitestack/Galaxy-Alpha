@@ -3,9 +3,9 @@ import { MessageEmbed } from "discord.js";
 import Profile from '@models/profile';
 import GalaxyAlpha from "@root/Client";
 
-module.exports = class BetCommand extends Command {
-	constructor(client) {
-		super(client, {
+export default class BetCommand extends Command {
+	constructor() {
+		super({
 			name: "bet",
 			description: "win some coins or lose your bet",
 			category: "currency",

@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import os from 'os';
 
-module.exports = class InfoCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class InfoCommand extends Command {
+    constructor() {
+        super({
             name: "info",
             description: "shows some infos about the bot",
             category: "miscellaneous",

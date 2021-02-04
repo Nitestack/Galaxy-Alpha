@@ -1,9 +1,9 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 
-module.exports = class ReplayCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class ReplayCommand extends Command {
+    constructor() {
+        super({
             name: "replay",
             description: "replays the current track",
             category: "music",

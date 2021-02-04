@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import { User } from 'discord.js';
 import clientData from '@models/clientData';
 
-module.exports = class BlockUserCommand extends Command {
-	constructor(client) {
-		super(client, {
+export default class BlockUserCommand extends Command {
+	constructor() {
+		super({
 			name: "blockuser",
 			description: "blocks an user from using any commands",
 			category: "developer",

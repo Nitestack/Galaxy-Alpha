@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Guild from '@models/guild';
 import { Role } from 'discord.js';
 
-module.exports = class TicketRoleCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class TicketRoleCommand extends Command {
+    constructor(){
+        super({
             name: "ticketrole",
             description: "ticket role commands",
             usage: "ticketrole set <@Role/Role ID> or ticketrole remove",

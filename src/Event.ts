@@ -1,12 +1,13 @@
 import GalaxyAlpha from '@root/Client';
 import { EventEmitter } from 'events';
+import { Bot } from "@root/index";
 
 export interface EventRunner {
 	(client: GalaxyAlpha, ...params: unknown[]): Promise<void>;
 };
 
 export default class Event {
-	private client: GalaxyAlpha;
+	private client: GalaxyAlpha = Bot;
 	public name: string;
 	constructor(info: {
 		name?: string,

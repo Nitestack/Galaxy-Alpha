@@ -3,9 +3,9 @@ import { User } from 'discord.js';
 import Profile from '@models/profile';
 import GalaxyAlpha from "@root/Client";
 
-module.exports = class BalanceCommand extends Command {
-	constructor(client) {
-		super(client, {
+export default class BalanceCommand extends Command {
+	constructor() {
+		super({
 			name: "balance",
 			aliases: ["bal"],
 			description: "shows the current balance of an user",

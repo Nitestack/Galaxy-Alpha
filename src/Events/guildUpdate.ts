@@ -2,7 +2,7 @@ import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 import { Guild, Role } from 'discord.js';
 
-module.exports = class GuildUpdateEvent extends Event {
+export default class GuildUpdateEvent extends Event {
     constructor(){
         super({
             name: "guildUpdate"

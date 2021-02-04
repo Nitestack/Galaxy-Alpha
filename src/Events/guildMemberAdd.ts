@@ -3,7 +3,7 @@ import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
 import GalaxyAlpha from '@root/Client';
 
-module.exports = class GuildMemberAddEvent extends Event {
+export default class GuildMemberAddEvent extends Event {
 	constructor() {
 		super({
 			name: "guildMemberAdd"

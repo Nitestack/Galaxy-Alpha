@@ -1,11 +1,10 @@
-//1 ARG ERROR
 import Profile from '@models/profile';
 import Command from '@root/Command';
 import { User } from 'discord.js';
 
-module.exports = class AddCoinsCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class AddCoinsCommand extends Command {
+    constructor(){
+        super({
             name: "addcoins",
             description: "add coins to the target user's wallet or bank",
             usage: "addcoins <@User/User ID> <wallet/bank> <amount of coins>",

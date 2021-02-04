@@ -1,9 +1,9 @@
 import Command from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
-module.exports = class RestartCommand extends Command {
-    constructor(client){
-        super(client, {
+export default class RestartCommand extends Command {
+    constructor(){
+        super({
             name: "restart",
             description: "restarts the current node process",
             category: "developer",

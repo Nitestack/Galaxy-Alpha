@@ -1,8 +1,8 @@
 import Command from '@root/Command';
 
-module.exports = class SlowmodeCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class SlowmodeCommand extends Command {
+    constructor() {
+        super({
             name: "slowmode",
             description: "sets the slowmode for a channel",
             usage: "slowmode <duration/off>",

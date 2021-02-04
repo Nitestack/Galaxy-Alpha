@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Profile from '@models/profile';
 import mongoose from 'mongoose';
 
-module.exports = class DepositCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class DepositCommand extends Command {
+    constructor() {
+        super({
             name: "deposit",
             aliases: ["dep"],
             description: "deposit money of your wallet into your bank",

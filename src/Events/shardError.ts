@@ -1,7 +1,7 @@
 import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 
-module.exports = class ShardErrorEvent extends Event {
+export default class ShardErrorEvent extends Event {
 	constructor() {
 		super({
 			name: "shardError"

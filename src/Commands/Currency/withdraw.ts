@@ -2,9 +2,9 @@ import Command from '@root/Command';
 import Profile from '@models/profile';
 import mongoose from 'mongoose';
 
-module.exports = class WithdrawCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class WithdrawCommand extends Command {
+    constructor() {
+        super({
             name: "withdraw",
             description: "withdraw money of your bank",
             category: "currency",

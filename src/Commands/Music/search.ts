@@ -4,9 +4,9 @@ import { videoFinder, playlistFinder } from "@commands/Music/Music";
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
 
-module.exports = class SearchCommand extends Command {
-    constructor(client) {
-        super(client, {
+export default class SearchCommand extends Command {
+    constructor() {
+        super({
             name: "search",
             description: "searches a song on YouTube",
             category: "music",
