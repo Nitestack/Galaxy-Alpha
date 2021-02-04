@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord, { StreamDispatcher, VoiceChannel } from 'discord.js';
+import Discord, { Message, StreamDispatcher, VoiceChannel } from 'discord.js';
 import mongoose from 'mongoose';
 import Levels from 'discord-xp';
 import ytSearch from "yt-search";
@@ -16,6 +16,7 @@ import TicketManager from '@commands/Utility/Ticket/Ticket';
 import DropManager from '@commands/Giveaway/Drop';
 import CacheManager from '@root/GlobalCache';
 import MusicManager from "@commands/Music/Music";
+import GalaxyAlphaUtil from "@root/util";
 //MODELS\\
 import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
@@ -24,7 +25,6 @@ import GuildSchema from '@models/guild';
 import MessageSchema from '@models/messageCount';
 import LevelSchema from '@models/levels';
 //ANY THING ELSE\\
-import { permissions, permissionsShowCase, monthNames, weekDays } from '@root/util';
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
 
@@ -170,7 +170,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
 			console.log("------------------------------------------------------------------");
-			console.log('|Created At:     |', `${weekDays[this.user.createdAt.getUTCDay()]}, ${monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
+			console.log('|Created At:     |', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);
 			console.log('|Uptime:         |', this.ms(this.uptime));
 			console.log('|WS Status:      |', this.ws.status);
@@ -236,7 +236,8 @@ export default class GalaxyAlpha extends Discord.Client {
 		stopToPlay: Date,
 		singleLoop: boolean,
 		multipleLoop: boolean,
-		shuffle: boolean
+		shuffle: boolean,
+		panel?: Message;
 	}> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
@@ -272,9 +273,10 @@ export default class GalaxyAlpha extends Discord.Client {
 	public drop: DropManager = new DropManager(this);
 	public cache: CacheManager = new CacheManager(this);
 	public music: MusicManager = new MusicManager(this);
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//PERMISSIONS\\
-	public permissions: Array<string> = permissions;
-	public permissionsShowCase: Array<string> = permissionsShowCase;
+	public permissions: Array<string> = this.util.permissions;
+	public permissionsShowCase: Array<string> = this.util.permissionsShowCase;
 	//VOTE LINKS\\
 	public topGGBot: string = "https://top.gg/bot/761590139147124810/vote";
 	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";

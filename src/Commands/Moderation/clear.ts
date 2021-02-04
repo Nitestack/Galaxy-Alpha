@@ -1,4 +1,3 @@
-//1 ARG ERROR AND 2 BULKDELETE ERRORS IN DM'S
 import Command from '@root/Command';
 import { User } from 'discord.js';
 

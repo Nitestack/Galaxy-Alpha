@@ -1,6 +1,5 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
-import { getDuration, toUpperCaseBeginning } from "@root/util";
 import durationConverter from "humanize-duration";
 
 module.exports = class NowPlayingCommand extends Command {
@@ -26,13 +25,13 @@ module.exports = class NowPlayingCommand extends Command {
             .setDescription(`**<:youtube:786675436733857793> [${video.title}](${video.url})**
             *uploaded by [${video.author.name}](${video.author.url}) on ${video.uploadDate} (${video.ago})*
             
-            **Duration:** ${getDuration(video.duration.seconds * 1000)} (${durationConverter(video.duration.seconds * 1000, {
+            **Duration:** ${client.util.getDuration(video.duration.seconds * 1000)} (${durationConverter(video.duration.seconds * 1000, {
                 units: ["h", "m", "s"],
                 round: true
             })})
             **Views:** ${video.views.toLocaleString()} views
-            **Genre:** ${toUpperCaseBeginning(video.genre)}
+            **Genre:** ${client.util.toUpperCaseBeginning(video.genre)}
 
-            **Time left: ${client.queue.get(message.guild.id).stopToPlay ? getDuration(timeUsed) : getDuration(duration)} / ${getDuration(video.duration.seconds * 1000)}**`));
+            **Time left: ${client.queue.get(message.guild.id).stopToPlay ? client.util.getDuration(timeUsed) : client.util.getDuration(duration)} / ${client.util.getDuration(video.duration.seconds * 1000)}**`));
     };
 };

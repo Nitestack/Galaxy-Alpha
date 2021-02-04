@@ -8,7 +8,7 @@ const levelSchema = new mongoose.Schema({
     lastUpdated: { type: Date, default: new Date() }
 });
 
-interface LevelSchema extends mongoose.Document {
+export interface LevelSchema extends mongoose.Document {
     userID: string,
     guildID: string,
     xp: number,

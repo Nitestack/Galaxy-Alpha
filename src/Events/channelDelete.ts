@@ -1,4 +1,3 @@
-//5 DM CHANNEL ERRORS
 import Event from '@root/Event';
 import { DMChannel, GuildChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
@@ -6,6 +5,7 @@ import autoPublishSchema from '@models/clientData';
 import TicketSchema from '@models/ticket';
 import ModLogsSchema from '@models/modlogs';
 import CounterSchema from '@models/counter';
+import GalaxyAlpha from '@root/Client';
 
 module.exports = class ChannelDeleteEvent extends Event {
 	constructor(client) {
@@ -13,7 +13,7 @@ module.exports = class ChannelDeleteEvent extends Event {
 			name: "channelDelete"
 		});
 	};
-	async run(client, channel: DMChannel | GuildChannel) {
+	async run(client: GalaxyAlpha, channel: DMChannel | GuildChannel) {
 		if (channel.type == 'category') {
 			GuildSchema.findOne({
 				ticketCategoryID: channel.id
@@ -70,13 +70,13 @@ module.exports = class ChannelDeleteEvent extends Event {
 				}
 			});
 			await GuildSchema.findOne({
-				guildID: channel.guild.id
+				guildID: (channel as GuildChannel).guild.id
 			}, {}, {}, async (err, guild) => {
 				if (err) return console.log(err);
 				if (!guild) return;
 				if (guild.logChannelID == channel.id) {
 					await GuildSchema.findOneAndUpdate({
-						guildID: channel.guild.id
+						guildID: (channel as GuildChannel).guild.id
 					}, {
 						logChannelID: null
 					}, {
@@ -84,7 +84,7 @@ module.exports = class ChannelDeleteEvent extends Event {
 					});
 				} else if (guild.welcomeChannelID == channel.id) {
 					await GuildSchema.findOneAndUpdate({
-						guildID: channel.guild.id
+						guildID: (channel as GuildChannel).guild.id
 					}, {
 						welcomeChannelID: null
 					}, {
@@ -95,7 +95,7 @@ module.exports = class ChannelDeleteEvent extends Event {
 				};
 			});
 			await TicketSchema.findOne({
-				guildID: channel.guild.id
+				guildID: (channel as GuildChannel).guild.id
 			}, {}, {}, async (err, ticket) => {
 				if (err) return console.log(err);
 				if (!ticket) return;

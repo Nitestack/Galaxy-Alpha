@@ -1,3 +1,4 @@
+import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 
 module.exports = class ErrorEvent extends Event {
@@ -6,7 +7,7 @@ module.exports = class ErrorEvent extends Event {
 			name: "error"
 		});
 	};
-	async run(client, error: Error){
+	async run(client: GalaxyAlpha, error: Error){
 		console.log(error);
 	};
 };

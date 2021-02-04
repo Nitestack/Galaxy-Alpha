@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface VouchSchema extends mongoose.Document {
+export interface VouchSchema extends mongoose.Document {
 	userID: string;
 	upVotes: number;
 	downVotes: number;

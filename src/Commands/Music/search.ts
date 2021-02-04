@@ -1,7 +1,6 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
 import { videoFinder } from "@commands/Music/Music";
-import { getDuration, toUpperCaseBeginning } from "@root/util";
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
 
@@ -30,12 +29,12 @@ module.exports = class SearchCommand extends Command {
             .setURL(video.url)
             .setDescription(`*uploaded by [${video.author.name}](${video.author.url}) on ${video.uploadDate} (${video.ago})*
                     
-            **Duration:** ${getDuration(video.duration.seconds * 1000)} (${duration(video.duration.seconds * 1000, {
+            **Duration:** ${client.util.getDuration(video.duration.seconds * 1000)} (${duration(video.duration.seconds * 1000, {
                 round: true,
                 units: ["h", "m", "s"]
             })})
             **Views:** ${video.views.toLocaleString()} views
-            **Genre:** ${toUpperCaseBeginning(video.genre)}`)
+            **Genre:** ${client.util.toUpperCaseBeginning(video.genre)}`)
             .setImage(video.image));
     };
 };

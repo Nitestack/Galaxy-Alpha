@@ -1,4 +1,3 @@
-//! CHANNEL ERROR
 import GalaxyAlpha from '@root/Client';
 import DropSchema from '@models/Giveaways/drops';
 import { Message, NewsChannel, TextChannel, User } from 'discord.js';
@@ -15,7 +14,7 @@ export default class Drop {
         if (!options.channelID) throw new Error("You didn't provide a channel ID.");
         if (!options.createdBy) throw new Error("You didn't provide who the drop was created by.");
 
-        const channel: TextChannel | NewsChannel = this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(options.channelID);
+        const channel: TextChannel | NewsChannel = (this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(options.channelID) as TextChannel | NewsChannel);
         const dropEmbed = this.client.createEmbed()
             .setTitle(`${options.prize}`)
             .setDescription(`${this.client.arrowEmoji} **First one, who reacts with 🎉\nto this message, wins the drop!**\n**${this.client.memberEmoji} Hosted By:** ${options.createdBy}`)
@@ -83,7 +82,7 @@ export default class Drop {
         }, {}, {}, (err, drop) => {
             if (err) return console.log(err);
             if (!drop) return false;
-            const channel: TextChannel | NewsChannel = this.client.channels.cache.get(drop.channelID);
+            const channel: TextChannel | NewsChannel = (this.client.channels.cache.get(drop.channelID) as TextChannel | NewsChannel);
             if (!channel) return false;
             channel.messages.fetch(messageID).then(message => {
                 message.edit(`${this.client.galaxyAlphaEmoji}   **DROP ENDED**   ${this.client.galaxyAlphaEmoji}`, message.embeds[0].setDescription(`🏅 **Winner:** Nobody reacted!\n${this.client.memberEmoji} **Hosted By:** ${drop.createdBy}`))

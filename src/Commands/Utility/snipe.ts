@@ -1,4 +1,3 @@
-import GalaxyAlpha from '@root/Client';
 import Command from '@root/Command';
 
 module.exports = class SnipeCommand extends Command {

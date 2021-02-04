@@ -6,3 +6,6 @@ Giveaways Bonus Entry Role
 
 Music
 removeDupes
+
+Level
+Ignore Channel

@@ -1,8 +1,8 @@
-import { Message, PermissionString } from 'discord.js';
+import Discord from 'discord.js';
 import GalaxyAlpha from '@root/Client';
 
 export interface CommandRunner {
-	(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<void>;
+	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void>;
 };
 
 export type Categories =
@@ -26,8 +26,8 @@ export default class Command {
 	public category: Categories;
 	public usage?: string;
 	public cooldown?: number;
-	public userPermissions?: Array<PermissionString>;
-	public clientPermissions?: Array<PermissionString>;
+	public userPermissions?: Array<Discord.PermissionString>;
+	public clientPermissions?: Array<Discord.PermissionString>;
 	public developerOnly?: boolean;
 	public ownerOnly?: boolean;
 	public guildOnly?: boolean;
@@ -41,8 +41,8 @@ export default class Command {
 		category: Categories,
 		usage?: string,
 		cooldown?: number,
-		userPermissions?: Array<PermissionString>,
-		clientPermissions?: Array<PermissionString>,
+		userPermissions?: Array<Discord.PermissionString>,
+		clientPermissions?: Array<Discord.PermissionString>,
 		developerOnly?: boolean,
 		ownerOnly?: boolean,
 		guildOnly?: boolean,
@@ -82,25 +82,7 @@ export default class Command {
 			newsChannelOnly: this.newsChannelOnly
 		});
 	};
-	hasPermission(message: Message, ownerOverride: boolean = true, prefix: string) {
-		if (!this.ownerOnly && !this.userPermissions) return true;
-		if (ownerOverride && this.client.ownerID == message.author.id) return true;
-		if (this.ownerOnly && (ownerOverride || this.client.ownerID != message.author.id)) return;
-		if (message.channel.type != "dm" && this.userPermissions && this.userPermissions.length > 0) {
-			const missing = message.channel.permissionsFor(message.author).missing(this.userPermissions);
-			if (missing.length > 0) {
-				let userPerms: Array<string> = [];
-				this.userPermissions.forEach(perm => {
-					userPerms.push(this.client.permissionsShowCase[this.client.permissions.indexOf(perm)]);
-				});
-				return message.channel.send(this.client.createRedEmbed(true, `${prefix}${this.usage}`)
-					.setTitle("Permission Manager")
-					.setDescription(`You need one of the following permissions to use this command:\n\`${userPerms.join("`, `")}\``));
-			};
-		};
-		return true;
-	};
-	async run(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<void> {
+	async run(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void> {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 	validateInfo(client: GalaxyAlpha, info: {
@@ -110,8 +92,8 @@ export default class Command {
 		category: Categories,
 		usage?: string,
 		cooldown?: number,
-		userPermissions?: Array<PermissionString>,
-		clientPermissions?: Array<PermissionString>,
+		userPermissions?: Array<Discord.PermissionString>,
+		clientPermissions?: Array<Discord.PermissionString>,
 		developerOnly?: boolean,
 		ownerOnly?: boolean,
 		guildOnly?: boolean,

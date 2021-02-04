@@ -1,4 +1,3 @@
-//2 ARGS ERRORS
 import Command from '@root/Command';
 import Profile from '@models/profile';
 import mongoose from 'mongoose';

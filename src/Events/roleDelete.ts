@@ -1,4 +1,5 @@
 import Guild from '@models/guild';
+import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 import { Role } from 'discord.js';
 
@@ -8,7 +9,7 @@ module.exports = class RoleDeleteEvent extends Event {
 			name: "roleDelete"
 		});
 	};
-	async run(client, role: Role) {
+	async run(client: GalaxyAlpha, role: Role) {
 		const guild = await Guild.findOne({
 			guildID: role.guild.id,
 		}, {}, {}, (err: unknown, guild) => {

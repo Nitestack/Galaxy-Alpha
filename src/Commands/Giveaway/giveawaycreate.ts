@@ -1,6 +1,5 @@
-//1 GUILDCHANNEL ERROR
 import Command from '@root/Command';
-import { Guild, NewsChannel, Role, TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import GuildSchema from '@models/guild';
 
@@ -64,7 +63,17 @@ module.exports = class GiveawayCreateCommand extends Command {
             level: number;
             guildReq: string;
         };
-        let responses: responsesLayout = {};
+        let responses: responsesLayout = {
+            prize: "",
+            duration: 0,
+            guildReq: "",
+            invites: 0,
+            level: 0,
+            messages: 0,
+            roles: [],
+            winners: 0,
+            channel: null
+        };
         let cancel: boolean = false;
         for (let i = 8; i < prompts.length; i++) {
             if (cancel) return;

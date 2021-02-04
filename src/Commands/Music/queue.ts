@@ -1,6 +1,5 @@
 import GalaxyAlpha from "@root/Client";
 import Command from "@root/Command";
-import { getDuration } from "@root/util";
 import { Queue } from "@root/Client";
 import { MessageEmbed } from "discord.js";
 
@@ -38,54 +37,57 @@ module.exports = class QueueCommand extends Command {
             let page: number = 0;
             const embedArray: Array<MessageEmbed> = generateQueueEmbed(client.queue.get(message.guild.id).queue);
             return message.channel.send(embedArray[0]).then(async msg => {
-                await msg.react('ℹ️');
-                await msg.react('◀️');
-                await msg.react('▶️');
-                const filter = (reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id;
-                const Buttons = msg.createReactionCollector(filter, { time: 24 * 60 * 60 * 1000 });
-                Buttons.on('collect', async (reaction, user) => {
-                    if (reaction.emoji.name == '◀️') {
-                        if (page == 0){
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("◀️").users.remove(user.id);
+                if (embedArray.length > 1) {
+                    await msg.react('ℹ️');
+                    await msg.react('◀️');
+                    await msg.react('▶️');
+
+                    const filter = (reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id;
+                    const Buttons = msg.createReactionCollector(filter, { time: 24 * 60 * 60 * 1000 });
+                    Buttons.on('collect', async (reaction, user) => {
+                        if (reaction.emoji.name == '◀️') {
+                            if (page == 0) {
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("◀️").users.remove(user.id);
+                                };
+                                await msg.edit(embedArray[embedArray.length - 1]);
+                                page = embedArray.length - 1;
+                            } else {
+                                page--;
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("◀️").users.remove(user.id);
+                                };
+                                await msg.edit(embedArray[page]);
                             };
-                            await msg.edit(embedArray[embedArray.length - 1]);
-                            page = embedArray.length - 1;
-                        } else {
-                            page--;
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("◀️").users.remove(user.id);
-                            };
-                            await msg.edit(embedArray[page]);
-                        };
-                    } else if (reaction.emoji.name == '▶️') {//TO FIX
-                        if (page > embedArray.length + 1){
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("▶️").users.remove(user.id);
-                            };
-                            await msg.edit(embedArray[0]);
-                            page = 0;
-                        } else {
-                            page++;
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("▶️").users.remove(user.id);
-                            };
-                            await msg.edit(embedArray[page]);
-                        };
-                    } else {
-                        if (page == 0){
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("ℹ️").users.remove(user.id);
+                        } else if (reaction.emoji.name == '▶️') {//TO FIX
+                            if (page > embedArray.length + 1) {
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("▶️").users.remove(user.id);
+                                };
+                                await msg.edit(embedArray[0]);
+                                page = 0;
+                            } else {
+                                page++;
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("▶️").users.remove(user.id);
+                                };
+                                await msg.edit(embedArray[page]);
                             };
                         } else {
-                            if (message.channel.type != "dm"){
-                                msg.reactions.cache.get("ℹ️").users.remove(user.id);
+                            if (page == 0) {
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("ℹ️").users.remove(user.id);
+                                };
+                            } else {
+                                if (message.channel.type != "dm") {
+                                    msg.reactions.cache.get("ℹ️").users.remove(user.id);
+                                };
+                                await msg.edit(embedArray[0]);
+                                page = 0;
                             };
-                            await msg.edit(embedArray[0]);
-                            page = 0;
                         };
-                    };
-                });
+                    });
+                };
             });
         };
 
@@ -99,11 +101,11 @@ module.exports = class QueueCommand extends Command {
                 const embed = client.createEmbed().setTitle("🎧 Music Manager");
                 current.forEach(song => {
                     if (position == 1) {
-                        embed.addField("Now Playing", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`);
+                        embed.addField("Now Playing", `\`${position++}. \` [${song.title}](${song.url})\n\`${client.util.getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`);
                     } else if (position == 2) {
-                        embed.addField("Up next", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
+                        embed.addField("Up next", `\`${position++}. \` [${song.title}](${song.url})\n\`${client.util.getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
                     } else {
-                        embed.addField("•", `\`${position++}. \` [${song.title}](${song.url})\n\`${getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
+                        embed.addField("•", `\`${position++}. \` [${song.title}](${song.url})\n\`${client.util.getDuration(song.duration.seconds * 1000)}\` requested by ${message.guild.members.cache.get(song.requesterID).user}`)
                     };
                 });
                 embeds.push(embed);

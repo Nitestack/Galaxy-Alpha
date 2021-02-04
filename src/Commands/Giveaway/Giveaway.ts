@@ -1,4 +1,3 @@
-//2 CHANNEL TYPE ERRORS, 1 GUILDCHANNEL ERROR
 import GalaxyAlpha from '@root/Client';
 import { Guild, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import giveawaySchema, { GiveawaySchema } from '@models/Giveaways/giveaways';
@@ -25,7 +24,7 @@ export default class Giveaway {
             if (guild.giveawayBlackListed && this.client.guilds.cache.get(options.guildID).roles.cache.has(guild.giveawayBlackListed)) blackListedRole = this.client.guilds.cache.get(options.guildID).roles.cache.get(guild.giveawayBlackListed);
             if (guild.giveawayByPass) byPassRole = this.client.guilds.cache.get(options.guildID).roles.cache.get(guild.giveawayByPass);
         });
-        const channel: TextChannel = this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(options.channelID);
+        const channel: TextChannel | NewsChannel = (this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(options.channelID) as TextChannel | NewsChannel);
         const giveawayEmbed: MessageEmbed = this.client.createEmbed()
             .setTitle(options.prize)
             .setDescription(`${this.client.arrowEmoji} **React with 🎉 to enter!**\n**🏅 ${options.winners == 1 ? "Winner" : "Winners"}**: ${options.winners}\n${this.client.memberEmoji} **Hosted By**: ${options.hostedBy}\n`)
@@ -175,7 +174,7 @@ export default class Giveaway {
     };
     public async schedule(giveaway: GiveawaySchema) {
         let { messageID, channelID, endsOn, prize, winners, hostedBy } = giveaway;
-        const channel: TextChannel = this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID);
+        const channel: TextChannel | NewsChannel = (this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID) as TextChannel | NewsChannel);
         if (channel) {
             const message = await channel.messages.fetch(messageID);
             if (message) {
@@ -249,7 +248,7 @@ export default class Giveaway {
         const array = [];
         Giveaways.map(giveaway => array.push({
             hostedBy: giveaway.hostedBy,
-            timeRemaining: giveaway.endsOn - Date.now(),
+            timeRemaining: giveaway.endsOn.getTime() - Date.now(),
             messageID: giveaway.messageID,
             prize: giveaway.prize,
             guildID: giveaway.guildID,
@@ -261,13 +260,8 @@ export default class Giveaway {
     public async reroll(messageID: string, channel: TextChannel | NewsChannel, usage: string) {
         channel.messages.fetch(messageID).then(async msg => {
             if (msg) {
-                const ended: Boolean = await giveawaySchema.findOne({
+                const ended = await giveawaySchema.findOne({
                     messageID: messageID
-                }, {}, {}, (err, giveaway) => {
-                    if (err) return console.log(err);
-                    if (!giveaway) return true;
-                    if (!giveaway.hasEnded) return false;
-                    if (giveaway.hasEnded) return true;
                 });
                 if (!ended) return false;
                 const { reactions } = msg;
@@ -313,7 +307,7 @@ export default class Giveaway {
         let data = await giveawaySchema.findOne({ messageID: messageID });
         if (!data) return false;
         if (data.hasEnded) return false;
-        const channel: TextChannel = this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'dm').get(data.channelID);
+        const channel: TextChannel | NewsChannel = (this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'dm').get(data.channelID) as TextChannel | NewsChannel);
         if (channel) {
             const message = await channel.messages.fetch(messageID);
             if (message) {

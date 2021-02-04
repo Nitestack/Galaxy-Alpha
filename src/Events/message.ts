@@ -2,13 +2,13 @@ import mongoose from 'mongoose';
 import Command from "@root/Command";
 import duration from 'humanize-duration'
 import Event from '@root/Event';
-import { Guild, MessageEmbed } from 'discord.js';
+import { Guild, MessageEmbed, TextChannel } from 'discord.js';
 import { Message } from 'discord.js';
-import Levels from 'discord-xp';
 import autoPublishSchema from '@root/Models/clientData';
 import MessageCount from '@models/messageCount';
 import GuildSchema from '@models/guild';
 import GalaxyAlpha from '@root/Client';
+import LevelSchema from '@root/Models/levels';
 
 module.exports = class MessageEvent extends Event {
 	constructor(client) {
@@ -18,9 +18,9 @@ module.exports = class MessageEvent extends Event {
 	};
 	async run(client: GalaxyAlpha, message: Message) {
 		if (message.author.bot) return;
-		if (message.channel.type != "dm" && !message.channel.permissionsFor(client.user).has("SEND_MESSAGES")) return message.guild.channels.cache
+		if (message.channel.type != "dm" && !message.channel.permissionsFor(client.user).has("SEND_MESSAGES")) return (message.guild.channels.cache
 			.filter(channel => channel.type == "text" && channel.permissionsFor(client.user).has("SEND_MESSAGES"))
-			.get(message.guild.systemChannel ? message.guild.systemChannelID : message.guild.channels.cache.filter(channel => channel.type == "text").first().id).send(client.createRedEmbed()
+			.get(message.guild.systemChannel ? message.guild.systemChannelID : message.guild.channels.cache.filter(channel => channel.type == "text").first().id) as TextChannel).send(client.createRedEmbed()
 				.setTitle("Client Manager")
 				.setDescription("I need the permission `Send Messages`, `View Channels`, `Add Reactions`, `Use External Emojis`, `Read Message History` and `Embed Links` in every channel, where I should work!\nFor the mute function I need the permission `Manage Channels` to overwrite the permission in every channel!"));
 		//PREFIX\\
@@ -149,13 +149,36 @@ module.exports = class MessageEvent extends Event {
 			} else {
 				if (message.channel.type != 'dm') {
 					//LEVEL\\
-					const randomAmountOfXp: Number = Math.floor(Math.random() * 29) + 1;
-					const hasLeveledUp = await Levels.appendXp(message.author.id, message.guild.id, randomAmountOfXp);
+					const randomAmountOfXp: number = Math.floor(Math.random() * 29) + 1;
+					async function appendXp(xp) {
+						if (xp !== 0 && !xp) throw new TypeError("An amount of xp was not provided.");
+						const user = await LevelSchema.findOne({ userID: message.author.id, guildID: message.guild.id });
+						if (!user) {
+							const newUser = new LevelSchema({
+								userID: message.author.id,
+								guildID: message.guild.id,
+								xp: xp,
+								level: Math.floor(0.1 * Math.sqrt(xp))
+							});
+							await newUser.save().catch(err => console.log(err));
+							return (Math.floor(0.1 * Math.sqrt(xp)) > 0);
+						};
+						user.xp += parseInt(xp, 10);
+						user.level = Math.floor(0.1 * Math.sqrt(user.xp));
+						await user.save().catch(err => console.log(err));
+						return (Math.floor(0.1 * Math.sqrt(user.xp -= xp)) < user.level);
+					};
+					const hasLeveledUp = await appendXp(randomAmountOfXp);
 					if (hasLeveledUp) {
-						const user = await Levels.fetch(message.author.id, message.guild.id);
-						const levelUpMessage: MessageEmbed = client.createEmbed().setAuthor(message.author.tag, message.author.displayAvatarURL())
-							.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${user.level}!** 🎉`);
-						message.channel.send(levelUpMessage);
+						const user = await LevelSchema.findOne({
+							userID: message.author.id,
+							guildID: message.guild.id
+						});
+						if (user) {
+							const levelUpMessage: MessageEmbed = client.createEmbed().setAuthor(message.author.tag, message.author.displayAvatarURL())
+								.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${user.level}!** 🎉`);
+							message.channel.send(levelUpMessage);
+						};
 					};
 					if (command.userPermissions) {
 						let perms: number = 0;

@@ -2,6 +2,7 @@ import Event from '@root/Event';
 import { Guild, Message, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
 import mongoose from 'mongoose';
+import GalaxyAlpha from '@root/Client';
 
 const openedTicket = new Map();
 
@@ -11,7 +12,7 @@ module.exports = class ModMail extends Event {
             name: "modMail"
         });
     };
-    async run(client, message: Message) {
+    async run(client: GalaxyAlpha, message: Message) {
         if (message.author.bot) return;
         const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${client.globalPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
         if (!openedTicket.has(message.author.id)) {
@@ -70,7 +71,7 @@ module.exports = class ModMail extends Event {
                             mentionPrefix = false;
                         };
                         const [, matchedPrefix] = mentionPrefix ? message.content.match(prefixRegex) : prefix;
-                        const channel: TextChannel | NewsChannel = servers[indexOfServer - 1].channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').first();
+                        const channel: TextChannel | NewsChannel = (servers[indexOfServer - 1].channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').first() as TextChannel | NewsChannel);
                         if (possibleNumbers.includes(reaction.emoji.name)) {
                             return message.channel.send(client.createEmbed()
                                 .setTitle("Mod Mail Manager")

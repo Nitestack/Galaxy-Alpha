@@ -1,7 +1,6 @@
 import Command from '@root/Command';
 import Profile from '@models/profile';
 import { MessageEmbed } from 'discord.js';
-import { getRandomArbitrary } from "@root/util";
 import GalaxyAlpha from '@root/Client';
 
 module.exports = class BegCommand extends Command {
@@ -14,8 +13,8 @@ module.exports = class BegCommand extends Command {
 		});
 	};
 	async run(client: GalaxyAlpha, message, args, prefix) {
-		const probabilityOfBeg = Math.round(getRandomArbitrary(1, 10));
-		const begCoins = Math.round(getRandomArbitrary(100, 400));
+		const probabilityOfBeg = Math.round(client.util.getRandomArbitrary(1, 10));
+		const begCoins = Math.round(client.util.getRandomArbitrary(100, 400));
 		const list = ['HydraNhani', 'Dank Wario', 'Julien Bam', 'Mr. Krabs', 'Scrooge McDuck', 'TaiChampion', 'HydraNinjaX', 'MiTH_Löwe',];
 		const noCoins = ['Here, take this non-existent coins!', 'Gave you NOTHING', "Don't beg!", "Go working!"];
 		const getCoins = [`Here, \`${begCoins}\`$ for you!`, `Gave you \`${begCoins}\`$`];
@@ -40,9 +39,9 @@ module.exports = class BegCommand extends Command {
 			});
 		};
 		if (probabilityOfBeg >= 6) {
-			message.channel.send(embed.setDescription(`**${list[Math.round(getRandomArbitrary(0, list.length - 1))]}:** ${getCoins[Math.round(getRandomArbitrary(0, getCoins.length - 1))]}\n**Wallet:** \`${client.cache.currency.get(message.author.id).wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(client.cache.currency.get(message.author.id).wallet + begCoins).toLocaleString()}\`$`));
+			message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${getCoins[Math.round(client.util.getRandomArbitrary(0, getCoins.length - 1))]}\n**Wallet:** \`${client.cache.currency.get(message.author.id).wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(client.cache.currency.get(message.author.id).wallet + begCoins).toLocaleString()}\`$`));
 		} else {
-			message.channel.send(embed.setDescription(`**${list[Math.round(getRandomArbitrary(0, list.length - 1))]}:** ${noCoins[Math.round(getRandomArbitrary(0, noCoins.length - 1))]}\n**Wallet:** \`${client.cache.currency.get(message.author.id).wallet.toLocaleString()}\`$`));
+			message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${noCoins[Math.round(client.util.getRandomArbitrary(0, noCoins.length - 1))]}\n**Wallet:** \`${client.cache.currency.get(message.author.id).wallet.toLocaleString()}\`$`));
 		};
 		client.cache.currency.set(message.author.id, {
 			userID: message.author.id,

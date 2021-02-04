@@ -10,7 +10,7 @@ module.exports = class ChannelUpdateEvent extends Event {
 			name: 'channelUpdate'
 		});
 	};
-	async run(client, oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) {
+	async run(client: GalaxyAlpha, oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) {
 		if (newChannel.type == 'dm') return;
 		const result = await GuildSchema.findOne(
 			{

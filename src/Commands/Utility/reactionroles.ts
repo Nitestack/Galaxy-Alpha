@@ -119,8 +119,7 @@ module.exports = class ReactionRolesCommand extends Command {
             });
         };
         if (cancel) return;
-        console.log(responses.emojiIDs);
-        message.guild.channels.cache.get(responses.channelID).send(client.createEmbed()
+        (message.guild.channels.cache.get(responses.channelID) as TextChannel | NewsChannel).send(client.createEmbed()
             .setTitle(responses.title)
             .setDescription(responses.description)
             .addField("How to get the roles?", "Simply react with the emojis below to gain specific roles!")).then(msg => {

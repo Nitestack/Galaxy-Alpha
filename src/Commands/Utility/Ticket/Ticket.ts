@@ -1,4 +1,3 @@
-// 1 GUILDCHANNEL ERROR
 import GalaxyAlpha from '@root/Client';
 import { CategoryChannel, Collection, Guild, GuildMember, Message, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import TicketSchema from '@models/ticket';
@@ -108,7 +107,7 @@ export default class Ticket {
         });
     };
     public close(channelID: string, prefix: string, userID: string, reason: string, message: Message) {
-        const channel: TextChannel | NewsChannel = this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID);
+        const channel: TextChannel | NewsChannel = (this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID) as TextChannel | NewsChannel);
         channel.send(this.client.createEmbed(true, `${prefix}tclose [reason]`)
             .setTitle(ticketsManager)
             .setDescription("Do you really want to delete this ticket channel?")).then(async msg => {
@@ -149,7 +148,7 @@ export default class Ticket {
             });
     };
     public addUser(userID: string, channelID: string, message: Message) {
-        const channel: TextChannel | NewsChannel = message.guild.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID);
+        const channel: TextChannel | NewsChannel = (message.guild.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID) as TextChannel | NewsChannel);
         const user: GuildMember = message.guild.members.cache.get(userID);
         if (user && channel) {
             channel.createOverwrite(userID, {
@@ -164,7 +163,7 @@ export default class Ticket {
         }
     };
     public removeUser(userID: string, channelID: string, message: Message) {
-        const channel: TextChannel | NewsChannel = message.guild.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID);
+        const channel: TextChannel | NewsChannel = (message.guild.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID) as TextChannel | NewsChannel);
         const user: GuildMember = message.guild.members.cache.get(userID);
         if (user && channel) {
             channel.permissionOverwrites.get(user.id).delete();

@@ -106,7 +106,7 @@ module.exports = class HelpCommand extends Command {
                             await msg.edit(embedArray[page]);
                         };
                     } else if (reaction.emoji.name == '▶️') {//TO FIX
-                        if (page > embedArray.length + 1){
+                        if (page == embedArray.length - 1){
                             if (message.channel.type != "dm"){
                                 msg.reactions.cache.get("▶️").users.remove(user.id);
                             };

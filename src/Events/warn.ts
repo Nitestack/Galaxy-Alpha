@@ -1,3 +1,4 @@
+import GalaxyAlpha from '@root/Client';
 import Event from '@root/Event';
 
 export const name: string = 'warn';
@@ -8,7 +9,7 @@ module.exports = class WarnEvent extends Event {
             name: "warn"
         });
     };
-    async run(client, info: string) {
+    async run(client: GalaxyAlpha, info: string) {
         console.log(info);
     };
 };  

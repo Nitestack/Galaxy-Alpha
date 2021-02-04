@@ -5,7 +5,7 @@ const reqString = {
 	required: true,
 };
 
-interface ProfileSchema extends mongoose.Document {
+export interface ProfileSchema extends mongoose.Document {
 	_id: mongoose.Schema.Types.ObjectId,
 	profileID: string;
 	wallet: number;

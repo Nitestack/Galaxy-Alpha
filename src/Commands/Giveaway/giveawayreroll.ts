@@ -1,4 +1,3 @@
-//1 GUILD CHANNEL ERROR
 import Command from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import Guild from '@models/guild';

@@ -15,7 +15,7 @@ module.exports = class EightBallCommand extends Command {
             .setTitle('🎱 Manager')
             .setDescription('You have to provide a question for me to answer!'));
         let responses = ['Yes', 'No', 'Definetly', 'Absolutely', 'Not in a million years', 'Never Mind'];
-        let response = responses[Math.floor(getRandomArbitrary(0, responses.length - 1))];
+        let response = responses[Math.floor(client.util.getRandomArbitrary(0, responses.length - 1))];
         const answer = client.createEmbed()
             .setTitle('🎱 Manager')
             .setColor('RANDOM')
@@ -23,8 +23,4 @@ module.exports = class EightBallCommand extends Command {
         **Answer:** ${response}`);
         return message.channel.send(answer);
     };
-};
-
-function getRandomArbitrary(min: number, max: number) {
-    return Math.random() * (max - min) + min;
 };

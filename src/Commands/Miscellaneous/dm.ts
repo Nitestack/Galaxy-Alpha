@@ -1,6 +1,5 @@
-//12 OBJECT ERRORS
 import Command from '@root/Command';
-import { User } from 'discord.js';
+import { StringResolvable, User } from 'discord.js';
 
 module.exports = class DMCommand extends Command {
     constructor(client){
@@ -26,7 +25,15 @@ module.exports = class DMCommand extends Command {
             'Should be the message an embed? Answer with yes or no!',
             'What is the message, you want to send to the user?',
         ];
-        let responses: object = {};
+        let responses: {
+            user: User,
+            embed: "yes" | "no",
+            messageContent: StringResolvable
+        } = {
+            user: null,
+            embed: "no",
+            messageContent: ""
+        };
         for (let i = 2; i < prompts.length; i++) {
             const embed = client.createEmbed()
                 .setTitle('DM Manager')
@@ -40,7 +47,7 @@ module.exports = class DMCommand extends Command {
             if (content.toLowerCase() == 'cancel') return message.channel.send(client.createEmbed(true, `${prefix}dm`).setTitle('DM Manager').setDescription("DMing cancelled!"));
             if (i == 0) {
                 let user: User;
-                if (response.first().mentions.users.first()) user = client.users.cache.filter(user => !user.bot).get(response.first().mentions.users.first().id);
+                if (response.first().mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = client.users.cache.filter(user => !user.bot).get(response.first().mentions.users.first().id);
                 if (response.first() && client.users.cache.filter(user => !user.bot).get(response.first().content))
                     if (user) {
                         responses.user = user;
@@ -49,7 +56,7 @@ module.exports = class DMCommand extends Command {
                         i = -1;
                     };
             } else if (i == 1) {
-                if (content) {
+                if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') {
                     responses.embed = content;
                     i = 3;
                 } else {
@@ -57,7 +64,7 @@ module.exports = class DMCommand extends Command {
                 };
             } else if (i == 2) {
                 let user: User;
-                if (response.first().mentions.users.first()) user = client.users.cache.get(response.first().mentions.users.first().id);
+                if (response.first().mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = client.users.cache.get(response.first().mentions.users.first().id);
                 if (response.first().content && client.users.cache.get(response.first().content)) user = client.users.cache.get(response.first().content);
                 if (user) {
                     responses.user = user;

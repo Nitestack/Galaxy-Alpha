@@ -12,7 +12,7 @@ module.exports = class WorkCommand extends Command {
     };
     async run(client, message, args, prefix) {
         const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} was working!`, message.author.displayAvatarURL());
-        const wage = Math.round(getRandomArbitrary(1000, 1500));
+        const wage = Math.round(client.util.getRandomArbitrary(1000, 1500));
         let oldWallet: number;
         const jobs: Array<string> = ['Cosplayer', 'YouTuber', 'Twitch Streamer', 'Programmer', 'Teacher', 'Game Developer', 'Software Developer', 'Police Officer', 'Cleainig Staff'];
 
@@ -38,12 +38,8 @@ module.exports = class WorkCommand extends Command {
             profileID: message.author.id
         }, {}, {}, (err, userProfile) => {
             if (err) return console.log(err);
-            return message.channel.send(embed.setDescription(`You worked as **${jobs[Math.round(getRandomArbitrary(0, jobs.length - 1))]}** and got payed \`${wage.toLocaleString()}\`$!
+            return message.channel.send(embed.setDescription(`You worked as **${jobs[Math.round(client.util.getRandomArbitrary(0, jobs.length - 1))]}** and got payed \`${wage.toLocaleString()}\`$!
             **Wallet:** \`${oldWallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${userProfile.wallet.toLocaleString()}\`$`));
         });
     };
-};
-
-function getRandomArbitrary(min: number, max: number) {
-    return Math.random() * (max - min) + min;
 };

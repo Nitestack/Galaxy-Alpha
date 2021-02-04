@@ -2,6 +2,7 @@ import Event from '@root/Event';
 import { DMChannel, Guild, GuildChannel, Role } from 'discord.js';
 
 import GuildSchema from '@models/guild';
+import GalaxyAlpha from '@root/Client';
 
 module.exports = class ChannelCreateEvent extends Event {
 	constructor(client){
@@ -9,7 +10,7 @@ module.exports = class ChannelCreateEvent extends Event {
 			name: "channelCreate"
 		});
 	};
-	async run(client, channel: DMChannel | GuildChannel) {
+	async run(client: GalaxyAlpha, channel: DMChannel | GuildChannel) {
 		if (channel.type == 'dm') return;
 		const result = await GuildSchema.findOne(
 			{

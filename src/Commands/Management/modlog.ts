@@ -1,4 +1,3 @@
-//1 CHANNEL ERROR
 import Command from '@root/Command';
 import ModLogsSchema from '@models/modlogs';
 import { GuildChannel, NewsChannel, TextChannel } from 'discord.js';

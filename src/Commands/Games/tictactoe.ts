@@ -39,8 +39,8 @@ module.exports = class TicTacToeCommand extends Command {
                         let players_go: number = 0;
                         let send_message: boolean = true;
                         let playing_game: boolean = true;
-                        let ttt_message: Message = false;
-                        let turn_message: Message = false;
+                        let ttt_message: Message = null;
+                        let turn_message: Message = null;
                         let user_input: number;
                         run();
                         async function run() {

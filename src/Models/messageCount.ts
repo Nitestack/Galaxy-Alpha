@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface MessageCountSchema extends mongoose.Document {
+export interface MessageCountSchema extends mongoose.Document {
 	_id: mongoose.Schema.Types.ObjectId;
 	messageGuildID: string,
 	messageUserID: string,

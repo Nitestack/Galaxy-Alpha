@@ -1,8 +1,6 @@
-//3 ARGS ERROR
 import Command from "@root/Command";
 import { MessageEmbed } from "discord.js";
 import Profile from '@models/profile';
-import { getRandomArbitrary } from "@root/util";
 import GalaxyAlpha from "@root/Client";
 
 module.exports = class BetCommand extends Command {
@@ -53,7 +51,7 @@ module.exports = class BetCommand extends Command {
 			return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription(`You must have atleast \`${minimum}\`$ in your wallet!`));
 		};
 		if (!args[0]) return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription('You have to provide a bet!'));
-		if (isNaN(args[0]) && !args[0].toLowerCase() == 'all' && !args[0].toLowerCase() == 'max') return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription('You have to provide a number, `max` or `all`!'));
+		if (isNaN(args[0]) && args[0].toLowerCase() != 'all' && args[0].toLowerCase() != 'max') return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription('You have to provide a number, `max` or `all`!'));
 		if (parseInt(args[0]) < minimum) return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription(`You have to bet atleast \`${minimum}\`$!`));
 		if (parseInt(args[0]) > userProfile.wallet) return message.channel.send(client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager").setDescription('You cannot bet more than you have in your wallet!'));
 		if (args[0] == 'all' || args[0] == 'max') {
@@ -73,7 +71,7 @@ module.exports = class BetCommand extends Command {
 			const luckNumber: Boolean = Math.random() < 0.5;
 			const embed: MessageEmbed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL());
 			if (luckNumber) {
-				const winNumber = getRandomArbitrary(30, 150);
+				const winNumber = client.util.getRandomArbitrary(30, 150);
 				const win = Math.round(number * (winNumber / 100));
 				await Profile.findOneAndUpdate({
 					profileID: message.author.id,

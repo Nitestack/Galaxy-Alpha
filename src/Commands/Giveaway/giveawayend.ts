@@ -28,17 +28,17 @@ module.exports = class GiveawayEndCommand extends Command {
                 .setTitle(giveawayManager)
                 .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
         } else {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${usage}`)
+            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle(giveawayManager)
                 .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
         };
         const messageID: string = args[0];
-        if (!messageID) return message.channel.send(client.createRedEmbed(true, `${prefix}${usage}`)
+        if (!messageID) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)
             .setDescription("You have to provide a message ID!"));
         const ended = client.giveaways.end(messageID);
         if (!ended) {
-            return message.channel.send(client.createRedEmbed(true, `${prefix}${usage}`)
+            return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle(giveawayManager)
                 .setDescription("This giveaway has already ended!"));
         };

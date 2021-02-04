@@ -1,6 +1,7 @@
 import Event from '@root/Event';
 import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
+import GalaxyAlpha from '@root/Client';
 
 module.exports = class GuildMemberAddEvent extends Event {
 	constructor(client) {
@@ -8,7 +9,7 @@ module.exports = class GuildMemberAddEvent extends Event {
 			name: "guildMemberAdd"
 		});
 	};
-	async run(client, member: GuildMember) {
+	async run(client: GalaxyAlpha, member: GuildMember) {
 		await GuildSchema.findOne({
 			guildID: member.guild.id
 		}, {}, {}, (err, guild) => {
@@ -16,7 +17,7 @@ module.exports = class GuildMemberAddEvent extends Event {
 			if (guild.welcomeChannelID == 'dm') {
 				member.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);
 			} else {
-				const welcomeChannel: TextChannel | NewsChannel = client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(guild.welcomeChannelID);;
+				const welcomeChannel: TextChannel | NewsChannel = (client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(guild.welcomeChannelID) as TextChannel | NewsChannel);
 				if (welcomeChannel) {
 					welcomeChannel.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);
 				} else {

@@ -1,5 +1,4 @@
 import Command from '@root/Command';
-import { weekDays, monthNames } from "@root/util";
 
 export const name: string = 'serverinfo';
 
@@ -25,7 +24,7 @@ module.exports = class ServerInfoCommand extends Command {
         let text: string = `👑 **Owner:** ${guild.owner}
         🗺️ **Region:** ${guild.region[0].toUpperCase() + guild.region.slice(1).toString()}
         ${client.memberEmoji} **Total Members:** \`${guild.memberCount.toLocaleString()}\`/\`${guild.maximumMembers.toLocaleString()}\` (\`${guild.members.cache.filter(member => member.user.bot).size.toLocaleString()}\` bots)
-        🗓️ **Created at:** ${weekDays[createdAt.getUTCDay()]}, ${monthNames[createdAt.getUTCMonth()]} ${createdAt.getUTCDate()}, ${createdAt.getUTCFullYear()}, ${createdAt.getUTCHours()}:${createdAt.getUTCMinutes()}:${createdAt.getUTCSeconds()} UTC
+        🗓️ **Created at:** ${client.util.weekDays[createdAt.getUTCDay()]}, ${client.util.monthNames[createdAt.getUTCMonth()]} ${createdAt.getUTCDate()}, ${createdAt.getUTCFullYear()}, ${createdAt.getUTCHours()}:${createdAt.getUTCMinutes()}:${createdAt.getUTCSeconds()} UTC
         📨 **Default Message Notifications:** ${guild.defaultMessageNotifications.toLowerCase()}
         ${verification}
         💎 **Boost:** Level \`${guild.premiumTier}\` with \`${guild.premiumSubscriptionCount.toLocaleString()}\` boosts\n`;
