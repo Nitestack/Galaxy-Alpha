@@ -1,5 +1,4 @@
-import GalaxyAlpha from '@root/Client';
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { VoiceChannel } from 'discord.js';
 import { videoFinder, playlistFinder } from "@commands/Music/Music";
 import ytSearch from "yt-search";
@@ -15,7 +14,7 @@ export default class PlayCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const embed = client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🎧 Music Manager");
         const voiceChannel: VoiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send(embed.setDescription('You need to be in a voice channel to use this command!'));

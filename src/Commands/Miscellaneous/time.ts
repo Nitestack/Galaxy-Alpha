@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class TimeCommand extends Command {
     constructor(){
@@ -8,7 +8,7 @@ export default class TimeCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const dateMonthWeek = new Date(message.createdAt);
         return message.channel.send(client.createEmbed()
             .setTitle('🕑 Current Time')

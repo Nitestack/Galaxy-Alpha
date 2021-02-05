@@ -1,5 +1,5 @@
-import Command from '@root/Command';
-import { dropManager } from './Drop';
+import Command, { CommandRunner } from '@root/Command';
+import { dropManager } from '@commands/Giveaway/Drop';
 
 export default class DropStartCommand extends Command {
     constructor() {
@@ -13,7 +13,7 @@ export default class DropStartCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const prize: string = args.join(" ");
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(dropManager)

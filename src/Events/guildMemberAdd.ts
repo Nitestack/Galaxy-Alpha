@@ -1,7 +1,6 @@
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
-import GalaxyAlpha from '@root/Client';
 
 export default class GuildMemberAddEvent extends Event {
 	constructor() {
@@ -9,7 +8,7 @@ export default class GuildMemberAddEvent extends Event {
 			name: "guildMemberAdd"
 		});
 	};
-	async run(client: GalaxyAlpha, member: GuildMember) {
+	run: EventRunner = async (client, member: GuildMember) => {
 		await GuildSchema.findOne({
 			guildID: member.guild.id
 		}, {}, {}, (err, guild) => {

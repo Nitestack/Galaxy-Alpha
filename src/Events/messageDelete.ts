@@ -1,8 +1,7 @@
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { Message } from 'discord.js';
 import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
-import GalaxyAlpha from '@root/Client';
 
 export default class MessageDeleteEvent extends Event {
     constructor() {
@@ -10,7 +9,7 @@ export default class MessageDeleteEvent extends Event {
             name: "messageDelete"
         });
     };
-    async run(client: GalaxyAlpha, message: Message) {
+    run: EventRunner = async (client, message: Message) => {
         if (message.embeds.length == 0) {
             client.snipes.set(message.channel.id, message);
         };

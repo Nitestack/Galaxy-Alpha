@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { Message } from 'discord.js';
 
 export default class HangManCommand extends Command {
@@ -10,7 +10,7 @@ export default class HangManCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let word: string;
         message.author.createDM();
         message.author.send(client.createEmbed()
@@ -177,11 +177,9 @@ export default class HangManCommand extends Command {
 
                                         reaction.users.fetch().then((usrs) => {
                                             var reactors = usrs.array();
-                                            var remove_next = function (index) {
+                                            var remove_next = function (index: number) {
                                                 if (index < reactors.length)
-                                                    reaction
-                                                        .remove(reactors[index])
-                                                        .then(() => remove_next(index + 1));
+                                                    reaction.remove().then(() => remove_next(index + 1));
                                             };
 
                                             remove_next(0);

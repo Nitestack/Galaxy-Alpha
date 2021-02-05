@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { GuildMember } from 'discord.js';
 
 export default class NickNameCommand extends Command {
@@ -14,7 +14,7 @@ export default class NickNameCommand extends Command {
             usage: "nickname set [@User/User ID] <new name>"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (args[0] && args[0].toLowerCase() == 'set') {
             let member: GuildMember = message.member;
             let optional: boolean = false;

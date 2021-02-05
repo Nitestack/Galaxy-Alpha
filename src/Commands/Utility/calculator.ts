@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class CalculatorCommand extends Command {
     constructor(){
@@ -10,7 +10,7 @@ export default class CalculatorCommand extends Command {
             category: "utility"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!args[0] || !args[1] || !args[2]) {
             const argsEmbed = client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle('Calculator')

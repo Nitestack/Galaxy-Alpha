@@ -1,8 +1,7 @@
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { Guild, Message, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
 import mongoose from 'mongoose';
-import GalaxyAlpha from '@root/Client';
 
 const openedTicket = new Map();
 
@@ -12,7 +11,7 @@ export default class ModMail extends Event {
             name: "modMail"
         });
     };
-    async run(client: GalaxyAlpha, message: Message) {
+    run: EventRunner = async (client, message: Message) => {
         if (message.author.bot) return;
         const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${client.globalPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
         if (!openedTicket.has(message.author.id)) {

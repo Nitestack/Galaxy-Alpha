@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export const name: string = 'serverinfo';
 
@@ -11,7 +11,7 @@ export default class ServerInfoCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const { guild } = message;
         const createdAt = guild.createdAt;
         let title: string = `📊 Information about ${guild.name}`;
@@ -25,7 +25,7 @@ export default class ServerInfoCommand extends Command {
         🗺️ **Region:** ${guild.region[0].toUpperCase() + guild.region.slice(1).toString()}
         ${client.memberEmoji} **Total Members:** \`${guild.memberCount.toLocaleString()}\`/\`${guild.maximumMembers.toLocaleString()}\` (\`${guild.members.cache.filter(member => member.user.bot).size.toLocaleString()}\` bots)
         🗓️ **Created at:** ${client.util.weekDays[createdAt.getUTCDay()]}, ${client.util.monthNames[createdAt.getUTCMonth()]} ${createdAt.getUTCDate()}, ${createdAt.getUTCFullYear()}, ${createdAt.getUTCHours()}:${createdAt.getUTCMinutes()}:${createdAt.getUTCSeconds()} UTC
-        📨 **Default Message Notifications:** ${guild.defaultMessageNotifications.toLowerCase()}
+        📨 **Default Message Notifications:** ${(guild.defaultMessageNotifications as string).toLowerCase()}
         ${verification}
         💎 **Boost:** Level \`${guild.premiumTier}\` with \`${guild.premiumSubscriptionCount.toLocaleString()}\` boosts\n`;
         if (guild.partnered) title = `📊 Information about <:partner:786331679101943849> ${guild.name}\n`;

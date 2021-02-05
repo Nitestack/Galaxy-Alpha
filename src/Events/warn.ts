@@ -1,5 +1,4 @@
-import GalaxyAlpha from '@root/Client';
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 
 export default class WarnEvent extends Event {
     constructor() {
@@ -7,7 +6,7 @@ export default class WarnEvent extends Event {
             name: "warn"
         });
     };
-    async run(client: GalaxyAlpha, info: string) {
+    run: EventRunner = async (client, info: string) => {
         console.log(info);
     };
 };  

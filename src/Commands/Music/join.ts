@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import { VoiceChannel } from "discord.js";
 
 export default class JoinCommand extends Command {
@@ -11,7 +10,7 @@ export default class JoinCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const embed = client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🎧 Music Manager");
         if (message.guild.me.voice.channel) return message.channel.send(embed.setDescription(`The bot is already in the channel \`${message.guild.me.voice.channel.name}\`!`));
         const voiceChannel: VoiceChannel = message.member.voice.channel;

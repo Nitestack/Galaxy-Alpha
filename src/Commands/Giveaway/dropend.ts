@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { dropManager } from '@commands/Giveaway/Drop';
 
 export default class DropEndCommand extends Command {
@@ -13,7 +13,7 @@ export default class DropEndCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(dropManager)
             .setDescription("You have to provide a message ID!"));

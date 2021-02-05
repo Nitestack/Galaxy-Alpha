@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 import clientData from '@models/clientData';
 
@@ -12,7 +12,7 @@ export default class BlockUserCommand extends Command {
 			developerOnly: true
 		});
 	};
-	async run(client, message, args, prefix) {
+	run: CommandRunner = async (client, message, args, prefix) => {
 		const commandUsage = `${prefix}${this.usage}`;
 		if (!args[0]) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle('❌ Block User Manager').setDescription("You have to mention a user or provide an user ID!"));
 		let user: User;

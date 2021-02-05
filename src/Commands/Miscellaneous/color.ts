@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import fetch from 'node-fetch';
 
 export default class ColorCommand extends Command {
@@ -10,7 +10,7 @@ export default class ColorCommand extends Command {
 			usage: "color [color]"
 		});
 	};
-	async run(client, message, args, prefix) {
+	run: CommandRunner = async (client, message, args, prefix) => {
 		var randomColor = Math.floor(Math.random() * 16777215).toString(16);
 		if (args[0]) randomColor = args[0];
 		let data = await fetch(`https://www.thecolorapi.com/id?hex=${randomColor}`);

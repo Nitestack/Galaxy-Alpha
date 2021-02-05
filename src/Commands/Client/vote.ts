@@ -1,4 +1,4 @@
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 
 export default class VoteCommand extends Command {
     constructor() {
@@ -8,7 +8,7 @@ export default class VoteCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         return message.channel.send(client.createEmbed()
             .setTitle("🗳️ Vote")
             .addField(`❓ Why I should vote for ${client.user.username}?`, `If you are voting for ${client.user.username}, you help the bot to grow and to get popular!`)

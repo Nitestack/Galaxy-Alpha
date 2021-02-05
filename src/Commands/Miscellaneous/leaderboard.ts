@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import MessageCount, { MessageCountSchema } from '@models/messageCount';
 import Profile, { ProfileSchema } from '@models/profile';
 import Levels, { LevelSchema } from "@models/levels";
@@ -15,14 +15,14 @@ export default class LeaderboardCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const usage = `${prefix}${this.usage}`;
         if (args[0].toLowerCase() == 'messages') {
             const embed = client.createEmbed().setTitle(`${client.chatEmoji} Leaderboard`);
             let text: string = '';
             const users = (await MessageCount.find({ messageGuildID: message.guild.id }).sort({
                 messageCount: -1
-            }).limit(args[1] && !isNaN(args[1]) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<MessageCountSchema>);
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<MessageCountSchema>);
             for (let i = 0; i < users.length; i++) {
                 let user = message.guild.members.cache.has(users[i].messageUserID) ? message.guild.members.cache.get(users[i].messageUserID).user : false;
                 if (user) {
@@ -43,7 +43,7 @@ export default class LeaderboardCommand extends Command {
             let text: string = "";
             const users = (await Levels.find({ guildID: message.guild.id }).sort({
                 xp: -1
-            }).limit(args[1] && !isNaN(args[1]) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<LevelSchema>);
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<LevelSchema>);
             for (let i = 0; i < users.length; i++){
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
                 if (user){
@@ -66,7 +66,7 @@ export default class LeaderboardCommand extends Command {
             let text: string = '';
             const profilesWallet = (await Profile.find({}).sort({
                 wallet: -1
-            }).limit(args[1] && !isNaN(args[1]) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<ProfileSchema>);
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<ProfileSchema>);
             for (let i = 0; i < profilesWallet.length; i++) {
                 let user = message.guild.members.cache.has(profilesWallet[i].profileID) ? message.guild.members.cache.get(profilesWallet[i].profileID).user : false;
                 if (user && !client.developers.includes(user.id)) {
@@ -87,7 +87,7 @@ export default class LeaderboardCommand extends Command {
             let text: string = '';
             const vouches = (await Vouches.find({}).sort({
                 upVotes: -1
-            }).limit(args[1] && !isNaN(args[1]) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<VouchSchema>);
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<VouchSchema>);
             for (let i = 0; i < vouches.length; i++) {
                 let user = message.guild.members.cache.has(vouches[i].userID) ? message.guild.members.cache.get(vouches[i].userID).user : false;
                 const upVotes = (vouches[i].upVotes - vouches[i].downVotes).toLocaleString();

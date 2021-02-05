@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import os from 'os';
 
 export default class InfoCommand extends Command {
@@ -10,7 +10,7 @@ export default class InfoCommand extends Command {
             aliases: ["invite", "stats"]
         });
     };
-    async run(client, message) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const dateMonthWeek = new Date(client.user.createdAt);
         const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

@@ -1,5 +1,4 @@
-import GalaxyAlpha from '@root/Client';
-import Command, { Categories } from '@root/Command';
+import Command, { CommandRunner, Categories } from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
 export default class HelpCommand extends Command {
@@ -12,14 +11,14 @@ export default class HelpCommand extends Command {
             clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const arrayOfCategories: Array<Categories> = [];
         client.categories.forEach(commands => {
             if (!arrayOfCategories.includes(commands[0].category) && commands[0].category != "developer") arrayOfCategories.push(commands[0].category);
         });
         if (args[0]) {
-            if (arrayOfCategories.includes(args[0].toLowerCase())) {
-
+            if (arrayOfCategories.includes((args[0].toLowerCase() as Categories))) {
+                
             } else {
                 const command = client.commands.get(args[0].toLowerCase()) || client.commands.get(client.aliases.get(args[0].toLowerCase()));
                 if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)

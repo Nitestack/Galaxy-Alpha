@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { Message, User } from 'discord.js';
 
 let inGame: Array<string> = [];
@@ -14,7 +14,7 @@ export default class TicTacToeCommand extends Command {
             category: "games"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let playerTwo: User;
         const usage: string = `${prefix}tictactoe <@User/User ID>`;
         if (message.mentions.users.first()) playerTwo = message.guild.members.cache.get(message.mentions.users.first().id).user;

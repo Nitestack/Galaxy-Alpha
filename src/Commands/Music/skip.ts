@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 
 export default class SkipCommand extends Command {
     constructor() {
@@ -11,11 +10,11 @@ export default class SkipCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!message.member.voice.channel) return message.channel.send(client.createEmbed()
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
-        if (args[0] && !isNaN(args[0])) {
+        if (args[0] && !isNaN((args[0] as unknown as number))) {
             if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
                 if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")

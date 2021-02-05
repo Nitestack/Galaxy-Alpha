@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import GuildSchema from '@models/guild';
 import { CategoryChannel, Role } from 'discord.js';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
@@ -15,7 +15,7 @@ export default class CreateTicketCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const usage: string = `${prefix}ticketcreate [reason]`;
         await TicketSchema.findOne({
             userID: message.author.id,
@@ -56,8 +56,8 @@ export default class CreateTicketCommand extends Command {
                             Do \`${prefix}ticketrole set <@Role/Role ID>\``));
                     };
                     if (guild.ticketCategoryID) {
-                        ticketCategory = message.guild.channels.cache.filter(channel => channel.type == 'category').get(guild.ticketCategoryID);
-                        if (ticketCategory) {
+                        ticketCategory = (message.guild.channels.cache.filter(channel => channel.type == 'category').get(guild.ticketCategoryID) as CategoryChannel);
+                        if (ticketCategory) { 
                             ticketCate = true;
                         };
                     };

@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import Guild from '@models/guild';
 
@@ -13,7 +13,7 @@ export default class GiveawayListCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let giveawayManagerRole;
         await Guild.findOne({
             guildID: message.guild.id

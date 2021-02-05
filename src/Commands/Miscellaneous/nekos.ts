@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import axios from 'axios';
 
 export default class NekosCommand extends Command {
@@ -11,7 +11,7 @@ export default class NekosCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (args[0]) {
             axios.get(`https://nekos.life/api/v2/img/${args[0].toLowerCase()}`).then(result => {
                 if ((!result && !result.data && !result.data.url) || result.data.msg == '404') return message.channel.send(client.createRedEmbed(true, `${prefix}nekos <keyword>`)

@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Guild from '@models/guild';
 import { Role } from 'discord.js';
 
@@ -12,7 +12,7 @@ export default class MemberRoleCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const setUsage = `${prefix}memberrole set <@Role/Role ID>`;
         const deleteUsage = `${prefix}memberrole remove`;
         if (args[0].toLowerCase() == 'set') {

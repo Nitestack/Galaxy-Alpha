@@ -1,7 +1,6 @@
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import { MessageEmbed } from "discord.js";
 import Profile from '@models/profile';
-import GalaxyAlpha from "@root/Client";
 
 export default class BetCommand extends Command {
 	constructor() {
@@ -12,7 +11,7 @@ export default class BetCommand extends Command {
 			usage: "bet <amount of coins/\"max\"/\"all\">"
 		});
 	};
-	async run(client: GalaxyAlpha, message, args, prefix) {
+	run: CommandRunner = async (client, message, args, prefix) => {
 		const commandUsage: string = `${prefix}${this.usage}`;
 		await Profile.findOneAndUpdate({
 			profileID: message.author.id

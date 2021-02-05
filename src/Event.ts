@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { Bot } from "@root/index";
 
 export interface EventRunner {
-	(client: GalaxyAlpha, ...params: unknown[]): Promise<void>;
+	(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown>;
 };
 
 export default class Event {
@@ -25,7 +25,7 @@ export default class Event {
 		if (typeof info.name != 'string') throw new TypeError("The event name must be a string!");
 		if (!this.client.util.validEvents.includes(info.name)) throw new Error(`Invalid event: ${info.name}`);
 	};
-	async run(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown> {
+	run = async (client: GalaxyAlpha, ...params: unknown[]): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 };

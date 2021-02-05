@@ -3,7 +3,7 @@ import GalaxyAlpha from '@root/Client';
 import { Bot } from "@root/index";
 
 export interface CommandRunner {
-	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void>;
+	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void | Discord.Message>;
 };
 
 export type Categories =
@@ -82,7 +82,7 @@ export default class Command {
 			newsChannelOnly: this.newsChannelOnly
 		});
 	};
-	async run(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void> {
+	run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void | Discord.Message> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 	validateInfo(info: {

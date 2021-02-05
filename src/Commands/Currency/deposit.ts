@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Profile from '@models/profile';
 import mongoose from 'mongoose';
 
@@ -12,7 +12,7 @@ export default class DepositCommand extends Command {
             usage: "deposit <amount of coins/\"max\"/\"all\">"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage: string = `${prefix}${this.usage}`;
         let oldWallet: number;
         let oldBank: number;
@@ -49,7 +49,7 @@ export default class DepositCommand extends Command {
 
         if (userProfile.wallet == 0)
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL()).setDescription('You cannot deposit any coins with an empty wallet!'));
-        if ((isNaN(args[0]) && args[0] != 'all' && args[0] != 'max') || !args[0])
+        if ((isNaN((args[0] as unknown as number)) && args[0] != 'all' && args[0] != 'max') || !args[0])
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
                 .setDescription('You have to provide an amount of coins, `max` or `all`!'));
         if (userProfile.wallet < parseInt(args[0]))
@@ -60,7 +60,7 @@ export default class DepositCommand extends Command {
                 .setDescription('You have to deposit atleast `1`$!'));
         if (args[0] == 'all' || args[0] == 'max')
             return deposit(userProfile.wallet);
-        if (!isNaN(args[0])) return deposit(parseInt(args[0]));
+        if (!isNaN((args[0] as unknown as number))) return deposit(parseInt(args[0]));
 
         async function deposit(number: number) {
             await Profile.findOneAndUpdate({

@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 
 export default class AvatarCommand extends Command {
@@ -10,8 +10,8 @@ export default class AvatarCommand extends Command {
             usage: "avatar [@User/User ID]"
         });
     };
-    async run(client, message, args, prefix) {
-        let user: User = message.member;
+    run: CommandRunner = async (client, message, args, prefix) => {
+        let user: User = message.author;
         if (message.mentions.users.first()) user = client.users.cache.get(message.mentions.users.first().id);
         if (args[0] && client.users.cache.has(args[0])) user = client.users.cache.get(args[0]);
         return message.channel.send(client.createEmbed()

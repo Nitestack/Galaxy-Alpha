@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class EightBallCommand extends Command {
     constructor() {
@@ -9,7 +9,7 @@ export default class EightBallCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let question = args.slice().join(' ');
         if (!question) return message.channel.send(client.createRedEmbed(true, `${prefix}8ball <question>`)
             .setTitle('🎱 Manager')

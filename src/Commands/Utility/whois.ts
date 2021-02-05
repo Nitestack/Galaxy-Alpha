@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { GuildMember } from 'discord.js';
 
 export default class WhoisCommand extends Command {
@@ -11,7 +11,7 @@ export default class WhoisCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let member: GuildMember = message.member;
         if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
         if (args[0] && message.guild.members.cache.get(args[0])) member = message.guild.members.cache.get(args[0]);

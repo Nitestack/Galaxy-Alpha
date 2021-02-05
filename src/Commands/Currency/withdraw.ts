@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Profile from '@models/profile';
 import mongoose from 'mongoose';
 
@@ -12,7 +12,7 @@ export default class WithdrawCommand extends Command {
             aliases: ["with"]
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage = `${prefix}${this.usage}`;
         let oldWallet: number;
         let oldBank: number;
@@ -50,7 +50,7 @@ export default class WithdrawCommand extends Command {
         if (userProfile.bank == 0)
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
                 .setDescription('You cannot withdraw any coins with an empty bank'));
-        if ((isNaN(args[0]) && args[0] != 'all' && args[0] != 'max') || !args[0])
+        if ((isNaN((args[0] as unknown as number)) && args[0] != 'all' && args[0] != 'max') || !args[0])
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
                 .setDescription('You have to provide an amount of coins, `max` or `all`!'));
         if (userProfile.bank < parseInt(args[0]))
@@ -60,7 +60,7 @@ export default class WithdrawCommand extends Command {
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
                 .setDescription('You have to withdraw atleast `1`$!'));
         if (args[0] == 'all' || args[0] == 'max') return withdraw(userProfile.bank);
-        if (!isNaN(args[0])) return withdraw(parseInt(args[0]));
+        if (!isNaN((args[0] as unknown as number))) return withdraw(parseInt(args[0]));
         async function withdraw(number: number) {
             await Profile.findOneAndUpdate({
                 profileID: message.author.id,

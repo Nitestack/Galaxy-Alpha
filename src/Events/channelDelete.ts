@@ -1,11 +1,10 @@
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { DMChannel, GuildChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
 import autoPublishSchema from '@models/clientData';
 import TicketSchema from '@models/ticket';
 import ModLogsSchema from '@models/modlogs';
 import CounterSchema from '@models/counter';
-import GalaxyAlpha from '@root/Client';
 
 export default class ChannelDeleteEvent extends Event {
 	constructor() {
@@ -13,7 +12,7 @@ export default class ChannelDeleteEvent extends Event {
 			name: "channelDelete"
 		});
 	};
-	async run(client: GalaxyAlpha, channel: DMChannel | GuildChannel) {
+	run: EventRunner = async (client, channel: DMChannel | GuildChannel) => {
 		if (channel.type == 'category') {
 			GuildSchema.findOne({
 				ticketCategoryID: channel.id

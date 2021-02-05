@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { Message, NewsChannel, TextChannel } from 'discord.js';
 import ReactionRolesSchema from '@models/reactionroles';
 import GalaxyAlpha from '@root/Client';
@@ -13,7 +13,7 @@ export default class ReactionRolesCommand extends Command {
             userPermissions: ["MANAGE_CHANNELS"]
         });
     };
-    async run(client: GalaxyAlpha, message: Message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let cancel: boolean = false;
         let responses: {
             messageID: string,
@@ -23,6 +23,10 @@ export default class ReactionRolesCommand extends Command {
             emojiIDs: Array<string>;
             roleIDs: Array<string>;
         } = {
+            messageID: "",
+            channelID: "",
+            title: "",
+            description: "",
             emojiIDs: [],
             roleIDs: []
         };

@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 
 export default class DMSuggestionCommand extends Command {
@@ -11,7 +11,7 @@ export default class DMSuggestionCommand extends Command {
             developerOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let user: User;
         if (message.mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = client.users.cache.get(message.mentions.users.first().id);
         if (args[0] && client.users.cache.has(args[0])) user = client.users.cache.get(args[0]);

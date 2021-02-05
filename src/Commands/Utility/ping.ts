@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class PingCommand extends Command {
     constructor() {
@@ -8,7 +8,7 @@ export default class PingCommand extends Command {
             category: "utility"
         });
     };
-    async run (client, message){
+    run: CommandRunner = async (client, message, args, prefix) => {
         const msgEmbed = client.createEmbed()
             .setTitle(`📡   **PINGING  <a:loading:786705779080036372>**`)
             .setDescription(`❌ If the **Client Latency** and the **API Latency** won't be shown, try it again!`);

@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Profile from '@models/profile';
 
 export default class DailyCommand extends Command {
@@ -10,7 +10,7 @@ export default class DailyCommand extends Command {
             cooldown: 60 * 60 * 24
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} redeemed their daily reward!`, message.author.displayAvatarURL());
         const dailyBonus = 2000; //define a daily reward here
         let oldProfile: number;

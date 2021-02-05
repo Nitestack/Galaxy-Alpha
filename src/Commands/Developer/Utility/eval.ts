@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { inspect } from 'util';
 
 export default class EvalCommand extends Command {
@@ -11,7 +11,7 @@ export default class EvalCommand extends Command {
             category: "developer"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const evalChannel = '789116457655992350';
         const createdAt = new Date(message.createdAt);
         const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',];

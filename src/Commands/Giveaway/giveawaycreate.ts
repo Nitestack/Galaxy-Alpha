@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { NewsChannel, TextChannel } from 'discord.js';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import GuildSchema from '@models/guild';
@@ -14,7 +14,7 @@ export default class GiveawayCreateCommand extends Command {
             userPermissions: ["MANAGE_GUILD"]
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let giveawayManagerRole;
         await GuildSchema.findOne({
             guildID: message.guild.id
@@ -92,7 +92,7 @@ export default class GiveawayCreateCommand extends Command {
                 if (i == 0) { //THE BEGINNING - CHANNEL
                     let channel: TextChannel | NewsChannel;
                     if (msg.first().mentions.channels.first()) channel = msg.first().mentions.channels.first();
-                    if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = message.guild.channels.cache.get(msg.first().content);
+                    if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = (message.guild.channels.cache.get(msg.first().content) as TextChannel | NewsChannel);
                     if (!channel) i = -1;
                     if (channel) {
                         responses.channel = channel;
@@ -183,7 +183,7 @@ export default class GiveawayCreateCommand extends Command {
                 } else if (i == 9) {//CHANNEL
                     let channel: TextChannel | NewsChannel;
                     if (msg.first().mentions.channels.first()) channel = msg.first().mentions.channels.first();
-                    if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = message.guild.channels.cache.get(msg.first().content);
+                    if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = (message.guild.channels.cache.get(msg.first().content) as TextChannel | NewsChannel);
                     if (!channel) i = -1;
                     if (channel) {
                         responses.channel = channel;

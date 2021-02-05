@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class SnipeCommand extends Command {
     constructor() {
@@ -8,7 +8,7 @@ export default class SnipeCommand extends Command {
             category: "utility"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (client.snipes.has(message.channel.id)) {
             const snipes = client.snipes.get(message.channel.id);
             const embed = client.createEmbed()

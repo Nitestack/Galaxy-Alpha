@@ -1,5 +1,5 @@
 import GalaxyAlpha from '@root/Client';
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { GuildChannel, DMChannel, Guild, Role } from 'discord.js';
 
 import GuildSchema from '@models/guild';
@@ -10,7 +10,7 @@ export default class ChannelUpdateEvent extends Event {
 			name: 'channelUpdate'
 		});
 	};
-	async run(client: GalaxyAlpha, oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) {
+	run: EventRunner = async (client, oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) => {
 		if (newChannel.type == 'dm') return;
 		const result = await GuildSchema.findOne(
 			{

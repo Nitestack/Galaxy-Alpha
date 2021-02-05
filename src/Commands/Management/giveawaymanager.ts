@@ -12,7 +12,7 @@ export default class GiveawayManagerRoleCommand extends Command {
             guildOnly: true
         });
     };  
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const setUsage = `${prefix}giveawaymanager set <@Role/Role ID>`;
         const deleteUsage = `${prefix}giveawaymanager remove`;
         if (args[0].toLowerCase() == 'set') {

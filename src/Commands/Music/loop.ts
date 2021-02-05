@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 
 export default class LoopCommand extends Command {
     constructor() {
@@ -11,7 +10,7 @@ export default class LoopCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!client.queue.has(message.guild.id) || !client.queue.get(message.guild.id).queue || client.queue.get(message.guild.id).queue.length < 1) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("There is no queue in this server!"));

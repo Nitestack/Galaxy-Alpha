@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 
 export default class InvitesCommand extends Command {
@@ -11,7 +11,7 @@ export default class InvitesCommand extends Command {
             usage: "invites [@User/User ID]"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let user: User = message.author;
         if (message.mentions.users.first() && message.guild.members.cache.has(message.mentions.users.first().id)) user = message.guild.members.cache.get(message.mentions.users.first().id).user;
         if (args[0] && message.guild.members.cache.has(args[0])) user = message.guild.members.cache.get(args[0]).user;

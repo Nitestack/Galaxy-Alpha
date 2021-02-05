@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import axios from 'axios';
 
 export default class DiscordJSDocumentationCommand extends Command {
@@ -12,7 +12,7 @@ export default class DiscordJSDocumentationCommand extends Command {
             developerOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!client.developers.includes(message.author.id)) return;
         if (!args[0]) return;
         axios.get(`https://djsdocs.sorta.moe/v2/embed?src=stable&q=${encodeURIComponent(args.join(" "))}`).then(embed => {

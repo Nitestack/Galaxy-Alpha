@@ -9,7 +9,7 @@ export const giveawayManager: string = "🎉 Giveaway Manager";
 
 export default class Giveaway {
     private client: GalaxyAlpha;
-    constructor(client){
+    constructor(client: GalaxyAlpha){
         this.client = client;
     };
     public async start(options: { duration: number, channelID: string, guildID: string, prize: string, winners: number, hostedBy: User }, message: Message, requirements: { roles: Array<string>, messages: number, invites: number, level: number, guildReq: string }) {

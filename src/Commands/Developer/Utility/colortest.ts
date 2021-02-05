@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
 export default class ColortestCommand extends Command {
@@ -12,7 +12,7 @@ export default class ColortestCommand extends Command {
             category: "developer"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (args[0]) {
             const colorTestEmbed: MessageEmbed = client.createEmbed()
                 .setTitle("🎨 Color Test Manager")

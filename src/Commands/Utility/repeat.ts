@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class RepeatCommand extends Command {
     constructor(){
@@ -9,7 +9,7 @@ export default class RepeatCommand extends Command {
             usage: "repeat [embed] <text>"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`));
         if (args[0].toLowerCase() === 'embed') {
             const embed = client.createEmbed()

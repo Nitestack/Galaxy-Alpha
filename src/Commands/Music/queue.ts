@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import { Queue } from "@root/Client";
 import { MessageEmbed } from "discord.js";
 
@@ -12,7 +11,7 @@ export default class QueueCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const queue = await client.music.getQueue(message.guild.id);
         if (!queue) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")

@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import durationConverter from "humanize-duration";
 
 export default class NowPlayingCommand extends Command {
@@ -12,7 +11,7 @@ export default class NowPlayingCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const dispatcher = client.queue.get(message.guild.id) ? (client.queue.get(message.guild.id).dispatcher ? client.queue.get(message.guild.id).dispatcher : null) : null;
         if (!dispatcher) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")

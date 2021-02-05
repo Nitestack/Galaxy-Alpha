@@ -1,5 +1,4 @@
-import GalaxyAlpha from '@root/Client';
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { Guild, Role } from 'discord.js';
 
 export default class GuildUpdateEvent extends Event {
@@ -8,7 +7,7 @@ export default class GuildUpdateEvent extends Event {
             name: "guildUpdate"
         });
     };
-    async run(client: GalaxyAlpha, oldGuild: Guild, newGuild: Guild){
+    run: EventRunner = async (client, oldGuild: Guild, newGuild: Guild) => {
         let role: Role;
         if (oldGuild.premiumSubscriptionCount != newGuild.premiumSubscriptionCount){
             newGuild.members.cache.filter(member => member.premiumSince ? true : false).forEach(member => {

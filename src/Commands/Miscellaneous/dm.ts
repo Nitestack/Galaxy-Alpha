@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { StringResolvable, User } from 'discord.js';
 
 export default class DMCommand extends Command {
@@ -10,7 +10,7 @@ export default class DMCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const textEmbed = client.createEmbed()
             .setAuthor(message.author.tag, message.author.displayAvatarURL())
             .setTitle('DM Manager');
@@ -57,7 +57,7 @@ export default class DMCommand extends Command {
                     };
             } else if (i == 1) {
                 if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') {
-                    responses.embed = content;
+                    responses.embed = (content.toLowerCase() as "yes" | "no");
                     i = 3;
                 } else {
                     i = 0;
@@ -74,7 +74,7 @@ export default class DMCommand extends Command {
                 };
             } else if (i == 3) {
                 if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') {
-                    responses.embed = content.toLowerCase();
+                    responses.embed = (content.toLowerCase() as "yes" | "no");
                 } else {
                     i = 0;
                 };

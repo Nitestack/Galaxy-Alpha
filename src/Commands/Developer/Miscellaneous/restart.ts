@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { MessageEmbed } from 'discord.js';
 
 export default class RestartCommand extends Command {
@@ -10,7 +10,7 @@ export default class RestartCommand extends Command {
             ownerOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         return message.channel.send(client.createEmbed()
             .setTitle("🟢 Node JS Manager")
             .setDescription("Do you really want to leave the NodeJS process?")).then(async msg => {

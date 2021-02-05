@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Profile from '@models/profile';
 
 export default class WorkCommand extends Command {
@@ -10,7 +10,7 @@ export default class WorkCommand extends Command {
             cooldown: 3600
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} was working!`, message.author.displayAvatarURL());
         const wage = Math.round(client.util.getRandomArbitrary(1000, 1500));
         let oldWallet: number;

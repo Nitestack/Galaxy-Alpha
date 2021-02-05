@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 import Command from "@root/Command";
 import duration from 'humanize-duration'
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 import { Guild, MessageEmbed, TextChannel } from 'discord.js';
 import { Message } from 'discord.js';
-import autoPublishSchema from '@root/Models/clientData';
+import autoPublishSchema from '@models/clientData';
 import MessageCount from '@models/messageCount';
 import GuildSchema from '@models/guild';
-import GalaxyAlpha from '@root/Client';
-import LevelSchema from '@root/Models/levels';
+import LevelSchema from '@models/levels';
 
 export default class MessageEvent extends Event {
 	constructor() {
@@ -16,7 +15,7 @@ export default class MessageEvent extends Event {
 			name: 'message'
 		});
 	};
-	async run(client: GalaxyAlpha, message: Message) {
+	run: EventRunner = async (client, message: Message) => {
 		if (message.author.bot) return;
 		if (message.channel.type != "dm" && !message.channel.permissionsFor(client.user).has("SEND_MESSAGES")) return (message.guild.channels.cache
 			.filter(channel => channel.type == "text" && channel.permissionsFor(client.user).has("SEND_MESSAGES"))

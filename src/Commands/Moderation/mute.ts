@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { GuildMember, Role } from 'discord.js';
 import MemberSchema from '@models/member';
 import GuildSchema from '@models/guild';
@@ -16,7 +16,7 @@ export default class MuteCommand extends Command {
             usage: "mute <@User/User ID> [time] [reason]"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const usage = `${prefix}mute <@User/User ID> [time] [reason]`;
         let muteRole: Role;
         let memberRole: Role;

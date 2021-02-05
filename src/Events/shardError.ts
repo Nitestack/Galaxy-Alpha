@@ -1,5 +1,4 @@
-import GalaxyAlpha from '@root/Client';
-import Event from '@root/Event';
+import Event, { EventRunner } from '@root/Event';
 
 export default class ShardErrorEvent extends Event {
 	constructor() {
@@ -7,7 +6,7 @@ export default class ShardErrorEvent extends Event {
 			name: "shardError"
 		});
 	};
-	async run(client: GalaxyAlpha, error: Error, shardID: number) {
+	run: EventRunner = async (client, error: Error, shardID: number) => {
 		console.log(`Error on Shard ${shardID}\nError:\n${error}`);
 	};
 };

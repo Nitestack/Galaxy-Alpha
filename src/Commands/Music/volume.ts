@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 
 export default class VolumeCommand extends Command {
     constructor() {
@@ -11,7 +10,7 @@ export default class VolumeCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const dispatcher = client.queue.get(message.guild.id) ? (client.queue.get(message.guild.id).dispatcher ? client.queue.get(message.guild.id).dispatcher : null) : null;
         if (!dispatcher) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
@@ -23,7 +22,7 @@ export default class VolumeCommand extends Command {
             if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
-            if (!args[1] || isNaN(args[1] || parseInt(args[1]) > 100 || parseInt(args[1]) < 0)) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            if (!args[1] || isNaN(args[1] as unknown as number) || parseInt(args[1]) > 100 || parseInt(args[1]) < 0) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to provide a volume between 0 and 100!"));
             client.music.volume(dispatcher, parseInt(args[1]) / 100);

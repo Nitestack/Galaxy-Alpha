@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { GuildMember } from 'discord.js';
 import TicketSchema from '@models/ticket';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
@@ -14,7 +14,7 @@ export default class AddUserToTicketCommand extends Command {
             usage: "ticketadd <@User/User ID>"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         let member: GuildMember;
         if (message.mentions.users.first()) member = message.guild.members.cache.filter(member => !member.user.bot).get(message.mentions.users.first().id);
         if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).get(args[0])) member = message.guild.members.cache.filter(member => !member.user.bot).get(args[0]);

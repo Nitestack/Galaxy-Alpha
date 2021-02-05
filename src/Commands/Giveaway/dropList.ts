@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 
 export default class DropListCommand extends Command {
@@ -13,7 +13,7 @@ export default class DropListCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const list = await client.drop.list(message.guild.id);
         if (!list) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)

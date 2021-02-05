@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Guild from '@models/guild';
 import { Role } from 'discord.js';
 
@@ -12,7 +12,7 @@ export default class MuteRoleCommand extends Command {
             usage: "muterole create <mute role name> or muterole set <@Role/Role ID> or muterole remove"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const createUsage = `${prefix}muterole create <mute role name>`;
         const setUsage = `${prefix}muterole set <@Role/Role ID>`;
         const deleteUsage = `${prefix}muterole remove`;

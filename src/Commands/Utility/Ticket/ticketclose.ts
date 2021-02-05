@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import TicketSchema from '@models/ticket';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 
@@ -13,7 +13,7 @@ export default class CloseTicketCommand extends Command {
             category: "ticket"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         await TicketSchema.findOne({
             channelID: message.channel.id
         }, {}, {}, async (err, ticket) => {

@@ -1,7 +1,6 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Profile from '@models/profile';
 import { MessageEmbed } from 'discord.js';
-import GalaxyAlpha from '@root/Client';
 
 export default class BegCommand extends Command {
 	constructor() {
@@ -12,7 +11,7 @@ export default class BegCommand extends Command {
 			cooldown: 15
 		});
 	};
-	async run(client: GalaxyAlpha, message, args, prefix) {
+	run: CommandRunner = async (client, message, args, prefix) => {
 		const probabilityOfBeg = Math.round(client.util.getRandomArbitrary(1, 10));
 		const begCoins = Math.round(client.util.getRandomArbitrary(100, 400));
 		const list = ['HydraNhani', 'Dank Wario', 'Julien Bam', 'Mr. Krabs', 'Scrooge McDuck', 'TaiChampion', 'HydraNinjaX', 'MiTH_Löwe',];

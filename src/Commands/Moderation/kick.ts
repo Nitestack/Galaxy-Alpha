@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { GuildMember } from 'discord.js';
 import WebhookSchema from '@models/modlogs';
 import { TextChannel, NewsChannel } from 'discord.js';
@@ -17,7 +17,7 @@ export default class KickCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const usage: string = `${prefix}${this.usage}`;
         let member: GuildMember;
         if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
@@ -41,7 +41,7 @@ export default class KickCommand extends Command {
                                         if (err) return console.log(err);
                                         if (!webhook) return;
                                         if (webhook) {
-                                            const webhookChannel: TextChannel | NewsChannel = client.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text');
+                                            const webhookChannel: TextChannel | NewsChannel = (client.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(webhook.channelID) as TextChannel | NewsChannel);
                                             if (webhookChannel) {
                                                 webhookChannel.fetchWebhooks().then(webhooks => {
                                                     if (!webhooks.has(webhook.webhookID)) return;

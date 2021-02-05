@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 
 export default class ClearCommand extends Command {
@@ -13,7 +13,7 @@ export default class ClearCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const amountUsage = `${prefix}clear <amount of messages> [@User/User ID]`;
         const contentUsage = `${prefix}clear content <content>`;
         const clearManager = "🧹 Clear Manager";

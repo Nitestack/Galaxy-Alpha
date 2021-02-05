@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import GuildSchema from '@models/guild';
 import { Guild } from 'discord.js';
-import Event from '@root/Event';
-import GalaxyAlpha from '@root/Client';
+import Event, { EventRunner } from '@root/Event';
 
 export default class GuildCreateEvent extends Event {
 	constructor() {
@@ -10,7 +9,7 @@ export default class GuildCreateEvent extends Event {
 			name: "guildCreate"
 		});
 	};
-	async run(client: GalaxyAlpha, guild: Guild) {
+	run: EventRunner = async (client, guild: Guild) => {
 		const newGuild = new GuildSchema({
 			_id: mongoose.Types.ObjectId(),
 			guildID: guild.id,

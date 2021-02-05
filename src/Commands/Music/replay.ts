@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 
 export default class ReplayCommand extends Command {
     constructor() {
@@ -10,7 +9,7 @@ export default class ReplayCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!message.member.voice.channel) return message.channel.send(client.createEmbed()
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));

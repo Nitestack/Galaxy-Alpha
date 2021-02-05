@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import GuildSchema from '@models/guild';
 
 export default class JoinMessageCommand extends Command {
@@ -11,7 +11,7 @@ export default class JoinMessageCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const welcomeManager: string = '🤗 Welcome Manager';
         const setUsage = `${prefix}joinmessage set [embed] <text>`;
         const removeUsage = `${prefix}joinmessage remove`;

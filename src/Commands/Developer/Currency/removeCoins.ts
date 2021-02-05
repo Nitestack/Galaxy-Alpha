@@ -1,5 +1,5 @@
 import Profile from '@models/profile';
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 
 export default class RemoveCoinsCommand extends Command {
@@ -12,12 +12,12 @@ export default class RemoveCoinsCommand extends Command {
             usage: "removecoins <@User/User ID> <wallet/bank> <amount of coins (limit: 1.000.000.000$)>"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage: string = `${prefix}${this.usage}`;
         let user: User;
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setDescription('You have mention a user or provide a user ID!'));
         if (args[1] != 'bank' && args[1] != 'wallet') return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setDescription('You have to specifiy, if you want to remove the coins to the bank or to the wallet!'));
-        if (!args[2] || (isNaN(args[2]) && args[2] != 'all' && args[2] != 'max')) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setDescription('You have to provide an amount of coins you want to remove to the user!'));
+        if (!args[2] || (isNaN((args[2] as unknown as number)) && args[2] != 'all' && args[2] != 'max')) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setDescription('You have to provide an amount of coins you want to remove to the user!'));
         if (parseInt(args[2]) <= 0) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setDescription('You have to remove atleast `1`$!'));
         if (message.mentions.users.first()) user = message.mentions.users.first();
         if (args[0] && client.users.cache.filter(user => !user.bot).get(args[0])) user = client.users.cache.filter(user => !user.bot).get(args[0]);

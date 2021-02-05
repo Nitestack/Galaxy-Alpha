@@ -1,6 +1,6 @@
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import canvacord from "canvacord";
-import { Message, User, MessageAttachment } from "discord.js";
+import { User, MessageAttachment } from "discord.js";
 import LevelSchema from "@models/levels";
 
 export default class LevelCommand extends Command {
@@ -12,7 +12,7 @@ export default class LevelCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message: Message, args, prefix){
+    run: CommandRunner = async (client, message, args, prefix) => {
         let targetUser: User = message.author;
         if (message.mentions.users.first() && message.guild.members.cache.has(message.mentions.users.first().id)) targetUser = message.mentions.users.first();
         if (args[0] && message.guild.members.cache.has(args[0])) targetUser = message.guild.members.cache.get(args[0]).user;

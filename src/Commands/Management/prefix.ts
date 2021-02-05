@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import Guild from '@models/guild';
 
 export default class PrefixCommand extends Command {
@@ -11,7 +11,7 @@ export default class PrefixCommand extends Command {
             usage: "prefix <new prefix>"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}prefix <new prefix>`)
             .setTitle("🎉 Giveaway Role Manager")
             .setDescription("You need the permission `Manage Server` to use this command!"));

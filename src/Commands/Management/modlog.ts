@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import ModLogsSchema from '@models/modlogs';
 import { GuildChannel, NewsChannel, TextChannel } from 'discord.js';
 
@@ -12,7 +12,7 @@ export default class ModLogsCommand extends Command {
             guildOnly: true
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (args[0].toLowerCase() == 'set') {
             if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}modlogs set <#channel/channel ID>`)
                 .setTitle("🎉 Giveaway Role Manager")
@@ -32,7 +32,7 @@ export default class ModLogsCommand extends Command {
                 .setDescription(`You have to mention a valid channel in this server!`)
                 .setTitle("📊 Mod Log Manager"));
             if (result && channel.id == result.channelID) return message.channel.send(client.createRedEmbed(true, usage).setDescription("This channel is already the mod logs channel!"));
-            const check: TextChannel | NewsChannel = message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(channel.id);
+            const check: TextChannel | NewsChannel = (message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(channel.id) as TextChannel | NewsChannel);
             return message.channel.send(client.createGreenEmbed().setTitle("📊 Mod Log Manager").setDescription(`Do you really want to set the mod logs channel to ${check}?\n\nYou have 30s to react!`)).then(async msg => {
                 await msg.react(client.yesEmojiID);
                 await msg.react(client.noEmojiID);

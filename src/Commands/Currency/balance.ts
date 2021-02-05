@@ -1,7 +1,6 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
 import Profile from '@models/profile';
-import GalaxyAlpha from "@root/Client";
 
 export default class BalanceCommand extends Command {
 	constructor() {
@@ -13,7 +12,7 @@ export default class BalanceCommand extends Command {
 			usage: "balance [@User/User ID]"
 		});
 	};
-	async run(client: GalaxyAlpha, message, args, prefix) {
+	run: CommandRunner = async (client, message, args, prefix) => {
 		let user: User = message.author;
 		if (message.mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = message.mentions.users.first();
 		if (args[0] && client.users.cache.filter(user => !user.bot).get(args[0])) user = client.users.cache.filter(user => !user.bot).get(args[0]);

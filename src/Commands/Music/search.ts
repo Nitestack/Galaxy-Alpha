@@ -1,5 +1,4 @@
-import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
+import Command, { CommandRunner } from "@root/Command";
 import { videoFinder, playlistFinder } from "@commands/Music/Music";
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
@@ -13,7 +12,7 @@ export default class SearchCommand extends Command {
             usage: "search <keywords/YouTube link>"
         });
     };
-    async run(client: GalaxyAlpha, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("You have to provide a link or keywords of the YouTube video!"));

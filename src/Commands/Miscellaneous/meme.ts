@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 import axios from 'axios';
 
 export default class MemeCommand extends Command {
@@ -9,7 +9,7 @@ export default class MemeCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message, args, prefix) {
+    run: CommandRunner = async (client, message, args, prefix) => {
         const memeAPI: string = "https://meme-api.herokuapp.com/gimme";
         function meme() {
             axios.get(memeAPI).then(result => {

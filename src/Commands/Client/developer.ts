@@ -1,4 +1,4 @@
-import Command from '@root/Command';
+import Command, { CommandRunner } from '@root/Command';
 
 export default class DeveloperCommand extends Command {
     constructor() {
@@ -8,7 +8,7 @@ export default class DeveloperCommand extends Command {
             category: "miscellaneous"
         });
     };
-    async run(client, message) {
+    run: CommandRunner = async (client, message) => {
         return message.channel.send(client.createEmbed()
             .setTitle(`🛠️ ${client.user.username}'s Developer`)
             .addField("Developers", `<@${client.developers.join(">\n<@")}>`)
