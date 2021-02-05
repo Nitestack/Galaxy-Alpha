@@ -16,7 +16,7 @@ import TicketManager from '@commands/Utility/Ticket/Ticket';
 import DropManager from '@commands/Giveaway/Drop';
 import CacheManager from '@root/GlobalCache';
 import MusicManager from "@commands/Music/Music";
-import GalaxyAlphaUtil from "@root/util";
+import GalaxyAlphaUtil from "@root/Util";
 //MODELS\\
 import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
@@ -121,50 +121,9 @@ export default class GalaxyAlpha extends Discord.Client {
 		mongoose.set('useUnifiedTopology', true);
 		//READY EVENT\\
 		this.once("ready", async () => {
-			//GIVEAWAYS\\
-			const giveaways = await GiveawaySchema.find({});
-			giveaways.forEach(giveaway => {
-				endGiveaway(giveaway.messageID);
-			});
-			//DROPS\\
-			const drops = await DropSchema.find({});
-			drops.forEach(drop => {
-				deleteDrop(drop.messageID);
-			});
-			//TICKETS\\
-			const tickets = await TicketSchema.find({});
-			tickets.forEach(async ticket => {
-				const check = this.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(ticket.channelID);
-				if (!check) await TicketSchema.findOneAndDelete({
-					channelID: ticket.channelID
-				});
-			});
-			//GUILDS\\
-			const guilds = await GuildSchema.find({});
-			guilds.forEach(async guild => {
-				const check = this.guilds.cache.get(guild.guildID);
-				if (!check) await GuildSchema.findOneAndDelete({
-					guildID: guild.guildID
-				});
-			});
-			//MESSAGES AND LEVEL\\
-			const levels = await LevelSchema.find({});
-			levels.forEach(async level => {
-				const guildCheck = this.guilds.cache.get(level.guildID);
-				if (guildCheck) {
-					const memberCheck = guildCheck.members.cache.get(level.userID);
-					if (!memberCheck) await LevelSchema.findOneAndDelete({
-						guildID: level.guildID,
-						userID: level.userID
-					});
-				} else {
-					await GuildSchema.findOneAndDelete({
-						guildID: level.guildID
-					});
-				};
-			});
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
+			this.DBfilter(false);
 			console.log("------------------------------------------------------------------");
 			console.log('|Created At:     |', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);
@@ -456,5 +415,51 @@ export default class GalaxyAlpha extends Discord.Client {
 	//GET EMOJI ID\\
 	private getEmojiID(emoji: string): string {
 		return emoji.split(":")[2].split(">")[0];
+	};
+	//AUTO FILTER DATABASE\\
+	private async DBfilter(enable: boolean){
+		if (!enable) return;
+		//GIVEAWAYS\\
+		const giveaways = await GiveawaySchema.find({});
+		giveaways.forEach(giveaway => {
+			endGiveaway(giveaway.messageID);
+		});
+		//DROPS\\
+		const drops = await DropSchema.find({});
+		drops.forEach(drop => {
+			deleteDrop(drop.messageID);
+		});
+		//TICKETS\\
+		const tickets = await TicketSchema.find({});
+		tickets.forEach(async ticket => {
+			const check = this.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(ticket.channelID);
+			if (!check) await TicketSchema.findOneAndDelete({
+				channelID: ticket.channelID
+			});
+		});
+		//GUILDS\\
+		const guilds = await GuildSchema.find({});
+		guilds.forEach(async guild => {
+			const check = this.guilds.cache.get(guild.guildID);
+			if (!check) await GuildSchema.findOneAndDelete({
+				guildID: guild.guildID
+			});
+		});
+		//MESSAGES AND LEVEL\\
+		const levels = await LevelSchema.find({});
+		levels.forEach(async level => {
+			const guildCheck = this.guilds.cache.get(level.guildID);
+			if (guildCheck) {
+				const memberCheck = guildCheck.members.cache.get(level.userID);
+				if (!memberCheck) await LevelSchema.findOneAndDelete({
+					guildID: level.guildID,
+					userID: level.userID
+				});
+			} else {
+				await GuildSchema.findOneAndDelete({
+					guildID: level.guildID
+				});
+			};
+		});
 	};
 };
