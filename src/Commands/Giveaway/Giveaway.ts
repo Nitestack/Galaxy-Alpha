@@ -2,8 +2,7 @@ import GalaxyAlpha from '@root/Client';
 import { Guild, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import giveawaySchema, { GiveawaySchema } from '@models/Giveaways/giveaways';
 import GuildSchema from '@models/guild';
-import MessageSchema from '@models/messageCount';
-import Level from '@models/levels';
+import Level from '@root/Models/level';
 
 export const giveawayManager: string = "🎉 Giveaway Manager";
 
@@ -60,13 +59,13 @@ export default class Giveaway {
                     const member = message.guild.members.cache.get(user.id);
                     let userMessages: number;
                     if (requirements.messages != 0) {
-                        await MessageSchema.findOne({
-                            messageGuildID: options.guildID,
-                            messageUserID: member.id
+                        await Level.findOne({
+                            guildID: options.guildID,
+                            userID: member.id
                         }, {}, {}, (err, user) => {
                             if (err) return console.log(err);
                             if (!user) userMessages = 0;
-                            if (user.messageCount) userMessages = user.messageCount;
+                            if (user.messages) userMessages = user.messages;
                         });
                     };
                     let userLevel: number;

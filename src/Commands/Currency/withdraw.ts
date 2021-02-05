@@ -1,6 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import Profile from '@models/profile';
-import mongoose from 'mongoose';
 
 export default class WithdrawCommand extends Command {
     constructor() {
@@ -14,39 +12,13 @@ export default class WithdrawCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage = `${prefix}${this.usage}`;
-        let oldWallet: number;
-        let oldBank: number;
-        const userProfile = await Profile.findOne({
-            profileID: message.author.id,
-        }, {}, {}, (err, profile) => {
-            if (err) return console.log(err);
-            if (!profile) {
-                const newProfile = new Profile({
-                    _id: mongoose.Types.ObjectId(),
-                    profileID: message.author.id,
-                    wallet: 0,
-                    bank: 0,
-                    messageCount: 1,
-                });
-                newProfile.save().catch(err => console.error(err));
-                oldWallet = 0;
-                oldBank = 0;
-                return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL()).setDescription("You don't have any coins to withdraw!"));
-            }
-            oldWallet = profile.wallet;
-            oldBank = profile.bank;
+        const userProfile = await client.cache.getCurrency(message.author.id);
+        client.cache.currency.set(message.author.id, {
+            userID: message.author.id,
+            bank: userProfile.bank,
+            wallet: userProfile.wallet,
+            messageCount: userProfile.messageCount + 1
         });
-        await Profile.findOneAndUpdate(
-            {
-                profileID: message.author.id,
-            },
-            {
-                $inc: {
-                    messageCount: 1,
-                }
-            }
-        ).catch(err => console.log(err));
-
         if (userProfile.bank == 0)
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
                 .setDescription('You cannot withdraw any coins with an empty bank'));
@@ -62,25 +34,17 @@ export default class WithdrawCommand extends Command {
         if (args[0] == 'all' || args[0] == 'max') return withdraw(userProfile.bank);
         if (!isNaN((args[0] as unknown as number))) return withdraw(parseInt(args[0]));
         async function withdraw(number: number) {
-            await Profile.findOneAndUpdate({
-                profileID: message.author.id,
-            }, {
-                $inc: {
-                    messageCount: 0,
-                    bank: -number,
-                    wallet: number,
-                }
-            }).catch(err => console.log(err));
-            await Profile.findOne({
-                profileID: message.author.id
-            }, {}, {}, (err, userProfile) => {
-                if (err) return console.log(err);
-                return message.channel.send(client.createGreenEmbed()
-                    .setDescription(`You withdrawed ${number == oldBank ? 'hole bank' : `\`${number.toLocaleString()}\`$ of you bank`}!
-                **Bank:** \`${oldBank.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank).toLocaleString()}\`$
-                **Wallet:** \`${oldWallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet).toLocaleString()}\`$`)
-                    .setAuthor(`💰 ${message.author.username} withdraws money of their bank!`, message.author.displayAvatarURL()));
-            });
+            message.channel.send(client.createGreenEmbed()
+                .setDescription(`You withdrawed ${number == userProfile.bank ? 'hole bank' : `\`${number.toLocaleString()}\`$ of you bank`}!
+                **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + number).toLocaleString()}\`$
+                **Bank:** \`${userProfile.bank.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank - number).toLocaleString()}\`$`)
+                .setAuthor(`💰 ${message.author.username} withdraws money of their bank!`, message.author.displayAvatarURL()));
+            return client.cache.currency.set(message.author.id, {
+                    userID: message.author.id,
+                    bank: userProfile.bank - number,
+                    wallet: userProfile.wallet + number,
+                    messageCount: userProfile.wallet
+                });
         };
     };
 };

@@ -14,7 +14,7 @@ export default class HelpCommand extends Command {
     run: CommandRunner = async (client, message, args, prefix) => {
         const arrayOfCategories: Array<Categories> = [];
         client.categories.forEach(commands => {
-            if (!arrayOfCategories.includes(commands[0].category) && commands[0].category != "developer") arrayOfCategories.push(commands[0].category);
+            if (!arrayOfCategories.includes(commands[0].category) && commands[0].category != "developer" && commands[0].category != "private") arrayOfCategories.push(commands[0].category);
         });
         if (args[0]) {
             if (arrayOfCategories.includes((args[0].toLowerCase() as Categories))) {

@@ -1,7 +1,7 @@
 import Command, { CommandRunner } from "@root/Command";
 import canvacord from "canvacord";
 import { User, MessageAttachment } from "discord.js";
-import LevelSchema from "@models/levels";
+import LevelSchema from "@models/level";
 
 export default class LevelCommand extends Command {
     constructor(){

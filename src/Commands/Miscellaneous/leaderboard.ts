@@ -1,7 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
-import MessageCount, { MessageCountSchema } from '@models/messageCount';
 import Profile, { ProfileSchema } from '@models/profile';
-import Levels, { LevelSchema } from "@models/levels";
+import Levels, { LevelSchema } from "@models/level";
 import Vouches, { VouchSchema } from '@models/vouches';
 
 export default class LeaderboardCommand extends Command {
@@ -20,20 +19,23 @@ export default class LeaderboardCommand extends Command {
         if (args[0].toLowerCase() == 'messages') {
             const embed = client.createEmbed().setTitle(`${client.chatEmoji} Leaderboard`);
             let text: string = '';
-            const users = (await MessageCount.find({ messageGuildID: message.guild.id }).sort({
-                messageCount: -1
-            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<MessageCountSchema>);
+            let users = (await Levels.find({ guildID: message.guild.id }).sort({
+                messages: -1
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<LevelSchema>);
+            users.forEach(user => {
+                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = (client.cache.levels.get(`${user.userID}-${message.guild.id}`) as LevelSchema);
+            });
             for (let i = 0; i < users.length; i++) {
-                let user = message.guild.members.cache.has(users[i].messageUserID) ? message.guild.members.cache.get(users[i].messageUserID).user : false;
+                let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID).user : false;
                 if (user) {
                     if (i == 0) {
-                        text += `🥇 ${user} with \`${users[i].messageCount.toLocaleString()}\` messages\n`;
+                        text += `🥇 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
                     } else if (i == 1) {
-                        text += `🥈 ${user} with \`${users[i].messageCount.toLocaleString()}\` messages\n`;
+                        text += `🥈 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
                     } else if (i == 2) {
-                        text += `🥉 ${user} with \`${users[i].messageCount.toLocaleString()}\` messages\n`;
+                        text += `🥉 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
                     } else {
-                        text += `\`${i + 1}.\` ${user} with \`${users[i].messageCount.toLocaleString()}\` messages\n`;
+                        text += `\`${i + 1}.\` ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
                     };
                 };
             };
@@ -44,6 +46,9 @@ export default class LeaderboardCommand extends Command {
             const users = (await Levels.find({ guildID: message.guild.id }).sort({
                 xp: -1
             }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<LevelSchema>);
+            users.forEach(user => {
+                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = (client.cache.levels.get(`${user.userID}-${message.guild.id}`) as LevelSchema);
+            });
             for (let i = 0; i < users.length; i++){
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
                 if (user){
@@ -67,8 +72,11 @@ export default class LeaderboardCommand extends Command {
             const profilesWallet = (await Profile.find({}).sort({
                 wallet: -1
             }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<ProfileSchema>);
+            profilesWallet.forEach(profile => {
+                if (client.cache.currency.has(profile.userID)) profilesWallet[profilesWallet.findIndex(p => p.userID == profile.userID)] = (client.cache.currency.get(profile.userID) as ProfileSchema)
+            });
             for (let i = 0; i < profilesWallet.length; i++) {
-                let user = message.guild.members.cache.has(profilesWallet[i].profileID) ? message.guild.members.cache.get(profilesWallet[i].profileID).user : false;
+                let user = message.guild.members.cache.has(profilesWallet[i].userID) ? message.guild.members.cache.get(profilesWallet[i].userID).user : false;
                 if (user && !client.developers.includes(user.id)) {
                     if (i == 0) {
                         text += `🥇 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;

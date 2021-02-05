@@ -22,8 +22,7 @@ import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
 import TicketSchema from '@models/ticket';
 import GuildSchema from '@models/guild';
-import MessageSchema from '@models/messageCount';
-import LevelSchema from '@models/levels';
+import LevelSchema from '@root/Models/level';
 //ANY THING ELSE\\
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
@@ -65,7 +64,10 @@ export default class GalaxyAlpha extends Discord.Client {
 	public supportGuildID: string;
 	public defaultColor: string;
 	public ignoreFiles: Array<string>;
-	public constructor(options: GalaxyAlphaOptions) {
+	/**
+	 * @param {GalaxyAlphaOptions} options The options of Galaxy Alpha
+	 */
+	constructor(options: GalaxyAlphaOptions) {
 		super({
 			ws: { intents: Discord.Intents.ALL },
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
@@ -145,28 +147,13 @@ export default class GalaxyAlpha extends Discord.Client {
 					guildID: guild.guildID
 				});
 			});
-			//MESSAGES\\
-			const messages = await MessageSchema.find({});
-			messages.forEach(async message => {
-				const guildCheck = this.guilds.cache.get(message.messageGuildID);
-				if (guildCheck) {
-					const memberCheck = guildCheck.members.cache.get(message.messageUserID);
-					if (!memberCheck) await MessageSchema.findOneAndDelete({
-						messageGuildID: message.messageUserID,
-						messageUserID: message.messageUserID
-					});
-				} else {
-					await GuildSchema.findOneAndDelete({
-						guildID: message.messageGuildID
-					});
-				};
-			});
+			//MESSAGES AND LEVEL\\
 			const levels = await LevelSchema.find({});
 			levels.forEach(async level => {
 				const guildCheck = this.guilds.cache.get(level.guildID);
 				if (guildCheck) {
 					const memberCheck = guildCheck.members.cache.get(level.userID);
-					if (!memberCheck) await MessageSchema.findOneAndDelete({
+					if (!memberCheck) await LevelSchema.findOneAndDelete({
 						guildID: level.guildID,
 						userID: level.userID
 					});

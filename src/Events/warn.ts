@@ -9,4 +9,4 @@ export default class WarnEvent extends Event {
     run: EventRunner = async (client, info: string) => {
         console.log(info);
     };
-};  
+};

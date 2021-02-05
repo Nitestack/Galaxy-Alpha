@@ -4,11 +4,16 @@ export interface FeatureRunner {
 	(client: GalaxyAlpha): Promise<void>;
 };
 
+interface FeatureInfo {
+	name: string;
+};
+
 export default class Feature {
 	public name: string;
-	constructor(info: {
-		name: string
-	}){
+	/**
+	 * @param {FeatureInfo} info The feature informations
+	 */
+	constructor(info: FeatureInfo){
 		this.name = info.name;
 		this.validateInfo({
 			name: this.name

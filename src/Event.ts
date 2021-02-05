@@ -3,16 +3,24 @@ import { EventEmitter } from 'events';
 import { Bot } from "@root/index";
 
 export interface EventRunner {
+	/**
+	 * @
+	 */
 	(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown>;
+};
+
+interface EventInfos {
+	name: string;
+	emitter?: EventEmitter
 };
 
 export default class Event {
 	private client: GalaxyAlpha = Bot;
 	public name: string;
-	constructor(info: {
-		name?: string,
-		emitter?: EventEmitter
-	}) {
+	/**
+	 * @param {EventInfos} info The event informations
+	 */
+	constructor(info: EventInfos) {
 		this.name = info.name;
 		this.validateInfo({
 			name: this.name

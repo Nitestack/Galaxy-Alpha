@@ -3,7 +3,7 @@ import GalaxyAlpha from '@root/Client';
 import { Bot } from "@root/index";
 
 export interface CommandRunner {
-	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void | Discord.Message>;
+	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown>;
 };
 
 export type Categories =
@@ -19,6 +19,23 @@ export type Categories =
 	| "private"
 	| "games";
 
+interface CommandInfos {
+	name: string;
+	aliases?: Array<string>;
+	description: string;
+	category: Categories;
+	usage?: string;
+	cooldown?: string;
+	userPermissions?: Array<Discord.PermissionString>;
+	clientPermissions?: Array<Discord.PermissionString>;
+	developerOnly?: boolean;
+	ownerOnly?: boolean;
+	guildOnly?: boolean;
+	dmOnly?: boolean;
+	nsfw?: boolean;
+	newsChannelOnly?: boolean;
+};
+
 export default class Command {
 	private client: GalaxyAlpha = Bot;
 	public name: string;
@@ -26,7 +43,7 @@ export default class Command {
 	public description: string;
 	public category: Categories;
 	public usage?: string;
-	public cooldown?: number;
+	public cooldown?: string;
 	public userPermissions?: Array<Discord.PermissionString>;
 	public clientPermissions?: Array<Discord.PermissionString>;
 	public developerOnly?: boolean;
@@ -35,28 +52,16 @@ export default class Command {
 	public dmOnly?: boolean;
 	public nsfw?: boolean;
 	public newsChannelOnly?: boolean;
-	constructor(info: {
-		name: string,
-		aliases?: Array<string>,
-		description: string,
-		category: Categories,
-		usage?: string,
-		cooldown?: number,
-		userPermissions?: Array<Discord.PermissionString>,
-		clientPermissions?: Array<Discord.PermissionString>,
-		developerOnly?: boolean,
-		ownerOnly?: boolean,
-		guildOnly?: boolean,
-		dmOnly?: boolean,
-		nsfw?: boolean,
-		newsChannelOnly?: boolean
-	}) {
+	/**
+	 * @param {CommandInfo} info The command informations
+	 */
+	constructor(info: CommandInfos) {
 		this.name = info.name ? info.name : null;
 		this.aliases = info.aliases ? info.aliases : null;
 		this.description = info.description ? info.description : null;
 		this.category = info.category ? info.category : null;
 		this.usage = info.usage ? info.usage : info.name;
-		this.cooldown = info.cooldown ? info.cooldown : 3;
+		this.cooldown = info.cooldown ? info.cooldown : "3s";
 		this.userPermissions = info.userPermissions ? info.userPermissions : null;
 		this.clientPermissions = info.clientPermissions ? info.clientPermissions : null;
 		this.developerOnly = info.developerOnly ? info.developerOnly : false;
@@ -82,25 +87,10 @@ export default class Command {
 			newsChannelOnly: this.newsChannelOnly
 		});
 	};
-	run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<void | Discord.Message> => {
+	run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
-	validateInfo(info: {
-		name: string,
-		aliases?: Array<string>,
-		description: string,
-		category: Categories,
-		usage?: string,
-		cooldown?: number,
-		userPermissions?: Array<Discord.PermissionString>,
-		clientPermissions?: Array<Discord.PermissionString>,
-		developerOnly?: boolean,
-		ownerOnly?: boolean,
-		guildOnly?: boolean,
-		dmOnly?: boolean,
-		nsfw?: boolean,
-		newsChannelOnly?: boolean
-	}) {
+	validateInfo(info: CommandInfos) {
 		if (!info.name) throw new Error("A command name must be specified!");
 		if (!info.description) throw new Error("A command description must be specified!");
 		if (!info.category) throw new Error("A command category must be specified!");
@@ -117,7 +107,6 @@ export default class Command {
 		if (typeof info.category != "string") throw new TypeError("The command category must be a string!");
 		if (info.category != info.category.toLowerCase()) throw new RangeError("The command category must be in lowercase!");
 		if (typeof info.usage != "string") throw new TypeError("The command usage must be a string!");
-		if (info.cooldown && typeof info.cooldown != "number") throw new TypeError("The command cooldown must be a number in seconds!");
 		if (info.userPermissions) {
 			if (!Array.isArray(info.userPermissions)) throw new TypeError("The command user permissions must be an Array of strings!");
 			for (const permission of info.userPermissions) if (!this.client.permissions.includes(permission)) throw new RangeError(`Invalid command user permission: ${permission}`);

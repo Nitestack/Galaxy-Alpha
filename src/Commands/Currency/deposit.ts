@@ -1,6 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import Profile from '@models/profile';
-import mongoose from 'mongoose';
 
 export default class DepositCommand extends Command {
     constructor() {
@@ -14,39 +12,13 @@ export default class DepositCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage: string = `${prefix}${this.usage}`;
-        let oldWallet: number;
-        let oldBank: number;
-        const userProfile = await Profile.findOne({
-            profileID: message.author.id,
-        }, {}, {}, (err, profile) => {
-            if (err) return console.log(err);
-            if (!profile) {
-                const newProfile = new Profile({
-                    _id: mongoose.Types.ObjectId(),
-                    profileID: message.author.id,
-                    wallet: 0,
-                    bank: 0,
-                    messageCount: 1,
-                });
-                newProfile.save().catch(err => console.error(err));
-                oldWallet = 0;
-                oldBank = 0;
-                return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL()).setDescription("You don't have any coins to deposit!"));
-            }
-            oldWallet = profile.wallet;
-            oldBank = profile.bank;
+        const userProfile = await client.cache.getCurrency(message.author.id);
+        client.cache.currency.set(message.author.id, {
+            userID: message.author.id,
+            bank: userProfile.bank,
+            wallet: userProfile.wallet,
+            messageCount: userProfile.messageCount + 1
         });
-        await Profile.findOneAndUpdate(
-            {
-                profileID: message.author.id,
-            },
-            {
-                $inc: {
-                    messageCount: 1,
-                }
-            }
-        ).catch(err => console.log(err));
-
         if (userProfile.wallet == 0)
             return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL()).setDescription('You cannot deposit any coins with an empty wallet!'));
         if ((isNaN((args[0] as unknown as number)) && args[0] != 'all' && args[0] != 'max') || !args[0])
@@ -61,26 +33,17 @@ export default class DepositCommand extends Command {
         if (args[0] == 'all' || args[0] == 'max')
             return deposit(userProfile.wallet);
         if (!isNaN((args[0] as unknown as number))) return deposit(parseInt(args[0]));
-
         async function deposit(number: number) {
-            await Profile.findOneAndUpdate({
-                profileID: message.author.id,
-            }, {
-                $inc: {
-                    messageCount: 0,
-                    bank: number,
-                    wallet: -number,
-                }
-            }).catch(err => console.log(err));
-            await Profile.findOne({
-                profileID: message.author.id
-            }, {}, {}, (err, userProfile) => {
-                if (err) return console.log(err);
-                return message.channel.send(client.createGreenEmbed()
-                    .setDescription(`You deposited ${number == oldWallet ? 'your' : `\`${number.toLocaleString()}\`$`} ${number == oldWallet ? 'hole wallet' : 'of your wallet'} into your bank!
-                    **Wallet:** \`${oldWallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet).toLocaleString()}\`$
-                    **Bank:** \`${oldBank.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank).toLocaleString()}\`$`)
-                    .setAuthor(`💰 ${message.author.username} deposits money to their bank!`, message.author.displayAvatarURL()));
+            message.channel.send(client.createGreenEmbed()
+                .setDescription(`You deposited ${number == userProfile.wallet ? 'your' : `\`${number.toLocaleString()}\`$`} ${number == userProfile.wallet ? 'hole wallet' : 'of your wallet'} into your bank!
+                **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet - number).toLocaleString()}\`$
+                **Bank:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank + number).toLocaleString()}\`$`)
+                .setAuthor(`💰 ${message.author.username} deposits money to their bank!`, message.author.displayAvatarURL()));
+            client.cache.currency.set(message.author.id, {
+                userID: message.author.id,
+                bank: userProfile.bank + number,
+                wallet: userProfile.wallet - number,
+                messageCount: userProfile.wallet
             });
         };
     };

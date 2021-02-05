@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import Profile from '@models/profile';
 
 export default class DailyCommand extends Command {
     constructor() {
@@ -7,40 +6,19 @@ export default class DailyCommand extends Command {
             name: "daily",
             description: "claim your daily coins",
             category: "currency",
-            cooldown: 60 * 60 * 24
+            cooldown: "1d"
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} redeemed their daily reward!`, message.author.displayAvatarURL());
         const dailyBonus = 2000; //define a daily reward here
-        let oldProfile: number;
-        await Profile.findOne({
-            profileID: message.author.id
-        }, {}, {}, (err, userProfile) => {
-            if (err) return console.log(err);
-            if (!userProfile) {
-                return oldProfile = 0;
-            };
-            return oldProfile = userProfile.wallet;
-        });
-        await Profile.findOneAndUpdate({
-            profileID: message.author.id,
-        }, {
-            profileID: message.author.id,
-            $inc: {
-                wallet: dailyBonus,
-                messageCount: 1,
-                bank: 0
-            }
-        }, {
-            upsert: true
-        });
-        await Profile.findOne({
-            profileID: message.author.id
-        }, (err, userProfile) => {
-            if (err) return console.log(err);
-            if (!userProfile) return;
-            return message.channel.send(embed.setDescription(`You redeemed your daily coins of \`${dailyBonus.toLocaleString()}\`$\n**Wallet:** \`${oldProfile.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet).toLocaleString()}\`$`));
+        let oldProfile = await client.cache.getCurrency(message.author.id);
+        message.channel.send(embed.setDescription(`You redeemed your daily coins of \`${dailyBonus.toLocaleString()}\`$\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(oldProfile.wallet + dailyBonus).toLocaleString()}\`$`));
+        return client.cache.currency.set(message.author.id, {
+            userID: message.author.id,
+            bank: oldProfile.bank,
+            wallet: oldProfile.wallet + dailyBonus,
+            messageCount: oldProfile.messageCount + 1
         });
     };
 };

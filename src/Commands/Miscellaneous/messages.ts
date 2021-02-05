@@ -17,6 +17,6 @@ export default class MessagesCommand extends Command {
         if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).has(args[0])) user = message.guild.members.cache.get(args[0]).user;
         return message.channel.send(client.createEmbed()
             .setTitle(`${client.chatEmoji} Messages`)
-            .setDescription(`${user} sent \`${client.cache.messages.has(`${user.id}-${message.guild.id}`) ? client.cache.messages.get(`${user.id}-${message.guild.id}`).messageCount.toLocaleString() : (await client.cache.getMessages(message.guild.id, user.id)).toLocaleString()}\` messages in this server!`));
+            .setDescription(`${user} sent \`${(await client.cache.getLevelandMessages(message.guild.id, user.id)).messages.toLocaleString()}\` messages in this server!`));
     };
 };

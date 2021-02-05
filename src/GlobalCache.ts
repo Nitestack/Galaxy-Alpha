@@ -1,20 +1,15 @@
 import Discord from "discord.js";
 import GalaxyAlpha from "@root/Client";
-import MessageSchema from "@models/messageCount";
 import CurrencySchema from "@models/profile";
 import { Bot } from "@root/index";
+import LevelSchema from "@models/level";
 
-interface Currency {
-    userID: string;
-    bank: number;
-    wallet: number;
-    messageCount: number;
-};
-
-interface Messages {
+interface Level {
     userID: string;
     guildID: string;
-    messageCount: number;
+    level: number;
+    xp: number;
+    messages: number;
 };
 
 interface Profile {
@@ -30,13 +25,16 @@ export default class GlobalCache {
         this.client = client;
         this.client.once("ready", () => {
             setInterval(() => {
-                if (this.messages.first()) {
-                    this.messages.forEach(async message => {
-                        await MessageSchema.findOneAndUpdate({
-                            messageUserID: message.userID,
-                            messageGuildID: message.guildID
+                if (this.levels.first()) {
+                    this.levels.forEach(async message => {
+                        await LevelSchema.findOneAndUpdate({
+                            userID: message.userID,
+                            guildID: message.guildID
                         }, {
-                            messageCount: message.messageCount
+                            messages: message.messages,
+                            xp: message.xp,
+                            level: message.level,
+                            lastUpdated: new Date()
                         }, {
                             upsert: true
                         });
@@ -56,35 +54,53 @@ export default class GlobalCache {
                     });
                 };
                 this.currency.clear();
-                this.messages.clear();
+                this.levels.clear();
             }, 1800000);
         });
     };
     //COLLECTIONS\\
-    public currency: Discord.Collection<string, Currency> = new Discord.Collection();
-    public messages: Discord.Collection<string, Messages> = new Discord.Collection();
-    //GET METHODS\\
-    public async getMessages(guildID: string, userID: string): Promise<number> {
-        const Message = await MessageSchema.findOne({
-            messageGuildID: guildID,
-            messageUserID: userID
+    public currency: Discord.Collection<string, Profile> = new Discord.Collection();
+    public levels: Discord.Collection<string, Level> = new Discord.Collection();
+    //METHODS\\
+    public async getLevelandMessages(guildID: string, userID: string): Promise<{
+        userID: string,
+        guildID: string,
+        level: number,
+        xp: number,
+        messages: number
+    }> {
+        const key = `${userID}-${guildID}`;
+        const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
+        if (LevelandMessages) this.levels.set(key, {
+            userID: userID,
+            guildID: guildID,
+            level: LevelandMessages.level,
+            xp: LevelandMessages.xp,
+            messages: LevelandMessages.messages
         });
-        if (Message) return Message.messageCount;
-        if (!Message) return 0;
+        else this.levels.set(key, {
+            userID: userID,
+            guildID: guildID,
+            level: 0,
+            xp: 0,
+            messages: 0
+        });
+        return this.levels.get(key);
     };
     public async getCurrency(userID: string): Promise<Profile> {
-        const profile = await CurrencySchema.findOne({ profileID: userID });
-        if (profile) return ({
+        const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ profileID: userID });
+        if (profile) this.currency.set(userID, {
             userID: userID,
             bank: profile.bank,
             wallet: profile.wallet,
             messageCount: profile.messageCount
         } as Profile);
-        if (!profile) return ({
+        else this.currency.set(userID, {
             userID: userID,
             bank: 0,
             wallet: 0,
             messageCount: 0
         });
+        return this.currency.get(userID);
     };
 };

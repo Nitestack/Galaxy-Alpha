@@ -7,7 +7,7 @@ const reqString = {
 
 export interface ProfileSchema extends mongoose.Document {
 	_id: mongoose.Schema.Types.ObjectId,
-	profileID: string;
+	userID: string;
 	wallet: number;
 	bank: number;
 	messageCount: number;
@@ -15,7 +15,7 @@ export interface ProfileSchema extends mongoose.Document {
 
 const profileSchema = new mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
-	profileID: reqString,
+	userID: reqString,
 	wallet: {
 		type: Number,
 		required: true,
