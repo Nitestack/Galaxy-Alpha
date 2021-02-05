@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord from 'discord.js';
+import Discord, { Guild } from 'discord.js';
 import mongoose from 'mongoose';
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
@@ -221,6 +221,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public modMails: Discord.Collection<string, Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
 	public queue: Discord.Collection<string, {

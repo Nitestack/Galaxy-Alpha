@@ -81,10 +81,8 @@ export default class PlayCommand extends Command {
                 shuffle: false
             });
             await ytSearch({ videoId: videoID }, (err, video) => {
-                if (err) return;
-                if (!video) return;
+                if (err || !video) return;
                 const queue = client.queue.get(message.guild.id).queue;
-                if (client.queue.get(message.guild.id).queue.find(video => video.videoID == videoID)) return;
                 queue.push({
                     title: video.title,
                     url: video.url,

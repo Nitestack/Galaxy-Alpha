@@ -8,7 +8,8 @@ export default class QueueCommand extends Command {
             name: "queue",
             description: "shows the queue of the server",
             category: "music",
-            guildOnly: true
+            guildOnly: true,
+            usage: "queue [clear]"
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

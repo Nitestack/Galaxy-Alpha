@@ -3,8 +3,6 @@ import { Guild, Message, NewsChannel, TextChannel } from 'discord.js';
 import GuildSchema from '@models/guild';
 import mongoose from 'mongoose';
 
-const openedTicket = new Map();
-
 export default class ModMail extends Event {
     constructor() {
         super({
@@ -14,7 +12,7 @@ export default class ModMail extends Event {
     run: EventRunner = async (client, message: Message) => {
         if (message.author.bot) return;
         const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${client.globalPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
-        if (!openedTicket.has(message.author.id)) {
+        if (!client.modMails.has(message.author.id)) {
             const servers = client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).array();
             servers.sort();
             const numbers: Array<string> = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
@@ -37,7 +35,7 @@ export default class ModMail extends Event {
                     });
                     reactions.on("collect", async (reaction, user) => {
                         const indexOfServer: number = numbers.indexOf(reaction.emoji.name);
-                        openedTicket.set(message.author.id, servers[indexOfServer - 1]);
+                        client.modMails.set(message.author.id, servers[indexOfServer - 1]);
                         const settings = await GuildSchema.findOne({
                             guildID: servers[indexOfServer - 1].id,
                         }, (err: unknown, guild: any) => {
@@ -140,7 +138,7 @@ export default class ModMail extends Event {
                                                                 .setTitle("Mod Mail Manager")
                                                                 .setDescription(`Your mod mail request in **${servers[indexOfServer - 1].name}** was denied!\nThank you for using ${client.user.username}'s Mod Mail!`));
                                                             setTimeout(() => {
-                                                                openedTicket.delete(message.author.id);
+                                                                client.modMails.delete(message.author.id);
                                                             }, 30000);
                                                             return channel.send(client.createRedEmbed()
                                                                 .setTitle("Mod Mail Manager")
