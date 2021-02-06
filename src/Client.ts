@@ -40,7 +40,7 @@ interface GalaxyAlphaOptions {
 	contributors?: Array<string>;
 	supportGuildID?: string;
 	defaultEmbedColor?: string;
-	xpPerMessage: number;
+	xpPerMessage?: number;
 };
 
 export interface Queue {
