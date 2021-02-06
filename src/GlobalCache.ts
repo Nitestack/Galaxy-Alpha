@@ -1,7 +1,5 @@
 import Discord from "discord.js";
-import GalaxyAlpha from "@root/Client";
 import CurrencySchema from "@models/profile";
-import { Bot } from "@root/index";
 import LevelSchema from "@models/level";
 
 interface Level {
@@ -20,15 +18,6 @@ interface Profile {
 };
 
 export default class GlobalCache {
-    private client: GalaxyAlpha = Bot;
-    constructor(client: GalaxyAlpha) {
-        this.client = client;
-        this.client.once("ready", () => {
-            setInterval(() => {
-                this.clearCacheAndSave();
-            }, 1800000);
-        });
-    };
     //COLLECTIONS\\
     public currency: Discord.Collection<string, Profile> = new Discord.Collection();
     public levels: Discord.Collection<string, Level> = new Discord.Collection();

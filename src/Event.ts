@@ -3,9 +3,6 @@ import { EventEmitter } from 'events';
 import { Bot } from "@root/index";
 
 export interface EventRunner {
-	/**
-	 * @
-	 */
 	(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown>;
 };
 

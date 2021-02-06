@@ -53,13 +53,13 @@ export default class LeaderboardCommand extends Command {
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
                 if (user){
                     if (i == 0){
-                        text += `🥇 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                        text += `🥇 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
                     } else if (i == 1){
-                        text += `🥈 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                        text += `🥈 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
                     } else if (i == 2){
-                        text += `🥉 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                        text += `🥉 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
                     } else {
-                        text += `\`${i + 1}.\` ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`;
+                        text += `\`${i + 1}.\` ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`;
                     };
                 };
             };

@@ -8,7 +8,7 @@ const betaToken = process.env.BETA_TOKEN;
 export const Bot =  new GalaxyAlpha({
     ownerID: "700277649347575870",
     globalPrefix: "!!",
-    token: token,
+    token: betaToken,
     commandsDir: "Commands",
     eventsDir: "Events",
     featuresDir: "Features",
@@ -16,5 +16,5 @@ export const Bot =  new GalaxyAlpha({
     contributors: ['694162762020159539'],
     supportGuildID: "783440776285651024",
     defaultEmbedColor: "#365b88",
-    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "ChessConstructor.ts"]
+    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts"]
 });

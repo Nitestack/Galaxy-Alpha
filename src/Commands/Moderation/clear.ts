@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
-import { User } from 'discord.js';
+import { NewsChannel, User, TextChannel } from 'discord.js';
 
 export default class ClearCommand extends Command {
     constructor(){
@@ -25,12 +25,12 @@ export default class ClearCommand extends Command {
                 messages.filter((m) => m.content.toLowerCase().includes(args[1].toLowerCase()));
                 if (messages.size == 0) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription(`Cannot find any messages, that includes \`${args[1]}\``));
                 const result = messages.filter(m => !m.pinned);
-                message.channel.bulkDelete(result);
+                (message.channel as TextChannel | NewsChannel).bulkDelete(result);
                 if (result.size == 0) return message.channel.send(client.createRedEmbed(true, clearManager)
                     .setTitle(clearManager)
                     .setDescription(`This channel has only pinned messages and I'm not allowed to delete pinned messages!`));
             });
-        } else if (!isNaN(args[0])) {
+        } else if (!isNaN((args[0] as unknown as number))) {
             if (parseInt(args[0]) < 1) return message.channel.send(client.createRedEmbed().setTitle(clearManager).setDescription("You have to delete atleast `1` message!"));
             if (parseInt(args[0]) > 1000) return message.channel.send(client.createRedEmbed().setTitle(clearManager).setDescription("I cannot delete more than `1000` messages!"));
             if (message.channel.type == 'dm') return;
@@ -136,7 +136,7 @@ export default class ClearCommand extends Command {
                     const result = messages.filter(m => !m.pinned);
                     if (user) messages.filter(m => m.author.id == user.id);
                     counter += result.size;
-                    message.channel.bulkDelete(result);
+                    (message.channel as TextChannel | NewsChannel).bulkDelete(result);
                     if (messageYesOrNo) {
                         if (counter == 0) {
                             const resultSizeEmbed = client.createRedEmbed()

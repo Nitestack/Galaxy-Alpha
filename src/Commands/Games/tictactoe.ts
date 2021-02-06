@@ -1,8 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
 import { Message, User } from 'discord.js';
 
-let inGame: Array<string> = [];
-
 export default class TicTacToeCommand extends Command {
     constructor() {
         super({
@@ -15,20 +13,27 @@ export default class TicTacToeCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
+        const tictactoeManager = "⭕ Tic Tac Toe Manager";
+        if (client.inGame.has(`${message.author.id}-${message.guild.id}-${this.name}`)) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            .setTitle(tictactoeManager)
+            .setDescription("You are already in a tic tac toe game!"));
         let playerTwo: User;
         const usage: string = `${prefix}tictactoe <@User/User ID>`;
         if (message.mentions.users.first()) playerTwo = message.guild.members.cache.get(message.mentions.users.first().id).user;
         if (args[0] && message.guild.members.cache.has(args[0])) playerTwo = message.guild.members.cache.get(args[0]).user;
         if (playerTwo && playerTwo.id == message.author.id) return message.channel.send(client.createRedEmbed(true, usage)
-            .setTitle("⭕ Tic Tac Toe Manager")
+            .setTitle(tictactoeManager)
             .setDescription("You cannot battle yourself!"));
+        if (playerTwo && client.inGame.has(`${playerTwo.id}-${message.guild.id}-${this.name}`)) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            .setTitle(tictactoeManager)
+            .setDescription(`${playerTwo} is already in a tic tac toe game!`));
         if (playerTwo) message.channel.send(`${playerTwo}`).then(msg => msg.delete({ timeout: 1 }));
         return message.channel.send(client.createEmbed()
-            .setTitle("⭕ Tic Tac Toe Manager")
+            .setTitle(tictactoeManager)
             .setDescription(`${playerTwo ? `${playerTwo}, do you want to accept ${message.author}'s battle request?\n\nYou have 30s to react!` : `Who wants to accept ${message.author}'s battle request?\n\nYou have 30s to react!`}`)).then(async msg => {
                 await msg.react(client.yesEmojiID);
                 await msg.react(client.noEmojiID);
-                const YesOrNo = msg.createReactionCollector((reaction, user) => (playerTwo ? user.id == playerTwo.id : user.id != message.author.id) && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { time: 30000 });
+                const YesOrNo = msg.createReactionCollector((reaction, user) => (playerTwo ? user.id == playerTwo.id : (user.id != message.author.id && !client.inGame.has(`${user.id}-${message.guild.id}-${this.name}`))) && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { time: 30000 });
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
                         YesOrNo.stop();
@@ -42,6 +47,16 @@ export default class TicTacToeCommand extends Command {
                         let tttMessage: Message = null;
                         let embedMessage: Message = null;
                         let userSelection: number;
+                        client.inGame.set(`${message.author.id}-${message.guild.id}-${this.name}`, {
+                            userID: message.author.id,
+                            guildID: message.guild.id,
+                            game: "Tic Tac Toe"
+                        });
+                        client.inGame.set(`${playerTwo.id}-${message.guild.id}-${this.name}`, {
+                            userID: playerTwo.id,
+                            guildID: message.guild.id,
+                            game: "Tic Tac Toe"
+                        });
                         run();
                         async function run() {
                             await eval_win()
@@ -171,16 +186,16 @@ export default class TicTacToeCommand extends Command {
                                 };
                             };
                         };
-                        function end_game(playerTwo: User, message: Message) {
-                            inGame = inGame.filter(i => i != message.author.id);
-                            inGame = inGame.filter(i => i != playerTwo.id);
+                        const end_game = (playerTwo: User, message: Message) => {
+                            client.inGame.delete(`${message.author.id}-${message.guild.id}-${this.name}`);
+                            client.inGame.delete(`${playerTwo.id}-${message.guild.id}-${this.name}`);
                             playingGame = false;
                             return availableFields = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
                         };
                     } else if (reaction.emoji.id == client.noEmojiID && playerTwo) {
                         msg.reactions.cache.get(client.noEmojiID).users.remove(user.id);
                         return message.channel.send(client.createRedEmbed(true, usage)
-                            .setTitle("⭕ Tic Tac Toe Manager")
+                            .setTitle(tictactoeManager)
                             .setDescription("Tic Tac Toe game request denied!"));
                     } else {
                         msg.reactions.cache.get(reaction.emoji.id).users.remove(user.id);
@@ -188,7 +203,7 @@ export default class TicTacToeCommand extends Command {
                 });
                 YesOrNo.on("end", (collected, reason) => {
                     if (collected.size == 0) return message.channel.send(client.createRedEmbed(true, usage)
-                        .setTitle("⭕ Tic Tac Toe Manager")
+                        .setTitle(tictactoeManager)
                         .setDescription("Tic Tac Toe game request cancelled!"));
                 });
             });

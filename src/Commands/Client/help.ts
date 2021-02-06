@@ -41,7 +41,7 @@ export default class HelpCommand extends Command {
                 if (command.category) text += `**Category:** ${command.category[0].toUpperCase() + command.category.slice(1).toLowerCase()}\n`
                 if (command.description) text += `**Description:** ${command.description}\n`;
                 if (command.aliases) text += `**Aliases:** ${command.aliases.join(", ")}\n`;
-                if (command.cooldown) text += `**Cooldown:** ${command.cooldown >= 60 ? `${Math.floor(command.cooldown / 60)}m ${command.cooldown - (Math.floor(command.cooldown / 60) * 60)}s` : `${command.cooldown}s`}\n`;
+                if (command.cooldown) text += `**Cooldown:** ${client.ms(command.cooldown) / 1000 >= 60 ? `${Math.floor(client.ms(command.cooldown) / 1000 / 60)}m ${client.ms(command.cooldown) / 1000 - (Math.floor(client.ms(command.cooldown) / 1000 / 60) * 60)}s` : `${client.ms(command.cooldown) / 1000}s`}\n`;
                 if (command.userPermissions) text += `**User ${command.userPermissions.length > 1 ? "Permissions" : "Permission"}:** \`${userPermissions.join("`, `")}\`\n`
                 if (command.clientPermissions) text += `**Bot ${command.clientPermissions.length > 1 ? "Permissions" : "Permission"}**: \`${clientPermissions.join("`, `")}\`\n`;
                 if (command.usage) text += `**Usage:** \`${prefix}${command.usage}\`\n`;

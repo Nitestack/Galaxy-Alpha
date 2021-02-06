@@ -35,7 +35,7 @@ export default class HangManCommand extends Command {
                             });
                             message.channel.send(client.createGreenEmbed()
                                 .setTitle("😩 Hangman Manager")
-                                .setDescription("Alright, all members of this server can play this game!"));
+                                .setDescription("Alright, all members of this server can play this game!\nNew members, who joined now, cannot play this round!"));
                         } else {
                             const users = collectedUser.first().content.trim().split(/ +/g);
                             users.forEach(user => {
@@ -131,7 +131,7 @@ export default class HangManCommand extends Command {
                             |
                             /¯\\
                             \`\`\`` ];
-                        function generateMessage(phrase, guesses) {
+                        function generateMessage(phrase: string, guesses: Array<string>) {
                             var s = "";
                             for (var i = 0; i < phrase.length; i++) {
                                 if (phrase[i] == " ") s += " ";
@@ -139,12 +139,12 @@ export default class HangManCommand extends Command {
                                     var c = phrase[i];
                                     if (guesses.indexOf(c) == -1) c = "\\_";
                                     s += "__" + c + "__ ";
-                                }
-                            }
+                                };
+                            };
                             return s;
-                        }
-                        function nextLetter(message: Message, index: number, word?) {
-                            message.react(letters[index]).then((r) => {
+                        };
+                        function nextLetter(message: Message, index: number, word?: string) {
+                            message.react(letters[index]).then(r => {
                                 index++;
                                 if (index < letters.length) {
                                     if (index == 13) {
@@ -160,10 +160,10 @@ export default class HangManCommand extends Command {
                                         });
                                     } else {
                                         nextLetter(message, index, word);
-                                    }
-                                }
+                                    };
+                                };
                             });
-                        }
+                        };
                         client.on("messageReactionAdd", (reaction, user) => {
                             var msg = reaction.message;
                             if (!user.bot && validUsers.includes(user.id)) {
@@ -213,7 +213,7 @@ export default class HangManCommand extends Command {
                                 };
                             };
                         });
-                        message.channel.send(stages[0]).then((m) => {
+                        message.channel.send(stages[0]).then(m => {
                             nextLetter(m, 0, word);
                         });
                     });

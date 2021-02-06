@@ -95,15 +95,11 @@ export default class GalaxyAlpha extends Discord.Client {
 		this.ownerID = options.ownerID;
 		if (options.supportGuildID) this.supportGuildID = options.supportGuildID;
 		//LOGIN\\
-		this.login(options.token).catch((error: unknown) => console.log(error));
+		this.login(options.token).catch((error: any) => console.log(error));
 		//READ COMMANDS, EVENTS, FEATURES\\
-		console.log("------------------------------------------------------------------");
 		this.readCommand(options.commandsDir);
-		console.log("------------------------------------------------------------------");
 		this.readEvent(options.eventsDir);
-		console.log("------------------------------------------------------------------");
 		this.readFeature(options.featuresDir);
-		console.log("------------------------------------------------------------------");
 		//MONGO DB\\
 		mongoose.connect(options.mongoDBUrl, {
 			useFindAndModify: false,
@@ -118,7 +114,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		this.once("ready", async () => {
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(true);
+			this.DBfilter(false);
 			console.log("------------------------------------------------------------------");
 			console.log('|Created At:     |', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);
@@ -151,7 +147,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				if (typeArray.length == typeIndex) typeIndex = 0;
 				this.user.setPresence({
 					activity: {
-						name: `${activityArray[index]}`,
+						name: activityArray[index],
 						type: typeArray[typeIndex]
 					},
 					status: "online"
@@ -159,6 +155,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				index++;
 				typeIndex++;
 			}, 10000);
+			setInterval(() => this.cache.clearCacheAndSave(), 3600000);
 		});
 	};
 	//MODULES\\
@@ -174,6 +171,11 @@ export default class GalaxyAlpha extends Discord.Client {
 	public aliases: Discord.Collection<string, string> = new Discord.Collection();
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
+	public inGame: Discord.Collection<string, {
+		userID: string,
+		guildID: string,
+		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
+	}> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
 	public modMails: Discord.Collection<string, Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
@@ -225,8 +227,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	public giveaways: GiveawayManager = new GiveawayManager(this);
 	public tickets: TicketManager = new TicketManager(this);
 	public drop: DropManager = new DropManager(this);
-	public cache: CacheManager = new CacheManager(this);
 	public music: MusicManager = new MusicManager(this);
+	public cache: CacheManager = new CacheManager();
 	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//PERMISSIONS\\
 	public permissions: Array<string> = this.util.permissions;

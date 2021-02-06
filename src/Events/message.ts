@@ -184,7 +184,7 @@ export default class MessageEvent extends Event {
 						console.log(error);
 					};
 				});
-				if (!client.developers.includes(message.author.id)) {
+				if (message.guild.id == client.supportGuild.id ? !client.developers.includes(message.author.id) : true) {
 					client.cooldowns.set(`${message.author.id}-${command.name}`, message.createdTimestamp + client.ms(command.cooldown));
 					setTimeout(() => {
 						client.cooldowns.delete(`${message.author.id}-${command.name}`);
@@ -207,7 +207,7 @@ export default class MessageEvent extends Event {
 		};
 	};
 	async isInvite(guild: Guild, code: string): Promise<boolean> {
-		return await new Promise((resolve) => {
+		return await new Promise(resolve => {
 			guild.fetchInvites().then(invites => {
 				for (const invite of invites) {
 					if (code === invite[0]) {
