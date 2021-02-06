@@ -59,13 +59,13 @@ export default class MessageEvent extends Event {
 		if (!message.author.bot && message.channel.type != "dm") {
 			const LevelUp = await appendXp();
 			if (LevelUp) {
-				const user = client.cache.levels.get(key);
+				const user = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
 				if (user) {
 					client.cache.levels.set(key, {
 						guildID: message.guild.id,
 						userID: message.author.id,
 						level: user.level + 1,
-						xp: user.level,
+						xp: user.xp,
 						messages: user.messages
 					});
 					message.channel.send(client.createEmbed()
@@ -113,6 +113,7 @@ export default class MessageEvent extends Event {
 		};
 		const command: Command = client.commands.get(cmd.toLowerCase()) || client.commands.get(client.aliases.get(cmd.toLowerCase()));
 		if (!command) return;
+		if (command.removeClientMention) if (message.mentions.users.has(client.user.id)) message.mentions.users.delete(client.user.id);
 		if (command.ownerOnly && message.author.id != client.ownerID) return;
 		if (command.developerOnly && !client.developers.includes(message.author.id)) return;
 		if (command.guildOnly && message.channel.type == 'dm') return message.author.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
@@ -124,7 +125,7 @@ export default class MessageEvent extends Event {
 		if (command.nsfw && message.channel.type != "dm" && !message.channel.nsfw) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle("Channel Manager")
 			.setDescription(`You can only use nsfw commands like \`${command.name}\` in DM's or nsfw channels!`));
-		autoPublishSchema.findById(client.dataSchemaObjectId, {}, {},  async (err, result) => {
+		autoPublishSchema.findById(client.dataSchemaObjectId, {}, {}, async (err, result) => {
 			if (err) return console.log(err);
 			if (result.blockedUser.includes(message.author.id) && command) {
 				message.delete();
@@ -183,24 +184,26 @@ export default class MessageEvent extends Event {
 						console.log(error);
 					};
 				});
-				client.cooldowns.set(`${message.author.id}-${command.name}`, message.createdTimestamp + client.ms(command.cooldown));
-				setTimeout(() => {
-					client.cooldowns.delete(`${message.author.id}-${command.name}`);
-				}, client.ms(command.cooldown));
-				return;
+				if (!client.developers.includes(message.author.id) && message.guild.id != client.supportGuild.id) {
+					client.cooldowns.set(`${message.author.id}-${command.name}`, message.createdTimestamp + client.ms(command.cooldown));
+					setTimeout(() => {
+						client.cooldowns.delete(`${message.author.id}-${command.name}`);
+					}, client.ms(command.cooldown));
+					return;
+				};
 			};
 		});
 		async function appendXp(): Promise<boolean> {
-			const xp = Math.floor(client.util.getRandomArbitrary(1, 30));
-			const user = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
+			const xp = client.xpPerMessage;
 			client.cache.levels.set(key, {
 				guildID: message.guild.id,
 				userID: message.author.id,
-				messages: user.messages + 1,
-				xp: user.xp + parseInt((xp as unknown as string), 10),
-				level: Math.floor(0.1 * Math.sqrt(user.xp))
+				messages: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).messages + 1,
+				xp: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp + parseInt((xp as unknown as string), 10),
+				level: Math.floor(0.1 * Math.sqrt((await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp))
 			});
-			return (Math.floor(0.1 * Math.sqrt(user.xp -= xp)) < user.level);
+			const userLevel = (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level + 1;
+			return (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp >= userLevel * userLevel * 100;
 		};
 	};
 	async isInvite(guild: Guild, code: string): Promise<boolean> {

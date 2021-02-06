@@ -17,12 +17,9 @@ export default class LevelCommand extends Command {
         if (message.mentions.users.first() && message.guild.members.cache.has(message.mentions.users.first().id)) targetUser = message.mentions.users.first();
         if (args[0] && message.guild.members.cache.has(args[0])) targetUser = message.guild.members.cache.get(args[0]).user;
 
-        let user = await LevelSchema.findOne({
-            userID: targetUser.id,
-            guildID: message.guild.id
-        });
+        let user = await client.cache.getLevelandMessages(message.guild.id, targetUser.id);
 
-        const neededXP = xpFor(user ? user.level : 0);
+        const neededXP = xpFor(user ? user.level + 1 : 1);
         const rank = new canvacord.Rank()
             .setAvatar(targetUser.displayAvatarURL({dynamic: false, format: "png"}))
             .setCurrentXP(user ? user.xp : 0)

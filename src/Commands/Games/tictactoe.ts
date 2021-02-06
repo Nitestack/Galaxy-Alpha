@@ -36,94 +36,110 @@ export default class TicTacToeCommand extends Command {
                         if (!playerTwo) playerTwo = user;
                         let field: Array<string> = ['⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'];
                         let availableFields: Array<string> = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
-                        let players_go: number = 0;
-                        let send_message: boolean = true;
-                        let playing_game: boolean = true;
-                        let ttt_message: Message = null;
-                        let turn_message: Message = null;
-                        let user_input: number;
+                        let playersGo: number = 0;
+                        let sendMessage: boolean = true;
+                        let playingGame: boolean = true;
+                        let tttMessage: Message = null;
+                        let embedMessage: Message = null;
+                        let userSelection: number;
                         run();
                         async function run() {
                             await eval_win()
-                            if (playing_game == true) {
-                                if (players_go % 2 == 0) {
-                                    if (send_message == true) {
+                            if (playingGame == true) {
+                                if (playersGo % 2 == 0) {
+                                    if (sendMessage == true) {
                                         let grid = await ttt_grid();
-                                        if (players_go == 0) {
-                                            turn_message = await message.channel.send(message.author, client.createEmbed()
+                                        if (playersGo == 0) {
+                                            embedMessage = await message.channel.send(message.author, client.createEmbed()
                                                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
-                                                .setDescription(`**Available Fields:** ${availableFields.join(", ")}`)
-                                                .setTitle(`${message.author.tag} vs. ${playerTwo.tag}`));
-                                            ttt_message = await message.channel.send(grid);
+                                                .setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**
+                                                ${message.author}, it's your turn!
+                                                To set your marker type the field name (a2, b3) in the channel!
+                                                You have 30s to choose a field!
+                                                **Available Fields:** ${availableFields.join(", ")}`)
+                                                .setTitle("⭕ Tic Tac Toe"));
+                                            tttMessage = await message.channel.send(grid);
                                         } else {
-                                            ttt_message.edit(grid);
-                                            turn_message.edit(message.author, turn_message.embeds[0].setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true })).setDescription(`**Available Fields:** ${availableFields.join(", ")}`));
+                                            tttMessage.edit(grid);
+                                            embedMessage.edit(message.author, embedMessage.embeds[0]
+                                                .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+                                                .setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**
+                                                ${message.author}, it's your turn!
+                                                To set your marker type the field name (a2, b3) in the channel!
+                                                You have 30s to choose a field!
+                                                **Available Fields:** ${availableFields.join(", ")}`));
                                         };
                                     };
-                                    message.channel.awaitMessages(m => m.author.id == message.author.id && (availableFields.includes(m.content.toLowerCase() || m.content.toLowerCase() == 'cancel')),
+                                    message.channel.awaitMessages(m => (m.author.id == message.author.id && availableFields.includes(m.content.toLowerCase())) || ((m.author.id == playerTwo.id || m.author.id == message.author.id) && m.content.toLowerCase() == "cancel"),
                                         { max: 1, time: 30000 }).then(async collected => {
                                             const msg = collected.first();
                                             msg.delete();
-                                            if (msg.content.toLowerCase() == 'a1' && availableFields.includes(msg.content.toLowerCase())) user_input = 0;
-                                            if (msg.content.toLowerCase() == 'a2' && availableFields.includes(msg.content.toLowerCase())) user_input = 1;
-                                            if (msg.content.toLowerCase() == 'a3' && availableFields.includes(msg.content.toLowerCase())) user_input = 2;
-                                            if (msg.content.toLowerCase() == 'b1' && availableFields.includes(msg.content.toLowerCase())) user_input = 3;
-                                            if (msg.content.toLowerCase() == 'b2' && availableFields.includes(msg.content.toLowerCase())) user_input = 4;
-                                            if (msg.content.toLowerCase() == 'b3' && availableFields.includes(msg.content.toLowerCase())) user_input = 5;
-                                            if (msg.content.toLowerCase() == 'c1' && availableFields.includes(msg.content.toLowerCase())) user_input = 6;
-                                            if (msg.content.toLowerCase() == 'c2' && availableFields.includes(msg.content.toLowerCase())) user_input = 7;
-                                            if (msg.content.toLowerCase() == 'c3' && availableFields.includes(msg.content.toLowerCase())) user_input = 8;
-                                            if (msg.content.toLowerCase() == 'cancel') playing_game = false;
-                                            if (!playing_game) {
-                                                turn_message.edit(turn_message.embeds[0].setDescription("The game was cancelled!"));
+                                            if (msg.content.toLowerCase() == 'a1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 0;
+                                            if (msg.content.toLowerCase() == 'a2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 1;
+                                            if (msg.content.toLowerCase() == 'a3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 2;
+                                            if (msg.content.toLowerCase() == 'b1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 3;
+                                            if (msg.content.toLowerCase() == 'b2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 4;
+                                            if (msg.content.toLowerCase() == 'b3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 5;
+                                            if (msg.content.toLowerCase() == 'c1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 6;
+                                            if (msg.content.toLowerCase() == 'c2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 7;
+                                            if (msg.content.toLowerCase() == 'c3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 8;
+                                            if (msg.content.toLowerCase() == 'cancel') playingGame = false;
+                                            if (!playingGame) {
+                                                embedMessage.edit(embedMessage.embeds[0].setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**\nThe game was cancelled!`).setAuthor(`${msg.author.id == playerTwo.id ? message.author.tag : playerTwo.tag} wons!`, (msg.author.id == playerTwo.id ? message.author : playerTwo).displayAvatarURL({ dynamic: true })));
                                                 return end_game(playerTwo, message);
                                             };
                                             if (availableFields.includes(msg.content.toLowerCase())) {
-                                                field[user_input] = '❌';
+                                                field[userSelection] = '❌';
                                                 const indexOfChoice = availableFields.indexOf(msg.content.toLowerCase());
                                                 availableFields.splice(indexOfChoice, 1);
-                                                players_go++;
-                                                send_message = true;
+                                                playersGo++;
+                                                sendMessage = true;
                                                 run();
                                             }
                                         }).catch(() => {
-                                            turn_message.edit(turn_message.embeds[0].setDescription('The game has timed out'));
+                                            embedMessage.edit(embedMessage.embeds[0].setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**\nThe game has timed out!`).setAuthor(`${playerTwo.tag} wons!`, playerTwo.displayAvatarURL({ dynamic: true })));
                                             end_game(playerTwo, message);
                                         });
                                 };
-                                if (players_go % 2 == 1) {
-                                    if (send_message == true) {
+                                if (playersGo % 2 == 1) {
+                                    if (sendMessage == true) {
                                         let grid = await ttt_grid();
-                                        ttt_message.edit(grid);
-                                        turn_message.edit(playerTwo, turn_message.embeds[0].setAuthor(playerTwo.tag, playerTwo.displayAvatarURL({ dynamic: true })).setDescription(`${playerTwo}, it's your turn!\n**Available Fields:** ${availableFields.join(", ")}`));
-                                        message.channel.awaitMessages(m => m.author.id == playerTwo.id && (availableFields.includes(m.content.toLowerCase()) || m.content.toLowerCase() == 'cancel'),
+                                        tttMessage.edit(grid);
+                                        embedMessage.edit(playerTwo, embedMessage.embeds[0]
+                                            .setAuthor(playerTwo.tag, playerTwo.displayAvatarURL({ dynamic: true }))
+                                            .setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**
+                                            ${playerTwo}, it's your turn!
+                                            To set your marker type the field name (a2, b3) in the channel!
+                                            You have 30s to choose a field!
+                                            **Available Fields:** ${availableFields.join(", ")}`));
+                                        message.channel.awaitMessages(m => (m.author.id == playerTwo.id && availableFields.includes(m.content.toLowerCase())) || ((m.author.id == playerTwo.id || m.author.id == message.author.id) && m.content.toLowerCase() == "cancel"),
                                             { max: 1, time: 30000 }).then(async collected => {
                                                 msg = collected.first();
                                                 msg.delete();
-                                                if (msg.content.toLowerCase() == 'a1' && availableFields.includes(msg.content.toLowerCase())) user_input = 0;
-                                                if (msg.content.toLowerCase() == 'a2' && availableFields.includes(msg.content.toLowerCase())) user_input = 1;
-                                                if (msg.content.toLowerCase() == 'a3' && availableFields.includes(msg.content.toLowerCase())) user_input = 2;
-                                                if (msg.content.toLowerCase() == 'b1' && availableFields.includes(msg.content.toLowerCase())) user_input = 3;
-                                                if (msg.content.toLowerCase() == 'b2' && availableFields.includes(msg.content.toLowerCase())) user_input = 4;
-                                                if (msg.content.toLowerCase() == 'b3' && availableFields.includes(msg.content.toLowerCase())) user_input = 5;
-                                                if (msg.content.toLowerCase() == 'c1' && availableFields.includes(msg.content.toLowerCase())) user_input = 6;
-                                                if (msg.content.toLowerCase() == 'c2' && availableFields.includes(msg.content.toLowerCase())) user_input = 7;
-                                                if (msg.content.toLowerCase() == 'c3' && availableFields.includes(msg.content.toLowerCase())) user_input = 8;
-                                                if (msg.content.toLowerCase() == 'cancel') playing_game = false;
-                                                if (!playing_game) {
-                                                    turn_message.edit(turn_message.embeds[0].setDescription("The game was cancelled!"));
+                                                if (msg.content.toLowerCase() == 'a1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 0;
+                                                if (msg.content.toLowerCase() == 'a2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 1;
+                                                if (msg.content.toLowerCase() == 'a3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 2;
+                                                if (msg.content.toLowerCase() == 'b1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 3;
+                                                if (msg.content.toLowerCase() == 'b2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 4;
+                                                if (msg.content.toLowerCase() == 'b3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 5;
+                                                if (msg.content.toLowerCase() == 'c1' && availableFields.includes(msg.content.toLowerCase())) userSelection = 6;
+                                                if (msg.content.toLowerCase() == 'c2' && availableFields.includes(msg.content.toLowerCase())) userSelection = 7;
+                                                if (msg.content.toLowerCase() == 'c3' && availableFields.includes(msg.content.toLowerCase())) userSelection = 8;
+                                                if (msg.content.toLowerCase() == 'cancel') playingGame = false;
+                                                if (!playingGame) {
+                                                    embedMessage.edit(embedMessage.embeds[0].setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**\nThe game was cancelled!`).setAuthor(`${msg.author.id == playerTwo.id ? message.author.tag : playerTwo.tag} wons!`, (msg.author.id == playerTwo.id ? message.author : playerTwo).displayAvatarURL({ dynamic: true })));
                                                     return end_game(playerTwo, message);
                                                 };
                                                 if (availableFields.includes(msg.content.toLowerCase())) {
-                                                    field[user_input] = '⭕';
+                                                    field[userSelection] = '⭕';
                                                     const indexOfChoice = availableFields.indexOf(msg.content.toLowerCase());
                                                     availableFields.splice(indexOfChoice, 1);
-                                                    players_go++;
-                                                    send_message = true;
+                                                    playersGo++;
+                                                    sendMessage = true;
                                                     run();
                                                 };
                                             }).catch(() => {
-                                                turn_message.edit(turn_message.embeds[0].setDescription('The game has timed out'));
+                                                embedMessage.edit(embedMessage.embeds[0].setDescription(`**${message.author.tag} vs. ${playerTwo.tag}**\nThe game has timed out!`).setAuthor(`${message.author.tag} wons!`, message.author.displayAvatarURL({ dynamic: true })));
                                                 end_game(playerTwo, message);
                                             });
                                     };
@@ -139,18 +155,18 @@ export default class TicTacToeCommand extends Command {
                             while (step_one < 7) {
                                 step_one++
                                 if (field[win_combinations[step_one][0]] == '❌' && field[win_combinations[step_one][1]] == '❌' && field[win_combinations[step_one][2]] == '❌') {
-                                    ttt_message.edit(await ttt_grid());
-                                    turn_message.edit(message.author, turn_message.embeds[0].setAuthor(`${message.author.tag} wons!`, message.author.displayAvatarURL({ dynamic: true })));
+                                    tttMessage.edit(await ttt_grid());
+                                    embedMessage.edit(message.author, embedMessage.embeds[0].setAuthor(`${message.author.tag} wons!`, message.author.displayAvatarURL({ dynamic: true })));
                                     end_game(playerTwo, message);
                                 };
                                 if (field[win_combinations[step_one][0]] == '⭕' && field[win_combinations[step_one][1]] == '⭕' && field[win_combinations[step_one][2]] == '⭕') {
-                                    ttt_message.edit(await ttt_grid());
-                                    turn_message.edit(playerTwo, turn_message.embeds[0].setAuthor(`${playerTwo.tag} wons!`, playerTwo.displayAvatarURL({ dynamic: true })));
+                                    tttMessage.edit(await ttt_grid());
+                                    embedMessage.edit(playerTwo, embedMessage.embeds[0].setAuthor(`${playerTwo.tag} wons!`, playerTwo.displayAvatarURL({ dynamic: true })));
                                     end_game(playerTwo, message);
                                 };
-                                if (players_go == 9 && step_one == 7) {
-                                    ttt_message.edit(await ttt_grid());
-                                    turn_message.edit(turn_message.embeds[0].setAuthor("You drew"));
+                                if (playersGo == 9 && step_one == 7) {
+                                    tttMessage.edit(await ttt_grid());
+                                    embedMessage.edit(embedMessage.embeds[0].setAuthor("You drew"));
                                     end_game(playerTwo, message);
                                 };
                             };
@@ -158,7 +174,7 @@ export default class TicTacToeCommand extends Command {
                         function end_game(playerTwo: User, message: Message) {
                             inGame = inGame.filter(i => i != message.author.id);
                             inGame = inGame.filter(i => i != playerTwo.id);
-                            playing_game = false;
+                            playingGame = false;
                             return availableFields = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
                         };
                     } else if (reaction.emoji.id == client.noEmojiID && playerTwo) {

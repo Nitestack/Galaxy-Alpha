@@ -119,5 +119,5 @@ export default class LeaderboardCommand extends Command {
 };
 
 function xpFor(level: number): number {
-    return level * level * 100;
+    return (level + 1) * (level + 1)* 100;
 };

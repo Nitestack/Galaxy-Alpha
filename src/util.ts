@@ -149,4 +149,8 @@ export default class GalaxyAlphaUtil {
     public toUpperCaseBeginning(string: string): string {
         return `${string[0].toUpperCase() + string.slice(1).toLowerCase()}`;
     };
+
+    public getRandomInt(max: number) {
+        return Math.floor(Math.random() * Math.floor(max));
+    };
 };

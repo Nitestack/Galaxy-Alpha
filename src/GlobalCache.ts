@@ -62,13 +62,7 @@ export default class GlobalCache {
     public currency: Discord.Collection<string, Profile> = new Discord.Collection();
     public levels: Discord.Collection<string, Level> = new Discord.Collection();
     //METHODS\\
-    public async getLevelandMessages(guildID: string, userID: string): Promise<{
-        userID: string,
-        guildID: string,
-        level: number,
-        xp: number,
-        messages: number
-    }> {
+    public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
         const key = `${userID}-${guildID}`;
         const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
         if (LevelandMessages) this.levels.set(key, {

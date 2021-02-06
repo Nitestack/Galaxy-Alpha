@@ -40,6 +40,7 @@ interface GalaxyAlphaOptions {
 	contributors?: Array<string>;
 	supportGuildID?: string;
 	defaultEmbedColor?: string;
+	xpPerMessage: number;
 };
 
 export interface Queue {
@@ -64,6 +65,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public supportGuildID: string;
 	public defaultColor: string;
 	public ignoreFiles: Array<string>;
+	public xpPerMessage: number;
 	/**
 	 * @param {GalaxyAlphaOptions} options The options of Galaxy Alpha
 	 */
@@ -80,24 +82,17 @@ export default class GalaxyAlpha extends Discord.Client {
 		if (!options.eventsDir) throw new Error("The event directory has to be provided!");
 		if (!options.eventsDir) throw new Error("The feature directory has to be provided!");
 		if (!options.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
-		if (options.defaultEmbedColor) {
-			this.defaultColor = options.defaultEmbedColor;
-		} else {
-			this.defaultColor = "#808080"
-		};
-		this.ownerID = options.ownerID;
-		if (!options.developers) {
-			this.developers = [options.ownerID]
-		} else {
-			this.developers = options.developers;
-		};
-		if (options.ignoreFiles){
-			this.ignoreFiles = options.ignoreFiles;
-		} else {
-			this.ignoreFiles = [];
-		};
+		if (options.defaultEmbedColor) this.defaultColor = options.defaultEmbedColor;
+		else this.defaultColor = "#808080";
+		if (!options.developers) this.developers = [options.ownerID];
+		else this.developers = options.developers;
+		if (options.ignoreFiles) this.ignoreFiles = options.ignoreFiles;
+		else this.ignoreFiles = [];
+		if (options.xpPerMessage) this.xpPerMessage = options.xpPerMessage;
+		else this.xpPerMessage = Math.floor(this.util.getRandomArbitrary(1, 20));
 		this.globalPrefix = options.globalPrefix;
 		this.contributors = options.contributors;
+		this.ownerID = options.ownerID;
 		if (options.supportGuildID) this.supportGuildID = options.supportGuildID;
 		//LOGIN\\
 		this.login(options.token).catch((error: unknown) => console.log(error));
