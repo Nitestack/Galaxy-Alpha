@@ -25,36 +25,7 @@ export default class GlobalCache {
         this.client = client;
         this.client.once("ready", () => {
             setInterval(() => {
-                if (this.levels.first()) {
-                    this.levels.forEach(async message => {
-                        await LevelSchema.findOneAndUpdate({
-                            userID: message.userID,
-                            guildID: message.guildID
-                        }, {
-                            messages: message.messages,
-                            xp: message.xp,
-                            level: message.level,
-                            lastUpdated: new Date()
-                        }, {
-                            upsert: true
-                        });
-                    });
-                };
-                if (this.currency.first()) {
-                    this.currency.forEach(async currency => {
-                        await CurrencySchema.findOneAndUpdate({
-                            profileID: currency.userID
-                        }, {
-                            bank: currency.bank,
-                            wallet: currency.wallet,
-                            messageCount: currency.messageCount
-                        }, {
-                            upsert: true
-                        });
-                    });
-                };
-                this.currency.clear();
-                this.levels.clear();
+                this.clearCacheAndSave();
             }, 1800000);
         });
     };
@@ -62,6 +33,38 @@ export default class GlobalCache {
     public currency: Discord.Collection<string, Profile> = new Discord.Collection();
     public levels: Discord.Collection<string, Level> = new Discord.Collection();
     //METHODS\\
+    public clearCacheAndSave() {
+        if (this.levels.first()) {
+            this.levels.forEach(async message => {
+                await LevelSchema.findOneAndUpdate({
+                    userID: message.userID,
+                    guildID: message.guildID
+                }, {
+                    messages: message.messages,
+                    xp: message.xp,
+                    level: message.level,
+                    lastUpdated: new Date()
+                }, {
+                    upsert: true
+                });
+            });
+        };
+        if (this.currency.first()) {
+            this.currency.forEach(async currency => {
+                await CurrencySchema.findOneAndUpdate({
+                    userID: currency.userID
+                }, {
+                    bank: currency.bank,
+                    wallet: currency.wallet,
+                    messageCount: currency.messageCount
+                }, {
+                    upsert: true
+                });
+            });
+        };
+        this.currency.clear();
+        this.levels.clear();
+    };
     public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
         const key = `${userID}-${guildID}`;
         const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
@@ -82,7 +85,7 @@ export default class GlobalCache {
         return this.levels.get(key);
     };
     public async getCurrency(userID: string): Promise<Profile> {
-        const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ profileID: userID });
+        const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID });
         if (profile) this.currency.set(userID, {
             userID: userID,
             bank: profile.bank,

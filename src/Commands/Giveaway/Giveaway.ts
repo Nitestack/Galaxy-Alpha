@@ -37,8 +37,6 @@ export default class Giveaway {
         if (requirements.guildReq != 'none') text += `${this.client.protectedEmoji} You should be in **[${(await this.client.fetchInvite(requirements.guildReq)).guild.name}](${requirements.guildReq})**!\n`;
         if (requirements.messages != 0 || requirements.invites != 0 || requirements.level != 0 || requirements.roles.length > 0 || requirements.guildReq != 'none') giveawayEmbed.addField(`${this.client.warningInfoEmoji} Requirements:`, text);
 
-        giveawayEmbed.addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`);
-
         await channel.send(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY**   ${this.client.galaxyAlphaEmoji}`, giveawayEmbed).then(async msg => {
             await msg.react("🎉");
             const Reactions = msg.createReactionCollector((reaction, user) => reaction.emoji.name == '🎉', { time: options.duration });
@@ -98,54 +96,47 @@ export default class Giveaway {
                             .setDescription(`Your giveaway entry has been confirmed!
                             **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
                             By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
-                            whether you joined a giveaway or you won a giveaway!`)
-                            .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                            whether you joined a giveaway or you won a giveaway!`));
                     } else {
                         if (blackListedRole && member.roles.cache.has(blackListedRole.id) && member.id != message.author.id) {
                             msg.reactions.cache.get("🎉").users.remove(user.id);
                             member.send(this.client.createRedEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has been denied!
-                                Your are blacklisted from joining any giveaways, which were created by ${this.client.user}, in **${msg.guild.name}**!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                Your are blacklisted from joining any giveaways, which were created by ${this.client.user}, in **${msg.guild.name}**!`));
                         } else if (requirements.roles.length != 0 && memberRolesHas == 0) {
                             msg.reactions.cache.get("🎉").users.remove(user.id);
                             member.send(this.client.createRedEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has beem denied!
-                                You need one of the required roles to enter this giveaway!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                You need one of the required roles to enter this giveaway!`));
                         } else if (requirements.messages != 0 && requirements.messages > userMessages && requirements.messages != 0) {
                             msg.reactions.cache.get("🎉").users.remove(user.id);
                             member.send(this.client.createRedEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has been denied!
-                                You need to send \`${requirements.messages - userMessages}\` messagse in **${msg.guild.name}** to enter this giveaway!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                You need to send \`${requirements.messages - userMessages}\` messagse in **${msg.guild.name}** to enter this giveaway!`));
                         } else if (requirements.level != 0 && requirements.level > userLevel && requirements.level != 0) {
                             msg.reactions.cache.get("🎉").users.remove(user.id);
                             member.send(this.client.createRedEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has been denied!
                                 You need to be Level \`${requirements.level}\` in **${msg.guild.name}** to enter this giveaway!
-                                You are currently Level \`${userLevel}\`!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                You are currently Level \`${userLevel}\`!`));
                         } else if (requirements.invites != 0 && requirements.invites != 0) {
                             member.send(this.client.createGreenEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has been confirmed!
                                 **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
                                 By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
-                                whether you joined a giveaway or you won a giveaway!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                whether you joined a giveaway or you won a giveaway!`));
                         } else {
                             member.send(this.client.createGreenEmbed()
                                 .setTitle(giveawayManager)
                                 .setDescription(`Your giveaway entry has been confirmed!
                                 **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
                                 By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
-                                whether you joined a giveaway or you won a giveaway!`)
-                                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`));
+                                whether you joined a giveaway or you won a giveaway!`));
                         };
                     };
                 });
@@ -372,7 +363,7 @@ export default class Giveaway {
         winner.forEach(user => {
             user.send(this.client.createEmbed()
                 .setTitle(giveawayManager)
-                .addField('Additional Links', `[Invite Galaxy Alpha](${this.client.inviteLink}) | [Galaxy Alpha Support](https://discord.gg/qvbFn6bXQX)`)
+                
                 .setDescription(`Congratulations! You won the **[${prize}](${message.url})** in ${channel} of **${message.guild.name}**!`));
         });
     };

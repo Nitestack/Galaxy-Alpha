@@ -25,7 +25,7 @@ export default class RemoveCoinsCommand extends Command {
         if (args[1].toLowerCase() == 'bank') {
             balance = true;
         };
-        const coins = args[2].toLowerCase() == "all" || args[2].toLowerCase() ? (balance ? oldProfile.bank : oldProfile.wallet) : parseInt(args[2]);
+        const coins = args[2].toLowerCase() == "all" || args[2].toLowerCase() == "max" ? (balance ? oldProfile.bank : oldProfile.wallet) : parseInt(args[2]);
         message.channel.send(client.createGreenEmbed()
             .setDescription(`You sucessfully removed \`${coins.toLocaleString()}\`$ from ${user}'s ${balance ? 'bank' : 'wallet'}!
             **${balance ? 'Bank' : 'Wallet'}:** \`${balance ? oldProfile.bank.toLocaleString() : oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${balance ? (oldProfile.bank - coins).toLocaleString() : (oldProfile.wallet - coins).toLocaleString()}\`$`)

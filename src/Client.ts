@@ -167,7 +167,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public mongoose = mongoose;
 	//INFOS\\
 	public dataSchemaObjectId: string = "5ffb5b87ef40ba40a0842eb5";
-	public inviteLink: string = "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=976612438&scope=bot";
+	public inviteLink: string = "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot";
 	public supportGuild: Discord.Guild;
 	//COLLECTIONS\\
 	public commands: Discord.Collection<string, Command> = new Discord.Collection();
@@ -205,6 +205,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public desktopEmoji: string = "<:desktop_dev:786332949226323988>";
 	public galaxyAlphaEmoji: string = "<:galaxy_alpha:792083061666873345>";
 	public protectedEmoji: string = "<a:protected:786707379470598174>";
+	public pin: string = "<a:hyper_pin:786708318025416724>";
 	//EMOJI ID'S\\
 	public warningInfoEmojiID: string = this.getEmojiID(this.warningInfoEmoji);
 	public developerToolsEmojiID: string = this.getEmojiID(this.developerToolsEmoji);
@@ -219,6 +220,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public desktopEmojiID: string = this.getEmojiID(this.desktopEmoji);
 	public galaxyAlphaEmojiID: string = this.getEmojiID(this.galaxyAlphaEmoji);
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
+	public pinID: string = this.getEmojiID(this.pin);
 	//MANAGERS\\
 	public giveaways: GiveawayManager = new GiveawayManager(this);
 	public tickets: TicketManager = new TicketManager(this);
@@ -269,7 +271,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, eventPath, file));
 			if (stat.isDirectory()) {
 				this.readEvent(path.join(eventPath, file));
-			} else if (!this.ignoreFiles.includes(file)){
+			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					console.log(`|Event:          |❌ NO TypeScript file ${file}`);
 					continue;
@@ -287,7 +289,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			const stat = fs.lstatSync(path.join(__dirname, featurePath, file));
 			if (stat.isDirectory()) {
 				this.readFeature(path.join(featurePath, file));
-			} else if (!this.ignoreFiles.includes(file)){
+			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					console.log(`|Feature:        |❌ NO TypeScript file ${file}`);
 					continue;
@@ -308,24 +310,33 @@ export default class GalaxyAlpha extends Discord.Client {
 			return new Discord.MessageEmbed({
 				color: this.defaultColor,
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
 					{
 						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``,
-						inline: true,
+						value: `${this.arrowEmoji} \`${usage}\``
 					},
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
 				],
 			}).setTimestamp();
 		} else {
 			return new Discord.MessageEmbed({
 				color: this.defaultColor,
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
+				fields: [
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -334,24 +345,33 @@ export default class GalaxyAlpha extends Discord.Client {
 			return new Discord.MessageEmbed({
 				color: '#2ECC71',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
 					{
 						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``,
-						inline: true,
+						value: `${this.arrowEmoji} \`${usage}\``
 					},
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
 				],
 			}).setTimestamp();
 		} else {
 			return new Discord.MessageEmbed({
 				color: '#2ECC71',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
+				fields: [
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -360,24 +380,33 @@ export default class GalaxyAlpha extends Discord.Client {
 			return new Discord.MessageEmbed({
 				color: '#F1C40F',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
 					{
 						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``,
-						inline: true,
+						value: `${this.arrowEmoji} \`${usage}\``
 					},
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
 				],
 			}).setTimestamp();
 		} else {
 			return new Discord.MessageEmbed({
 				color: '#F1C40F',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
+				fields: [
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -386,14 +415,17 @@ export default class GalaxyAlpha extends Discord.Client {
 			return new Discord.MessageEmbed({
 				color: '#ff0000',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
 				},
 				fields: [
 					{
 						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``,
-						inline: true
+						value: `${this.arrowEmoji} \`${usage}\``
+					},
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -401,9 +433,15 @@ export default class GalaxyAlpha extends Discord.Client {
 			return new Discord.MessageEmbed({
 				color: '#ff0000',
 				footer: {
-					text: "Support Server: https://discord.gg/qvbFn6bXQX",
+					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL()
-				}
+				},
+				fields: [
+					{
+						name: `${this.pin} Additional Links`,
+						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -412,7 +450,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		return emoji.split(":")[2].split(">")[0];
 	};
 	//AUTO FILTER DATABASE\\
-	private async DBfilter(enable: boolean){
+	private async DBfilter(enable: boolean) {
 		if (!enable) return;
 		//GIVEAWAYS\\
 		const giveaways = await GiveawaySchema.find({});
