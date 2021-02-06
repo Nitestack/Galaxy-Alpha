@@ -118,7 +118,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		this.once("ready", async () => {
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(false);
+			this.DBfilter(true);
 			console.log("------------------------------------------------------------------");
 			console.log('|Created At:     |', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
 			console.log('|Presence Status:|', this.user.presence.status);

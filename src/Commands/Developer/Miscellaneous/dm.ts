@@ -6,8 +6,8 @@ export default class DMCommand extends Command {
         super({
             name: "dm",
             description: "dm's an user",
-            category: "miscellaneous",
-            guildOnly: true
+            category: "developer",
+            developerOnly: true
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
