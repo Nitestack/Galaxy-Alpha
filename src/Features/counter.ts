@@ -238,7 +238,7 @@ export default class CounterFeature extends Feature {
                     if (counter.allEmojis) allEmojis(emoji.guild.id, counter.allEmojis);
                     if (emoji.animated && counter.animated) animatedEmojis(emoji.guild.id, counter.animated);
                     if (!emoji.animated && counter.notAnimated) notAnimatedEmojis(emoji.guild.id, counter.animated);
-                }
+                };
             });
         });
         client.on("emojiDelete", async (emoji) => {
@@ -250,7 +250,7 @@ export default class CounterFeature extends Feature {
                     if (counter.allEmojis) allEmojis(emoji.guild.id, counter.allEmojis);
                     if (emoji.animated && counter.animated) animatedEmojis(emoji.guild.id, counter.animated);
                     if (!emoji.animated && counter.notAnimated) notAnimatedEmojis(emoji.guild.id, counter.animated);
-                }
+                };
             });
         });
         client.on("guildUpdate", async (oldGuild, newGuild) => {

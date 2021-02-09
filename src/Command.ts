@@ -90,10 +90,10 @@ export default class Command {
 			newsChannelOnly: this.newsChannelOnly
 		});
 	};
-	run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {
+	public run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
-	validateInfo(info: CommandInfos) {
+	private validateInfo(info: CommandInfos) {
 		if (!info.name) throw new Error("A command name must be specified!");
 		if (!info.description) throw new Error("A command description must be specified!");
 		if (!info.category) throw new Error("A command category must be specified!");

@@ -1,7 +1,7 @@
 import GalaxyAlpha from '@root/Client';
 
 export interface FeatureRunner {
-	(client: GalaxyAlpha): Promise<void>;
+	(client: GalaxyAlpha): Promise<unknown>;
 };
 
 interface FeatureInfo {
@@ -19,14 +19,14 @@ export default class Feature {
 			name: this.name
 		});
 	};
-	validateInfo(info: {
+	private validateInfo(info: {
 		name: string
 	}){
 		if (!info.name) throw new Error("A feature name must be specified!");
 		if (typeof info.name != 'string') throw new TypeError("The feature name must be a string!");
 		if (info.name != info.name.toLowerCase()) throw new RangeError("The feature name must be in lowercase");
 	};
-	async run(client: GalaxyAlpha): Promise<void>{
+	public run: FeatureRunner = async (client: GalaxyAlpha): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 };

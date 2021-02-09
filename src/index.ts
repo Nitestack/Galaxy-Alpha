@@ -16,5 +16,5 @@ export const Bot =  new GalaxyAlpha({
     contributors: ['694162762020159539'],
     supportGuildID: "783440776285651024",
     defaultEmbedColor: "#365b88",
-    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts"]
+    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts"],
 });
