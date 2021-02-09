@@ -16,7 +16,7 @@ export default class AvatarCommand extends Command {
         if (args[0] && client.users.cache.has(args[0])) user = client.users.cache.get(args[0]);
         return message.channel.send(client.createEmbed()
             .setTitle(`${user.username}'s Avatar`)
-            .setURL(user.displayAvatarURL())
+            .setURL(user.displayAvatarURL({ dynamic: true }))
             .setImage(user.displayAvatarURL({ dynamic: true })));
     };
 };
