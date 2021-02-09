@@ -26,7 +26,6 @@ import LevelSchema from '@root/Models/level';
 //ANY THING ELSE\\
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
-import { Readable } from 'stream';
 
 interface GalaxyAlphaOptions {
 	ownerID: string;
@@ -183,7 +182,6 @@ export default class GalaxyAlpha extends Discord.Client {
 	public modMails: Discord.Collection<string, Discord.Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public recorder: Discord.Collection<string, Readable> = new Discord.Collection();
 	public queue: Discord.Collection<string, {
 		guildID: string,
 		queue: Array<Queue>,
