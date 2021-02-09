@@ -1,4 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
+import { Profile } from "@models/profile";
 
 export default class WorkCommand extends Command {
     constructor() {
@@ -17,11 +18,11 @@ export default class WorkCommand extends Command {
             .setAuthor(`💰 ${message.author.username} was working!`, message.author.displayAvatarURL())
             .setDescription(`You worked as **${jobs[Math.round(client.util.getRandomArbitrary(0, jobs.length - 1))]}** and got payed \`${wage.toLocaleString()}\`$!
             **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + wage).toLocaleString()}\`$`));
-        client.cache.currency.set(message.author.id, {
+        client.cache.currency.set(message.author.id, ({
             userID: message.author.id,
             bank: userProfile.bank,
             wallet: userProfile.wallet + wage,
             messageCount: userProfile.messageCount + 1
-        });
+        } as Profile));
     };
 };

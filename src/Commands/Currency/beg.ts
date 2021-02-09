@@ -1,4 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
+import { Profile } from "@models/profile";
 
 export default class BegCommand extends Command {
 	constructor() {
@@ -19,11 +20,11 @@ export default class BegCommand extends Command {
 		const userProfile = await client.cache.getCurrency(message.author.id);
 		if (probabilityOfBeg >= 6) message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${getCoins[Math.round(client.util.getRandomArbitrary(0, getCoins.length - 1))]}\n**Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + begCoins).toLocaleString()}\`$`));
 		else message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${noCoins[Math.round(client.util.getRandomArbitrary(0, noCoins.length - 1))]}\n**Wallet:** \`${userProfile.wallet.toLocaleString()}\`$`));
-		client.cache.currency.set(message.author.id, {
+		client.cache.currency.set(message.author.id, ({
 			userID: message.author.id,
 			messageCount: userProfile.messageCount + 1,
 			bank: userProfile.bank,
 			wallet: userProfile.wallet + (probabilityOfBeg >= 6 ? begCoins : 0)
-		});
+		} as Profile));
 	};
 };

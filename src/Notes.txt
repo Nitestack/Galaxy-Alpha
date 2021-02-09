@@ -14,3 +14,5 @@ Channel Lock
 Record Voice
 
 Coin Flip
+
+Reminder

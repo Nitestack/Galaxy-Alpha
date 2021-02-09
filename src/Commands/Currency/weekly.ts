@@ -1,4 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
+import { Profile } from "@models/profile";
 
 export default class WeeklyCommand extends Command {
     constructor() {
@@ -14,11 +15,11 @@ export default class WeeklyCommand extends Command {
         const weeklyBonus = 20000; //define a weekly reward here
         const oldProfile = await client.cache.getCurrency(message.author.id);
         message.channel.send(embed.setDescription(`You redeemed your daily coins of \`${weeklyBonus.toLocaleString()}\`$\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(oldProfile.wallet + weeklyBonus).toLocaleString()}\`$`));
-        return client.cache.currency.set(message.author.id, {
+        return client.cache.currency.set(message.author.id, ({
             userID: message.author.id,
             bank: oldProfile.bank,
             wallet: oldProfile.wallet + weeklyBonus,
             messageCount: oldProfile.messageCount + 1
-        });
+        } as Profile));
     };
 };

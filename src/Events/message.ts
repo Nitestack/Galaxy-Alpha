@@ -18,8 +18,8 @@ export default class MessageEvent extends Event {
 				.setTitle("Client Manager")
 				.setDescription("I need the permission `Send Messages`, `View Channels`, `Add Reactions`, `Use External Emojis`, `Read Message History` and `Embed Links` in every channel, where I should work!\nFor the mute function I need the permission `Manage Channels` to overwrite the permission in every channel!"));
 		//PREFIX\\
-		const settings = await client.cache.getGuild(message.guild.id);
-		if (!settings) {
+		const settings = message.channel.type != "dm" ? await client.cache.getGuild(message.guild.id) : null;
+		if (!settings && message.channel.type != "dm") {
 			const newGuild = new GuildSchema({//adds the guild to the database file of prefixes
 				guildID: message.guild.id,
 				guildPrefix: client.globalPrefix,

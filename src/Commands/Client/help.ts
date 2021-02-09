@@ -74,8 +74,10 @@ export default class HelpCommand extends Command {
 
                 You can also suggest commands by doing \`${prefix}suggest command <description>\`
 
-                To report any issues you can also use the suggestion command above!`)
-                .addField("Categories", `\`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``)
+                To report any issues you can also use the suggestion command above!
+                
+                **Categories**
+                \`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``)
                 .setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`, client.user.displayAvatarURL());
             embedArray.push(helpEmbed);
             for (let i = 0; i < arrayOfCategories.length; i++) {

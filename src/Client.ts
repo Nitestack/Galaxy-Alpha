@@ -321,6 +321,10 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
+					},
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -330,7 +334,13 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				}
+				},
+				fields: [
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -346,6 +356,10 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
+					},
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -355,7 +369,13 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				}
+				},
+				fields: [
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -371,6 +391,10 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
+					},
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -380,7 +404,13 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				}
+				},
+				fields: [
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};
@@ -396,6 +426,10 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
+					},
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -405,7 +439,13 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL()
-				}
+				},
+				fields: [
+					{
+						name: `${this.profileEmoji} ${this.user.username}`,
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+					}
+				]
 			}).setTimestamp();
 		};
 	};

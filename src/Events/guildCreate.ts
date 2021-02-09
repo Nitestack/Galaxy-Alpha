@@ -29,6 +29,10 @@ export default class GuildCreateEvent extends Event {
 		});
 		(guild.channels.cache.filter(channel => channel.type == "text" && channel.permissionsFor(client.user).has("SEND_MESSAGES") && channel.permissionsFor(client.user).has("EMBED_LINKS")).first() as TextChannel).send(client.createEmbed()
 			.setTitle(`Thanks for adding ${client.user.username} to your server!`)
-			.setDescription(`**Thanks for adding this bot to your server!**\nFor help use the command \`${client.globalPrefix}help\` to see the commands list!\nTo see more informations about a command use the command \`${client.globalPrefix}help <command name>\`!\nHope you enjoy using **${client.user.username}**!`));
+			.setDescription(`**Thanks for adding this bot to your server!**
+			My default prefix is \`${client.globalPrefix}\`, but you can change it with \`${client.globalPrefix}prefix <new prefix>\`!
+			For help use the command \`${client.globalPrefix}help\` to see all commands!
+			To see more informations about a command use the command \`${client.globalPrefix}help <command name>\`!
+			Hope you enjoy using **${client.user.username}**!`));
 	};
 };

@@ -1,4 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
+import { Profile } from "@models/profile";
 
 export default class WithdrawCommand extends Command {
     constructor() {
@@ -13,12 +14,12 @@ export default class WithdrawCommand extends Command {
     run: CommandRunner = async (client, message, args, prefix) => {
         const commandUsage = `${prefix}${this.usage}`;
         const userProfile = await client.cache.getCurrency(message.author.id);
-        client.cache.currency.set(message.author.id, {
+        client.cache.currency.set(message.author.id, ({
             userID: message.author.id,
             bank: userProfile.bank,
             wallet: userProfile.wallet,
             messageCount: userProfile.messageCount + 1
-        });
+        } as Profile));
         if (userProfile.bank == 0) return message.channel.send(client.createRedEmbed(true, commandUsage)
             .setTitle("💰 Currency Manager")
             .setAuthor(message.author.username, message.author.displayAvatarURL())
@@ -43,12 +44,12 @@ export default class WithdrawCommand extends Command {
                 **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + number).toLocaleString()}\`$
                 **Bank:** \`${userProfile.bank.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank - number).toLocaleString()}\`$`)
                 .setAuthor(`💰 ${message.author.username} withdraws money of their bank!`, message.author.displayAvatarURL()));
-            return client.cache.currency.set(message.author.id, {
+            return client.cache.currency.set(message.author.id, ({
                     userID: message.author.id,
                     bank: userProfile.bank - number,
                     wallet: userProfile.wallet + number,
                     messageCount: userProfile.wallet
-                });
+                } as Profile));
         };
     };
 };
