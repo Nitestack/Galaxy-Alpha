@@ -1,7 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
 import { Message, NewsChannel, TextChannel } from 'discord.js';
 import ReactionRolesSchema from '@models/reactionroles';
-import GalaxyAlpha from '@root/Client';
 
 export default class ReactionRolesCommand extends Command {
     constructor() {
@@ -44,9 +43,7 @@ export default class ReactionRolesCommand extends Command {
             let messageEmoji: Message;
             if (i < 2 && i != 5) await message.channel.send(client.createRedEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
             if (i > 1 && i != 5) await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
-            if (i == 5){
-                messageEmoji = await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
-            };
+            if (i == 5) messageEmoji = await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
             await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 60000 }).then(async messages => {
                 if (messages.size == 0) {
                     cancel = true;

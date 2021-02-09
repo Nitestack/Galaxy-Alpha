@@ -19,18 +19,22 @@ export default class WithdrawCommand extends Command {
             wallet: userProfile.wallet,
             messageCount: userProfile.messageCount + 1
         });
-        if (userProfile.bank == 0)
-            return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
-                .setDescription('You cannot withdraw any coins with an empty bank'));
-        if ((isNaN((args[0] as unknown as number)) && args[0] != 'all' && args[0] != 'max') || !args[0])
-            return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
-                .setDescription('You have to provide an amount of coins, `max` or `all`!'));
-        if (userProfile.bank < parseInt(args[0]))
-            return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
-                .setDescription('You cannot withdraw more money of you bank than you have!'));
-        if (parseInt(args[0]) == 0)
-            return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle("💰 Currency Manager").setAuthor(message.author.username, message.author.displayAvatarURL())
-                .setDescription('You have to withdraw atleast `1`$!'));
+        if (userProfile.bank == 0) return message.channel.send(client.createRedEmbed(true, commandUsage)
+            .setTitle("💰 Currency Manager")
+            .setAuthor(message.author.username, message.author.displayAvatarURL())
+            .setDescription('You cannot withdraw any coins with an empty bank'));
+        if ((isNaN((args[0] as unknown as number)) && args[0] != 'all' && args[0] != 'max') || !args[0]) return message.channel.send(client.createRedEmbed(true, commandUsage)
+            .setTitle("💰 Currency Manager")
+            .setAuthor(message.author.username, message.author.displayAvatarURL())
+            .setDescription('You have to provide an amount of coins, `max` or `all`!'));
+        if (userProfile.bank < parseInt(args[0])) return message.channel.send(client.createRedEmbed(true, commandUsage)
+            .setTitle("💰 Currency Manager")
+            .setAuthor(message.author.username, message.author.displayAvatarURL())
+            .setDescription('You cannot withdraw more money of you bank than you have!'));
+        if (parseInt(args[0]) == 0)  return message.channel.send(client.createRedEmbed(true, commandUsage)
+            .setTitle("💰 Currency Manager")
+            .setAuthor(message.author.username, message.author.displayAvatarURL())
+            .setDescription('You have to withdraw atleast `1`$!'));
         if (args[0] == 'all' || args[0] == 'max') return withdraw(userProfile.bank);
         if (!isNaN((args[0] as unknown as number))) return withdraw(parseInt(args[0]));
         async function withdraw(number: number) {

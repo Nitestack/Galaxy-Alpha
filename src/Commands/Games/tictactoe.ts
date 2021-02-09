@@ -37,7 +37,6 @@ export default class TicTacToeCommand extends Command {
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
                         YesOrNo.stop();
-                        msg.reactions.cache.get(client.yesEmojiID).users.remove(user.id);
                         if (!playerTwo) playerTwo = user;
                         let field: Array<string> = ['⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛', '⬛'];
                         let availableFields: Array<string> = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
@@ -193,12 +192,9 @@ export default class TicTacToeCommand extends Command {
                             return availableFields = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
                         };
                     } else if (reaction.emoji.id == client.noEmojiID && playerTwo) {
-                        msg.reactions.cache.get(client.noEmojiID).users.remove(user.id);
                         return message.channel.send(client.createRedEmbed(true, usage)
                             .setTitle(tictactoeManager)
                             .setDescription("Tic Tac Toe game request denied!"));
-                    } else {
-                        msg.reactions.cache.get(reaction.emoji.id).users.remove(user.id);
                     };
                 });
                 YesOrNo.on("end", (collected, reason) => {

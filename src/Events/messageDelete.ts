@@ -10,9 +10,8 @@ export default class MessageDeleteEvent extends Event {
         });
     };
     run: EventRunner = async (client, message: Message) => {
-        if (message.embeds.length == 0) {
-            client.snipes.set(message.channel.id, message);
-        };
+        if (message.embeds.length == 0) client.snipes.set(message.channel.id, message);
+        if (message.mentions.roles.first()) client.ghostPings.set(message.channel.id, message);
         await GiveawaySchema.findOne({
             messageID: message.id
         }, {}, {}, (err, giveaway) => {

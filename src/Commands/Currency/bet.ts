@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from "@root/Command";
-import { MessageEmbed } from "discord.js";
 
 export default class BetCommand extends Command {
 	constructor() {
@@ -26,15 +25,12 @@ export default class BetCommand extends Command {
 		if (isNaN((args[0] as unknown as number)) && args[0].toLowerCase() != 'all' && args[0].toLowerCase() != 'max') return message.channel.send(errorEmbed.setDescription('You have to provide a number, `max` or `all`!'));
 		if (parseInt(args[0]) < minimum) return message.channel.send(errorEmbed.setDescription(`You have to bet atleast \`${minimum}\`$!`));
 		if (parseInt(args[0]) > userProfile.wallet) return message.channel.send(errorEmbed.setDescription('You cannot bet more than you have in your wallet!'));
-		if (args[0].toLowerCase() == 'all' || args[0].toLowerCase() == 'max') {
-			return bet(userProfile.wallet);
-		} else {
-			return bet(parseInt(args[0]));
-		};
+		if (args[0].toLowerCase() == 'all' || args[0].toLowerCase() == 'max') return bet(userProfile.wallet);
+		else return bet(parseInt(args[0]));
 		async function bet(number: number) {
 			const oldProfile = await client.cache.getCurrency(message.author.id);
 			const luckNumber: Boolean = Math.random() < 0.5;
-			const embed: MessageEmbed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL());
+			const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL());
 			if (luckNumber) {
 				const winNumber = Math.round(client.util.getRandomArbitrary(30, 150));
 				const win = Math.round(number * (winNumber / 100));

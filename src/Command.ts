@@ -34,7 +34,7 @@ interface CommandInfos {
 	dmOnly?: boolean;
 	nsfw?: boolean;
 	newsChannelOnly?: boolean;
-	removeClientMention?: boolean;
+	textChannelOnly?: boolean;
 };
 
 export default class Command {
@@ -53,7 +53,7 @@ export default class Command {
 	public dmOnly?: boolean;
 	public nsfw?: boolean;
 	public newsChannelOnly?: boolean;
-	public removeClientMention?: boolean;
+	public textChannelOnly?: boolean;
 	/**
 	 * @param {CommandInfo} info The command informations
 	 */
@@ -72,7 +72,7 @@ export default class Command {
 		this.dmOnly = info.dmOnly ? info.dmOnly : false;
 		this.nsfw = info.nsfw ? info.nsfw : false;
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
-		this.removeClientMention = info.removeClientMention ? info.removeClientMention : true;
+		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
 		this.validateInfo({
 			name: this.name,
 			aliases: this.aliases,
@@ -87,8 +87,7 @@ export default class Command {
 			guildOnly: this.guildOnly,
 			dmOnly: this.dmOnly,
 			nsfw: this.nsfw,
-			newsChannelOnly: this.newsChannelOnly,
-			removeClientMention: this.removeClientMention
+			newsChannelOnly: this.newsChannelOnly
 		});
 	};
 	run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {

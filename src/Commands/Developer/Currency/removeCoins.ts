@@ -22,9 +22,7 @@ export default class RemoveCoinsCommand extends Command {
         if (args[0] && client.users.cache.filter(user => !user.bot).get(args[0])) user = client.users.cache.filter(user => !user.bot).get(args[0]);
         const oldProfile = await client.cache.getCurrency(user.id);
         let balance: boolean = false;
-        if (args[1].toLowerCase() == 'bank') {
-            balance = true;
-        };
+        if (args[1].toLowerCase() == 'bank') balance = true;
         const coins = args[2].toLowerCase() == "all" || args[2].toLowerCase() == "max" ? (balance ? oldProfile.bank : oldProfile.wallet) : parseInt(args[2]);
         message.channel.send(client.createGreenEmbed()
             .setDescription(`You sucessfully removed \`${coins.toLocaleString()}\`$ from ${user}'s ${balance ? 'bank' : 'wallet'}!

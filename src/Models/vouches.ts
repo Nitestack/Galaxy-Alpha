@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export interface VouchSchema extends mongoose.Document {
+export interface Vouch extends mongoose.Document {
 	userID: string;
 	upVotes: number;
 	downVotes: number;
@@ -23,4 +23,4 @@ const vouchSchema = new mongoose.Schema({
 	}
 });
 
-export default mongoose.model<VouchSchema>('vouch', vouchSchema, 'vouches');
+export default mongoose.model<Vouch>('vouch', vouchSchema, 'vouches');

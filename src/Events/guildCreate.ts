@@ -1,6 +1,5 @@
-import mongoose from 'mongoose';
 import GuildSchema from '@models/guild';
-import { Guild } from 'discord.js';
+import { Guild, TextChannel } from 'discord.js';
 import Event, { EventRunner } from '@root/Event';
 
 export default class GuildCreateEvent extends Event {
@@ -10,9 +9,9 @@ export default class GuildCreateEvent extends Event {
 		});
 	};
 	run: EventRunner = async (client, guild: Guild) => {
-		const newGuild = new GuildSchema({
-			_id: mongoose.Types.ObjectId(),
+		await GuildSchema.findOneAndUpdate({
 			guildID: guild.id,
+		}, {
 			guildPrefix: client.globalPrefix,
 			logChannelID: null,
 			guildShardID: guild.shardID,
@@ -24,8 +23,12 @@ export default class GuildCreateEvent extends Event {
 			giveawayBlackListed: null,
 			giveawayPing: null,
 			welcomeMessage: null,
-			welcomeEmbed: false
+			welcomeEmbed: false,
+		}, {
+			upsert: true
 		});
-		return newGuild.save().catch((err: unknown) => console.error(err));
+		(guild.channels.cache.filter(channel => channel.type == "text" && channel.permissionsFor(client.user).has("SEND_MESSAGES") && channel.permissionsFor(client.user).has("EMBED_LINKS")).first() as TextChannel).send(client.createEmbed()
+			.setTitle(`Thanks for adding ${client.user.username} to your server!`)
+			.setDescription(`**Thanks for adding this bot to your server!**\nFor help use the command \`${client.globalPrefix}help\` to see the commands list!\nTo see more informations about a command use the command \`${client.globalPrefix}help <command name>\`!\nHope you enjoy using **${client.user.username}**!`));
 	};
 };

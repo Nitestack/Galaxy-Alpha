@@ -2,7 +2,7 @@ import Command, { CommandRunner } from '@root/Command';
 import { StringResolvable, User } from 'discord.js';
 
 export default class DMCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "dm",
             description: "dm's an user",
@@ -39,63 +39,45 @@ export default class DMCommand extends Command {
                 .setTitle('DM Manager')
                 .setDescription(`${prompts[i]}`).addField("How to cancel?", "Simply type `cancel` to cancel the process");
             await message.channel.send(embed);
-            const response = await message.channel.awaitMessages(
-                m => m.author.id === message.author.id,
-                { max: 1 }
-            );
+            const response = await message.channel.awaitMessages(m => m.author.id === message.author.id, { max: 1 });
             const { content } = response.first();
             if (content.toLowerCase() == 'cancel') return message.channel.send(client.createEmbed(true, `${prefix}dm`).setTitle('DM Manager').setDescription("DMing cancelled!"));
             if (i == 0) {
                 let user: User;
-                if (response.first().mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = client.users.cache.filter(user => !user.bot).get(response.first().mentions.users.first().id);
-                if (response.first() && client.users.cache.filter(user => !user.bot).get(response.first().content))
-                    if (user) {
-                        responses.user = user;
-                        i = 2;
-                    } else {
-                        i = -1;
-                    };
+                if (response.first().mentions.users.first() && client.users.cache.filter(user => !user.bot).has(message.mentions.users.first().id)) user = client.users.cache.get(response.first().mentions.users.first().id);
+                if (response.first().content && client.users.cache.filter(user => !user.bot).has(response.first().content)) user = client.users.cache.get(response.first().content);
+                if (user) {
+                    responses.user = user;
+                    i = 2;
+                } else i = -1;
             } else if (i == 1) {
                 if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') {
                     responses.embed = (content.toLowerCase() as "yes" | "no");
                     i = 3;
-                } else {
-                    i = 0;
-                };
+                } else i = 0;
             } else if (i == 2) {
                 let user: User;
-                if (response.first().mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = client.users.cache.get(response.first().mentions.users.first().id);
-                if (response.first().content && client.users.cache.get(response.first().content)) user = client.users.cache.get(response.first().content);
-                if (user) {
-                    responses.user = user;
-                    i = 2;
-                } else {
-                    i = -1;
-                };
+                if (response.first().mentions.users.first() && client.users.cache.filter(user => !user.bot).has(message.mentions.users.first().id)) user = client.users.cache.get(response.first().mentions.users.first().id);
+                if (response.first().content && client.users.cache.filter(user => !user.bot).has(response.first().content)) user = client.users.cache.get(response.first().content);
+                if (user) responses.user = user;
+                else i = -1;
             } else if (i == 3) {
-                if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') {
-                    responses.embed = (content.toLowerCase() as "yes" | "no");
-                } else {
-                    i = 0;
-                };
-            } else {
-                responses.messageContent = content;
-            };
+                if (content.toLowerCase() == 'yes' || content.toLowerCase() == 'no') responses.embed = (content.toLowerCase() as "yes" | "no");
+                else i = 0;
+            } else responses.messageContent = content;
         };
         if (responses.embed == 'yes') {
             const content = responses.messageContent;
             textEmbed.setDescription(`${content}
             
-            **Sent by ${message.author} from \`${message.guild.name}\`**`);
-            return responses.user.send(textEmbed).then((msg) => {
-                sentEmbed.setDescription(
-                    `You successfully sent a embed message with the content\n\`${content}\`\nto ${responses.user}!`
-                );
+            **Sent by ${message.author}**`);
+            return responses.user.send(textEmbed).then(msg => {
+                sentEmbed.setDescription(`You successfully sent a embed message with the content\n\`${content}\`\nto ${responses.user}!`);
                 return message.channel.send(sentEmbed);
             });
         } else {
             const content = responses.messageContent;
-            return responses.user.send(`${content}\n\n**Sent by ${message.author} from \`${message.guild.name}\`**`).then((msg) => {
+            return responses.user.send(`${content}\n\n**Sent by ${message.author}**`).then(msg => {
                 sentEmbed.setDescription(`You successfully sent a message with the content\n\`${content}\`\nto ${responses.user}!`);
                 return message.channel.send(sentEmbed);
             });

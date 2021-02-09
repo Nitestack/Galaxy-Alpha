@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import ms from 'ms';
-import Discord, { Guild } from 'discord.js';
+import Discord from 'discord.js';
 import mongoose from 'mongoose';
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
@@ -26,6 +26,7 @@ import LevelSchema from '@root/Models/level';
 //ANY THING ELSE\\
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
+import { Readable } from 'stream';
 
 interface GalaxyAlphaOptions {
 	ownerID: string;
@@ -73,7 +74,9 @@ export default class GalaxyAlpha extends Discord.Client {
 		super({
 			ws: { intents: Discord.Intents.ALL },
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
-			disableMentions: "everyone"
+			disableMentions: "everyone",
+			shards: "auto",
+			shardCount: 1
 		});
 		if (!options.ownerID) throw new Error("A bot owner has to be provided!");
 		if (!options.globalPrefix) throw new Error("A global prefix has to be provided!");
@@ -177,9 +180,10 @@ export default class GalaxyAlpha extends Discord.Client {
 		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
 	}> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public modMails: Discord.Collection<string, Guild> = new Discord.Collection();
+	public modMails: Discord.Collection<string, Discord.Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public recorder: Discord.Collection<string, Readable> = new Discord.Collection();
 	public queue: Discord.Collection<string, {
 		guildID: string,
 		queue: Array<Queue>,
@@ -207,7 +211,6 @@ export default class GalaxyAlpha extends Discord.Client {
 	public desktopEmoji: string = "<:desktop_dev:786332949226323988>";
 	public galaxyAlphaEmoji: string = "<:galaxy_alpha:792083061666873345>";
 	public protectedEmoji: string = "<a:protected:786707379470598174>";
-	public pin: string = "<a:hyper_pin:786708318025416724>";
 	//EMOJI ID'S\\
 	public warningInfoEmojiID: string = this.getEmojiID(this.warningInfoEmoji);
 	public developerToolsEmojiID: string = this.getEmojiID(this.developerToolsEmoji);
@@ -222,13 +225,12 @@ export default class GalaxyAlpha extends Discord.Client {
 	public desktopEmojiID: string = this.getEmojiID(this.desktopEmoji);
 	public galaxyAlphaEmojiID: string = this.getEmojiID(this.galaxyAlphaEmoji);
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
-	public pinID: string = this.getEmojiID(this.pin);
 	//MANAGERS\\
 	public giveaways: GiveawayManager = new GiveawayManager(this);
 	public tickets: TicketManager = new TicketManager(this);
 	public drop: DropManager = new DropManager(this);
 	public music: MusicManager = new MusicManager(this);
-	public cache: CacheManager = new CacheManager();
+	public cache: CacheManager = new CacheManager(this);
 	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//PERMISSIONS\\
 	public permissions: Array<string> = this.util.permissions;
@@ -319,10 +321,6 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -332,13 +330,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				},
-				fields: [
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -354,10 +346,6 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -367,13 +355,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				},
-				fields: [
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -389,10 +371,6 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
@@ -402,13 +380,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL(),
-				},
-				fields: [
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -424,10 +396,6 @@ export default class GalaxyAlpha extends Discord.Client {
 					{
 						name: '🤔 Usage:',
 						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -437,13 +405,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL()
-				},
-				fields: [
-					{
-						name: `${this.pin} Additional Links`,
-						value: `📨 [Invite ${this.user.username}](${this.inviteLink})\n👥 [Join ${this.supportGuild.name}](https://discord.gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};

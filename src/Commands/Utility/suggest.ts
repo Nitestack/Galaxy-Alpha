@@ -36,7 +36,7 @@ export default class SuggestCommand extends Command {
                 return message.channel.send(successEmbed);
             });
         } else {
-
+            
         };
     };
 };

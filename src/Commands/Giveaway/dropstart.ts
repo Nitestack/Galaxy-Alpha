@@ -10,7 +10,8 @@ export default class DropStartCommand extends Command {
             usage: "dropstart <prize>",
             aliases: ["dstart"],
             userPermissions: ["MANAGE_GUILD"],
-            guildOnly: true
+            guildOnly: true,
+            clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

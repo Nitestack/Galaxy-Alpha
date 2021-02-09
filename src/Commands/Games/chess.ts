@@ -44,7 +44,6 @@ export default class ChessCommand extends Command {
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
                         YesOrNo.stop();
-                        msgSend.reactions.cache.get(client.yesEmojiID).users.remove(user.id);
                         if (!playerTwo) playerTwo = user;
                         let gameMessage: Message = null;
                         let inGame: boolean = false;
@@ -401,12 +400,9 @@ export default class ChessCommand extends Command {
                             gameBoard[move.ty * 8 + move.tx] = move.replaced;
                         };
 
-                    } else if (reaction.emoji.id == client.noEmojiID && playerTwo) {
-                        msgSend.reactions.cache.get(client.noEmojiID).users.remove(user.id);
-                        return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                            .setTitle(chessManager)
-                            .setDescription("Chess game request denied!"));
-                    };
+                    } else if (reaction.emoji.id == client.noEmojiID && playerTwo) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                        .setTitle(chessManager)
+                        .setDescription("Chess game request denied!"));
                 });
                 YesOrNo.on("end", (collected, reason) => {
                     if (collected.size == 0) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)

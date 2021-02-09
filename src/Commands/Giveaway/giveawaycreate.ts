@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
-import { NewsChannel, TextChannel } from 'discord.js';
+import { NewsChannel, Role, TextChannel } from 'discord.js';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 import GuildSchema from '@models/guild';
 
@@ -15,11 +15,11 @@ export default class GiveawayCreateCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let giveawayManagerRole;
+        let giveawayManagerRole: Role;
         await GuildSchema.findOne({
             guildID: message.guild.id
         }, {}, {}, (err, guild) => {
-            if (err) return console.log(err);
+            if (err) console.log(err);
             if (!guild.giveawayManager) return;
             if (guild.giveawayManager) giveawayManagerRole = message.guild.roles.cache.get(guild.giveawayManager);
         });
@@ -33,7 +33,7 @@ export default class GiveawayCreateCommand extends Command {
                 .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
         };
         const prompts = [
-            'You have to mention a channel or provide a channel ID!',
+            'You have to mention a channel or provide a channel ID, where I have the permission to `Manage Messages`!',
             'You have to specify a valid duration!\nThe duration has to be over a minute.\nYou can also provide the duration in milliseconds!\nYou can use seconds (s), minutes (m), hours (h), days (d), weeks (w) and years (y)!',
             'You have to provide a number of winners!',
             'One of these roles is invalid! Make sure that the each role is trimmed by a space!',
@@ -93,11 +93,12 @@ export default class GiveawayCreateCommand extends Command {
                     let channel: TextChannel | NewsChannel;
                     if (msg.first().mentions.channels.first()) channel = msg.first().mentions.channels.first();
                     if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = (message.guild.channels.cache.get(msg.first().content) as TextChannel | NewsChannel);
-                    if (!channel) i = -1;
                     if (channel) {
-                        responses.channel = channel;
-                        i = 9;
-                    };
+                        if (channel.permissionsFor(client.user).has("MANAGE_MESSAGES")){
+                            responses.channel = channel;
+                            i = 9;
+                        } else i = -1;
+                    } else i = -1;
                 } else if (i == 1) {//DURATION
                     if (client.ms(msg.first().content) && client.ms(msg.first().content) >= 60000) {
                         responses.duration = client.ms(msg.first().content);
@@ -184,10 +185,10 @@ export default class GiveawayCreateCommand extends Command {
                     let channel: TextChannel | NewsChannel;
                     if (msg.first().mentions.channels.first()) channel = msg.first().mentions.channels.first();
                     if (msg.first().content && message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').has(msg.first().content)) channel = (message.guild.channels.cache.get(msg.first().content) as TextChannel | NewsChannel);
-                    if (!channel) i = -1;
                     if (channel) {
-                        responses.channel = channel;
-                    };
+                        if (channel.permissionsFor(client.user).has("MANAGE_MESSAGES")) responses.channel = channel;
+                        else i = -1;
+                    } else i = -1;
                 } else if (i == 10) {//DURATION
                     if (client.ms(msg.first().content) && client.ms(msg.first().content) >= 60000) {
                         responses.duration = client.ms(msg.first().content);

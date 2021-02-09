@@ -21,7 +21,7 @@ export default class KickCommand extends Command {
         const usage: string = `${prefix}${this.usage}`;
         let member: GuildMember;
         if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
-        if (args[0] && message.guild.members.cache.get(args[0])) member = message.guild.members.cache.get(args[0]);
+        if (args[0] && message.guild.members.cache.has(args[0])) member = message.guild.members.cache.get(args[0]);
         if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🤜 Kick Manager").setDescription("You cannot kick yourself!"));
         if (member) {
             if (member.kickable) {

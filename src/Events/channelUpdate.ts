@@ -1,7 +1,6 @@
 import GalaxyAlpha from '@root/Client';
 import Event, { EventRunner } from '@root/Event';
 import { GuildChannel, DMChannel, Guild, Role } from 'discord.js';
-
 import GuildSchema from '@models/guild';
 
 export default class ChannelUpdateEvent extends Event {
@@ -12,16 +11,13 @@ export default class ChannelUpdateEvent extends Event {
 	};
 	run: EventRunner = async (client, oldChannel: DMChannel | GuildChannel, newChannel: DMChannel | GuildChannel) => {
 		if (newChannel.type == 'dm') return;
-		const result = await GuildSchema.findOne(
-			{
-				guildID: newChannel.guild.id,
-			},
-			(err: unknown, guild: any) => {
-				if (err) console.log(err);
-				if (!guild || !guild.muteRole) return;
-			}
-		);
-		return muteRole(client, newChannel, result.guildID, result.muteRole);
+		await GuildSchema.findOne({
+			guildID: newChannel.guild.id,
+		}, {}, {}, (err, guild) => {
+			if (err) console.log(err);
+			if (!guild || !guild.muteRole) return;
+			if (guild.muteRole) return muteRole(client, newChannel, guild.guildID, guild.muteRole);
+		});
 	};
 };
 

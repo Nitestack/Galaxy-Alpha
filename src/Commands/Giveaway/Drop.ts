@@ -5,7 +5,7 @@ import { Message, NewsChannel, TextChannel, User } from 'discord.js';
 export const dropManager: string = `🎁 Drop Manager`
 export default class Drop {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha){
+    constructor(client: GalaxyAlpha) {
         this.client = client;
     };
     async create(options: { prize: string, guildID: string, channelID: string, createdBy: User }, message: Message) {
@@ -13,7 +13,6 @@ export default class Drop {
         if (!options.guildID) throw new Error("You didn't provide a guild ID.");
         if (!options.channelID) throw new Error("You didn't provide a channel ID.");
         if (!options.createdBy) throw new Error("You didn't provide who the drop was created by.");
-
         const channel: TextChannel | NewsChannel = (this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(options.channelID) as TextChannel | NewsChannel);
         const dropEmbed = this.client.createEmbed()
             .setTitle(`${options.prize}`)
@@ -59,7 +58,6 @@ export default class Drop {
         });
     };
     async list(guildID: string) {
-        if (!guildID) throw new Error("Please provide a guild ID.");
         const guild = this.client.guilds.cache.get(guildID);
         if (guild) {
             const drops = await DropSchema.find({ guildID: guildID });
@@ -72,23 +70,16 @@ export default class Drop {
                 channel: guild.channels.cache.get(i.channelID).toString() ? guild.channels.cache.get(i.channelID).toString() : "Unknown channel"
             }));
             return array;
-        } else {
-            return false;
-        };
+        } else return false;
     };
-    async end(messageID: string) {
-        return await DropSchema.findOne({
-            messageID: messageID
-        }, {}, {}, (err, drop) => {
-            if (err) return console.log(err);
-            if (!drop) return false;
-            const channel: TextChannel | NewsChannel = (this.client.channels.cache.get(drop.channelID) as TextChannel | NewsChannel);
-            if (!channel) return false;
-            channel.messages.fetch(messageID).then(message => {
-                message.edit(`${this.client.galaxyAlphaEmoji}   **DROP ENDED**   ${this.client.galaxyAlphaEmoji}`, message.embeds[0].setDescription(`🏅 **Winner:** Nobody reacted!\n${this.client.memberEmoji} **Hosted By:** ${drop.createdBy}`))
-            });
-            return deleteDrop(drop.messageID);
-        });
+    async end(messageID: string): Promise<boolean> {
+        const drop = await DropSchema.findOne({ messageID: messageID });
+        if (!drop) return false;
+        const channel: TextChannel | NewsChannel = (this.client.channels.cache.get(drop.channelID) as TextChannel | NewsChannel);
+        if (!channel) return false;
+        channel.messages.fetch(messageID).then(message => message.edit(`${this.client.galaxyAlphaEmoji}   **DROP ENDED**   ${this.client.galaxyAlphaEmoji}`, message.embeds[0].setDescription(`🏅 **Winner:** Nobody reacted!\n${this.client.memberEmoji} **Hosted By:** ${drop.createdBy}`)));
+        deleteDrop(drop.messageID);
+        return true;
     };
 };
 

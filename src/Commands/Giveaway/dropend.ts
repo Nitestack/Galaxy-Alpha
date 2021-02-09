@@ -17,15 +17,12 @@ export default class DropEndCommand extends Command {
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(dropManager)
             .setDescription("You have to provide a message ID!"));
-        const drop = client.drop.end(args.slice().join(" "));
-        if (drop) {
-            return message.channel.send(client.createGreenEmbed()
-                .setTitle(dropManager)
-                .setDescription("Drop successfully ended!"));
-        } else {
-            return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                .setTitle(dropManager)
-                .setDescription("Invalid message ID!"));
-        };
+        const drop = await client.drop.end(args.slice().join(" "));
+        if (drop) return message.channel.send(client.createGreenEmbed()
+            .setTitle(dropManager)
+            .setDescription("Drop successfully ended!"));
+        else return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+            .setTitle(dropManager)
+            .setDescription("Invalid message ID!"));
     };
 };

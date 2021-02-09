@@ -32,7 +32,7 @@ export default class MuteCommand extends Command {
 
             let member: GuildMember;
             if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
-            if (args[0] && message.guild.members.cache.get(args[0])) member = message.guild.members.cache.get(args[0]);
+            if (args[0] && message.guild.members.cache.has(args[0])) member = message.guild.members.cache.get(args[0]);
 
             if (!member) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔇 Mute Manager").setDescription("You have to mention a user or provide a user ID!"));
             if (message.author.id == member.id) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔇 Mute Manager").setDescription("You cannot mute yourself!"));

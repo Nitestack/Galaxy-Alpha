@@ -1,5 +1,7 @@
+import Discord from "discord.js";
+
 export default class GalaxyAlphaUtil {
-    public permissions: Array<string> = [
+    public permissions: Array<Discord.PermissionString> = [
         'CREATE_INSTANT_INVITE',
         'KICK_MEMBERS',
         'BAN_MEMBERS',
@@ -132,15 +134,10 @@ export default class GalaxyAlphaUtil {
         const seconds = Math.floor(milliseconds % 60000 / 1000);
         const minutes = Math.floor(milliseconds % 3600000 / 60000);
         const hours = Math.floor(milliseconds / 3600000);
-        if (hours > 0) {
-            return `${formatInt(hours)}:${formatInt(minutes)}:${formatInt(seconds)}`;
-        };
-        if (minutes > 0) {
-            return `${formatInt(minutes)}:${formatInt(seconds)}`;
-        };
+        if (hours > 0) return `${formatInt(hours)}:${formatInt(minutes)}:${formatInt(seconds)}`;
+        if (minutes > 0) return `${formatInt(minutes)}:${formatInt(seconds)}`;
         return `00:${formatInt(seconds)}`;
-
-        function formatInt(int) {
+        function formatInt(int: number) {
             if (int < 10) return `0${int}`;
             return `${int}`;
         };

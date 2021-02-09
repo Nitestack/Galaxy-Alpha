@@ -7,11 +7,11 @@ const clientDataSchema = new mongoose.Schema({
 	autoPollChannels: [String]
 });
 
-interface ClientDataSchema extends mongoose.Document {
-	_id: mongoose.Schema.Types.ObjectId;
-	autoPublishChannels: Array<string>;
-	blockedUser: Array<string>;
-	autoPollChannels: Array<string>;
+export interface ClientData extends mongoose.Document {
+	_id?: mongoose.Schema.Types.ObjectId;
+	autoPublishChannels?: Array<string>;
+	blockedUser?: Array<string>;
+	autoPollChannels?: Array<string>;
 };
 
-export default mongoose.model<ClientDataSchema>('clientData', clientDataSchema, 'autopublishchannels'); 
+export default mongoose.model<ClientData>('clientData', clientDataSchema, 'autopublishchannels'); 

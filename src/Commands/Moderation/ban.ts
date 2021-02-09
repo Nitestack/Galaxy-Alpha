@@ -18,7 +18,7 @@ export default class BanCommand extends Command {
         const usage: string = `${prefix}ban <@User/User ID> [reason]`;
         let member: GuildMember;
         if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
-        if (args[0] && message.guild.members.cache.get(args[0])) member = message.guild.members.cache.get(args[0]);
+        if (args[0] && message.guild.members.cache.has(args[0])) member = message.guild.members.cache.get(args[0]);
         if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("You cannot ban yourself!"));
         if (member) {
             if (member.bannable) {

@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-interface GuildSchema extends mongoose.Document {
-	_id: mongoose.Schema.Types.ObjectId;
+export interface Guild extends mongoose.Document {
 	guildID: string;
 	guildPrefix: string;
 	logChannelID: string;
@@ -27,7 +26,6 @@ const reqString = {
 	required: true,
 };
 const guildSchema = new mongoose.Schema({
-	_id: mongoose.Schema.Types.ObjectId,
 	guildID: reqString,
 	guildPrefix: reqString,
 	logChannelID: String,
@@ -51,4 +49,4 @@ const guildSchema = new mongoose.Schema({
 	modMailLogChannel: String
 });
 
-export default mongoose.model<GuildSchema>('guild', guildSchema, 'guilds');
+export default mongoose.model<Guild>('guild', guildSchema, 'guilds');

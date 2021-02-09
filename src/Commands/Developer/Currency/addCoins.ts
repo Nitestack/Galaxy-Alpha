@@ -22,9 +22,7 @@ export default class AddCoinsCommand extends Command {
         if (parseInt(args[2]) <= 0) return message.channel.send(client.createRedEmbed(true, commandUsage).setTitle('Currency Manager').setDescription('You have to add atleast `1`$!'));
         const oldProfile = await client.cache.getCurrency(user.id);
         let balance: boolean = false;
-        if (args[1].toLowerCase() == 'bank') {
-            balance = true;
-        };
+        if (args[1].toLowerCase() == 'bank') balance = true;
         const coins = args[2].toLowerCase() == "all" || args[2].toLowerCase() == "max" ? (balance ? oldProfile.bank : oldProfile.wallet) : parseInt(args[2]);
         message.channel.send(client.createGreenEmbed()
             .setDescription(`You sucessfully added \`${coins.toLocaleString()}\`$ to ${user}'s ${balance ? 'bank' : 'wallet'}!

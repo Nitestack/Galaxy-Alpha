@@ -11,7 +11,8 @@ export default class GiveawayStartCommand extends Command {
             category: "giveaway",
             usage: "giveawaystart <duration> <winner(s)> <prize>",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

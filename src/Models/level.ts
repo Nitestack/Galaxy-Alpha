@@ -21,7 +21,7 @@ const levelSchema = new mongoose.Schema({
     }
 });
 
-export interface LevelSchema extends mongoose.Document {
+export interface Level extends mongoose.Document {
     userID: string,
     guildID: string,
     xp: number,
@@ -30,4 +30,4 @@ export interface LevelSchema extends mongoose.Document {
     lastUpdated: Date
 };
 
-export default mongoose.model<LevelSchema>('Level', levelSchema, 'levels');
+export default mongoose.model<Level>('Level', levelSchema, 'levels');

@@ -1,8 +1,7 @@
 import Command, { CommandRunner } from '@root/Command';
-import { MessageEmbed } from 'discord.js';
 
 export default class RestartCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "restart",
             description: "restarts the current node process",
@@ -19,8 +18,7 @@ export default class RestartCommand extends Command {
                 const YesOrNo = msg.createReactionCollector((reaction, user) => client.developers.includes(user.id) && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1 });
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
-                        if (message.channel.type != 'dm') msg.reactions.cache.get(client.yesEmojiID).users.remove(user.id);
-                        let embed: MessageEmbed = client.createEmbed().setTitle('🟢 Node JS Manager').setDescription('NodeJS will left the process in 10s!');
+                        let embed = client.createEmbed().setTitle('🟢 Node JS Manager').setDescription('NodeJS will left the process in 10s!');
                         return message.channel.send(embed).then(msg => {
                             let counter = 10;
                             setInterval(() => {
@@ -32,12 +30,9 @@ export default class RestartCommand extends Command {
                                 msg.edit(embed.setDescription(`NodeJS will left the process ${counter == 0 ? 'now' : `in ${counter}s`}!`));
                             }, 1000);
                         });
-                    } else {
-                        if (message.channel.type != 'dm') msg.reactions.cache.get(client.noEmojiID).users.remove(user.id);
-                        return message.channel.send(client.createRedEmbed()
-                            .setTitle("🟢 Node JS Manager")
-                            .setDescription("Leaving NodeJS process cancelled!"));
-                    };
+                    } else return message.channel.send(client.createRedEmbed()
+                        .setTitle("🟢 Node JS Manager")
+                        .setDescription("Leaving NodeJS process cancelled!"));
                 });
             });
     };

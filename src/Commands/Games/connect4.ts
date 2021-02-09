@@ -40,7 +40,6 @@ export default class Connect4Command extends Command {
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
                         YesOrNo.stop();
-                        msg.reactions.cache.get(client.yesEmojiID).users.remove(user.id);
                         if (!playerTwo) playerTwo = user;
                         let gameEmbed: Message = null;
                         let boardMessage: Message = null;
@@ -57,7 +56,7 @@ export default class Connect4Command extends Command {
                         };
                         for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) gameBoard[y * 7 + x] = "⚪";
                         const gameOver = (winner: "🔴" | "🟡" | "tie") => {
-                            if (winner != "tie") gameEmbed.edit(winner == "🔴" ? message.author : playerTwo, gameEmbed.embeds[0].setAuthor(winner == "🔴" ?  `${message.author.tag} wons!` : `${playerTwo.tag} wons!`, winner == "🔴" ? message.author.displayAvatarURL({ dynamic: true }) : playerTwo.displayAvatarURL({ dynamic: true }))); 
+                            if (winner != "tie") gameEmbed.edit(winner == "🔴" ? message.author : playerTwo, gameEmbed.embeds[0].setAuthor(winner == "🔴" ? `${message.author.tag} wons!` : `${playerTwo.tag} wons!`, winner == "🔴" ? message.author.displayAvatarURL({ dynamic: true }) : playerTwo.displayAvatarURL({ dynamic: true })));
                             else gameEmbed.edit(gameEmbed.embeds[0].setDescription(`There was a tie in this game!`));
                             gameEmbed.reactions.removeAll();
                             client.inGame.delete(`${message.author.id}-${message.guild.id}-${this.name}`);
@@ -153,12 +152,9 @@ export default class Connect4Command extends Command {
                             };
                             return false;
                         };
-                    } else if (reaction.emoji.id == client.noEmojiID) {
-                        msg.reactions.cache.get(client.noEmojiID).users.remove(user.id);
-                        return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                            .setTitle(connect4Manager)
-                            .setDescription("Connect 4 game request denied!"));
-                    };
+                    } else if (reaction.emoji.id == client.noEmojiID) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                        .setTitle(connect4Manager)
+                        .setDescription("Connect 4 game request denied!"));
                 });
                 YesOrNo.on("end", (collected, reason) => {
                     if (collected.size == 0) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
