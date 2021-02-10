@@ -41,7 +41,7 @@ export default class Music {
                 } else if (MusicManager.client.queue.get(message.guild.id).multipleLoop) {
                     let queue = MusicManager.client.queue.get(message.guild.id).queue;
                     queue.push(queue[0]);
-                    queue.slice(1);
+                    queue.shift();
                     if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue); 
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
@@ -58,7 +58,7 @@ export default class Music {
                     playSong(MusicManager, MusicManager.client.queue.get(message.guild.id).queue[0].videoID);
                 } else if (noSkip) {
                     let queue = MusicManager.client.queue.get(message.guild.id).queue;
-                    queue.slice(1)
+                    queue.shift();
                     if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue); 
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,

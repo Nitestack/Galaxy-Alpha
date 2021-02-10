@@ -50,24 +50,7 @@ export default class SkipCommand extends Command {
                 if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription("You have to be in the same voice channel as me!"));
-                let queue = client.queue.get(message.guild.id).queue;
-                if (!client.queue.get(message.guild.id).singleLoop) {
-                    if (!client.queue.get(message.guild.id).multipleLoop) queue.slice(1);
-                    if (client.queue.get(message.guild.id).shuffle) queue = client.music.shuffle(queue);
-                };
-                client.queue.set(message.guild.id, {
-                    guildID: message.guild.id,
-                    queue: queue,
-                    nowPlaying: false,
-                    dispatcher: client.queue.get(message.guild.id).dispatcher,
-                    voiceChannel: client.queue.get(message.guild.id).voiceChannel,
-                    stopToPlay: null,
-                    beginningToPlay: null,
-                    multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                    singleLoop: client.queue.get(message.guild.id).singleLoop,
-                    shuffle: client.queue.get(message.guild.id).shuffle
-                });
-                client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].videoID, false);
+                client.queue.get(message.guild.id).dispatcher.emit("finish");
             } else {
                 return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                     .setTitle("🎧 Music Manager")

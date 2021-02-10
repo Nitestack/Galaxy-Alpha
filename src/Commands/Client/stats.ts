@@ -26,6 +26,10 @@ export default class StatsCommand extends Command {
         ${client.workingGearEmoji} **Architecture:** ${arch}
         🟢 **node.js-Version:** ${NodeVersion}
         🎛️ **${client.ws.shards.size == 1 ? "Shard" : "Shards"}:** ${client.ws.shards.size}
-        💾 **Cores:** ${cores}`));
+        💾 **Cores:** ${cores}
+        🕐 **Uptime:** ${client.humanizer(process.uptime() * 1000, {
+            units: ["y", "mo", "w", "d", "h", "m", "s", "ms"],
+            round: true
+        })}`));
     };
 };

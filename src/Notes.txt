@@ -13,6 +13,10 @@ Channel Lock
 
 Record Voice
 
-Coin Flip
+Mute and Unmute
 
-Reminder
+Warn System
+
+Automoderator
+
+Role Info

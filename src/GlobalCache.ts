@@ -59,19 +59,39 @@ export default class GlobalCache {
                 upsert: false
             });
         };
+        if (this.guilds.first()) {
+            this.guilds.forEach(async guild => {
+                await GuildSchema.findOneAndUpdate({
+                    guildID: guild.guildID
+                }, {
+                    guildPrefix: guild.guildPrefix,
+                    logChannelID: guild.logChannelID,
+	                muteRole: guild.muteRole,
+	                memberRole: guild.memberRole,
+	                ticketCategoryID: guild.ticketCategoryID,
+	                ticketRole: guild.ticketRole,
+	                giveawayManager: guild.giveawayManager,
+	                giveawayByPass: guild.giveawayByPass,
+	                giveawayBlackListed: guild.giveawayBlackListed,
+	                welcomeMessage: guild.welcomeMessage,
+	                welcomeEmbed: guild.welcomeEmbed,
+	                welcomeChannelID: guild.welcomeChannelID,
+	                modMailManager: guild.modMailManager,
+	                modMailCategory: guild.modMailCategory,
+	                modMailLogChannel: guild.modMailLogChannel
+                }, {
+                    upsert: true
+                });
+            });
+        };
         this.currency.clear();
         this.levels.clear();
+        this.guilds.clear();
     };
     public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
         const key = `${userID}-${guildID}`;
         const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
-        if (LevelandMessages) this.levels.set(key, ({
-            userID: userID,
-            guildID: guildID,
-            level: LevelandMessages.level,
-            xp: LevelandMessages.xp,
-            messages: LevelandMessages.messages
-        } as Level));
+        if (LevelandMessages) this.levels.set(key, LevelandMessages);
         else this.levels.set(key, ({
             userID: userID,
             guildID: guildID,
@@ -83,12 +103,7 @@ export default class GlobalCache {
     };
     public async getCurrency(userID: string): Promise<Profile> {
         const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID });
-        if (profile) this.currency.set(userID, {
-            userID: userID,
-            bank: profile.bank,
-            wallet: profile.wallet,
-            messageCount: profile.messageCount
-        } as Profile);
+        if (profile) this.currency.set(userID, profile);
         else this.currency.set(userID, ({
             userID: userID,
             bank: 0,

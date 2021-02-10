@@ -141,7 +141,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			console.log(clientInfoTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(true);
+			this.DBfilter(false);
 			//ACTIVITY\\
 			const activityArray: Array<string> = [
 				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
@@ -319,6 +319,22 @@ export default class GalaxyAlpha extends Discord.Client {
 	//PUBLIC METHODS\\
 	public humanizer(ms: number, options?: duration.Options): string {
 		return duration(ms, options);
+	};
+	public async createArgumentError(message: Discord.Message, embed: { title: string, description: string }, usage: string){
+		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}`)
+			.setTitle(embed.title)
+			.setDescription(embed.description));
+	};
+	public async createSuccess(message: Discord.Message, embed: { title: string, description: string }, usage?: string){
+		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}` : null)
+			.setTitle(embed.title)
+			.setDescription(embed.description));
+	};
+	public createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>){
+		const EMBED = this.createEmbed().setTitle(embed.title);
+		if (embed.description) EMBED.setDescription(embed.description);
+		commands.forEach(async command => EMBED.addField(command.description, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${command.usage}`));
+		return message.channel.send(EMBED);
 	};
 	public createEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {

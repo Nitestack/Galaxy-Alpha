@@ -29,7 +29,6 @@ const guildSchema = new mongoose.Schema({
 	guildID: reqString,
 	guildPrefix: reqString,
 	logChannelID: String,
-	guildShardID: Number,
 	muteRole: String,
 	memberRole: String,
 	ticketCategoryID: String,
@@ -37,7 +36,6 @@ const guildSchema = new mongoose.Schema({
 	giveawayManager: String,
 	giveawayByPass: String,
 	giveawayBlackListed: String,
-	giveawayPing: String,
 	welcomeMessage: String,
 	welcomeEmbed: {
 		type: Boolean,

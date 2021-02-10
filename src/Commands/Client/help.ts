@@ -7,7 +7,7 @@ export default class HelpCommand extends Command {
             name: 'help',
             description: "shows a list of all commands or shows infos about one command",
             category: "miscellaneous",
-            aliases: ["info"],
+            aliases: ["info", "invite"],
             usage: "help or help <command name or alias>"
         });
     };
@@ -75,6 +75,8 @@ export default class HelpCommand extends Command {
                 You can also suggest commands by doing \`${prefix}suggest command <description>\`
 
                 To report any issues you can also use the suggestion command above!
+
+                Some stats about ${client.user.username}? Use \`${prefix}stats\`
                 
                 **Categories**
                 \`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``)
