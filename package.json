@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
+    "ascii-table": "^0.0.9",
     "axios": "^0.21.1",
     "canvacord": "^5.0.8",
     "discord.js": "^12.5.1",

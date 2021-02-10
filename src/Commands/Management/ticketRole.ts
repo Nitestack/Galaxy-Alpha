@@ -9,7 +9,8 @@ export default class TicketRoleCommand extends Command {
             description: "ticket role commands",
             usage: "ticketrole set <@Role/Role ID> or ticketrole remove",
             category: "management",
-            guildOnly: true
+            guildOnly: true,
+            userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -40,7 +41,6 @@ export default class TicketRoleCommand extends Command {
                         const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                         YesOrNo.on('collect', async (reaction, user) => {
                             if (reaction.emoji.id == client.yesEmojiID) {
-                                msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                 await Guild.findOneAndUpdate({
                                     guildID: message.guild.id,
                                 }, {
@@ -50,7 +50,6 @@ export default class TicketRoleCommand extends Command {
                                 }).catch(err => console.log(err));
                                 return message.channel.send(client.createGreenEmbed().setTitle(`🎫 Ticket Role Manager`).setDescription(`Sucessfully updated the ticket role to ${role}!`));
                             } else {
-                                msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                 return msg.channel.send(client.createRedEmbed().setTitle(`🎫 Ticket Role Manager`).setDescription("Updating ticket role cancelled!"));
                             };
                         });

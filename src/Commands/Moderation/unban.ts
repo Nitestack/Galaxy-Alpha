@@ -28,14 +28,12 @@ export default class UnbanCommand extends Command {
             const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 10000, max: 1 });
             YesOrNo.on('collect', (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID) {
-                    msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                     message.guild.members.unban(member.id).then(() => {
                         return message.channel.send(client.createGreenEmbed()
                             .setTitle("🔨 Ban Manager")
                             .setDescription(`🔨 ${member} was unbanned by ${message.author}!`));
                     });
                 } else {
-                    msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                     return msg.channel.send(client.createRedEmbed().setTitle("🔨 Ban Manager").setDescription("Unban cancelled!"));
                 };
             });

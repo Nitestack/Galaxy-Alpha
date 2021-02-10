@@ -9,7 +9,8 @@ export default class GiveawayManagerRoleCommand extends Command {
             description: "giveawaymanager role commands",
             category: "management",
             usage: "giveawaymanager set <@Role/Role ID> or giveawaymanager remove",
-            guildOnly: true
+            guildOnly: true,
+            userPermissions: ["MANAGE_GUILD"]
         });
     };  
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -40,7 +41,6 @@ export default class GiveawayManagerRoleCommand extends Command {
                         const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                         YesOrNo.on('collect', async (reaction, user) => {
                             if (reaction.emoji.id == client.yesEmojiID) {
-                                msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                 await Guild.findOneAndUpdate({
                                     guildID: message.guild.id,
                                 }, {
@@ -50,7 +50,6 @@ export default class GiveawayManagerRoleCommand extends Command {
                                 }).catch(err => console.log(err));
                                 return message.channel.send(client.createGreenEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription(`Sucessfully updated the giveaway manager role to ${role}!`));
                             } else {
-                                msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                 return msg.channel.send(client.createRedEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription("Updating giveaway manager role cancelled!"));
                             };
                         });

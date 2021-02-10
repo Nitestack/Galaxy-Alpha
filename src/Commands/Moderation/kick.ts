@@ -32,7 +32,6 @@ export default class KickCommand extends Command {
                     const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 10000, max: 1 });
                     YesOrNo.on('collect', (reaction, user) => {
                         if (reaction.emoji.id == client.yesEmojiID) {
-                            msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                             member.kick(`${reason} (kicked by ${message.author.tag})`)
                                 .then(() => {
                                     WebhookSchema.findOne({
@@ -63,7 +62,6 @@ export default class KickCommand extends Command {
                                         📝 **Reason:** ${reason}`));
                                 }).catch(err => console.log(err));
                         } else {
-                            msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                             return msg.channel.send(client.createRedEmbed().setTitle("🤜 Kick Manager").setDescription("Kick cancelled!"));
                         };
                     });

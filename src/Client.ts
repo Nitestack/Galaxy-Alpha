@@ -6,6 +6,7 @@ import Discord from 'discord.js';
 import mongoose from 'mongoose';
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
+import ascii from "ascii-table";
 //CLASSES\\
 import Command, { Categories } from '@root/Command';
 import Feature from '@root/Feature';
@@ -26,6 +27,11 @@ import LevelSchema from '@root/Models/level';
 //ANY THING ELSE\\
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
+//TABLES\\
+const commandTable = new ascii("Commands").setHeading("Name", "Status", "Error");
+const eventTable = new ascii("Events").setHeading("Name", "Status", "Error");
+const featureTable = new ascii("Features").setHeading("Name", "Status", "Error");
+const clientInfoTable = new ascii("Client Info");
 
 interface GalaxyAlphaOptions {
 	ownerID: string;
@@ -99,37 +105,44 @@ export default class GalaxyAlpha extends Discord.Client {
 		//LOGIN\\
 		this.login(options.token).catch((error: any) => console.log(error));
 		//READ COMMANDS, EVENTS, FEATURES\\
-		this.readCommand(options.commandsDir);
-		this.readEvent(options.eventsDir);
-		this.readFeature(options.featuresDir);
+		this.readCommands(options.commandsDir);
+		this.readEvents(options.eventsDir);
+		this.readFeatures(options.featuresDir);
 		//MONGO DB\\
 		mongoose.connect(options.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 			useCreateIndex: true
-		}).then(() => console.log("|MongoDB:        |✅ Connected!")).catch(err => console.log(err));
+		}).then(() => clientInfoTable.addRow("MongoDB", "✅ Connected!")).catch(err => console.log(err));
 		mongoose.set('useNewUrlParser', true);
 		mongoose.set('useFindAndModify', false);
 		mongoose.set('useUnifiedTopology', true);
 		//READY EVENT\\
 		this.once("ready", async () => {
+			//GUILD\\
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
+			//CLIENT INFO\\
+			clientInfoTable.addRow('Created At', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
+			clientInfoTable.addRow('Presence Status', this.user.presence.status);
+			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
+			clientInfoTable.addRow('WS Status', this.ws.status);
+			clientInfoTable.addRow('API Ping', this.ms(this.ws.ping));
+			clientInfoTable.addRow('API Gateway', this.ws.gateway);
+			clientInfoTable.addRow('Servers', this.guilds.cache.size);
+			clientInfoTable.addRow('Members', this.users.cache.size);
+			clientInfoTable.addRow('Channels', this.channels.cache.size);
+			clientInfoTable.addRow('Client Status', '✅ Online!');
+			clientInfoTable.addRow('Author', 'HydraNhani#8303');
+			//TABLES\\
+			console.log(commandTable.toString());
+			console.log(eventTable.toString());
+			console.log(featureTable.toString());
+			console.log(clientInfoTable.toString());
+			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(false);
-			console.log("------------------------------------------------------------------");
-			console.log('|Created At:     |', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
-			console.log('|Presence Status:|', this.user.presence.status);
-			console.log('|Uptime:         |', this.ms(this.uptime));
-			console.log('|WS Status:      |', this.ws.status);
-			console.log('|API Ping:       |', this.ms(this.ws.ping));
-			console.log('|API Gateway:    |', this.ws.gateway);
-			console.log('|Servers:        |', this.guilds.cache.size);
-			console.log('|Members:        |', this.users.cache.size);
-			console.log('|Channels:       |', this.channels.cache.size);
-			console.log('|Client Status:  |', '✅ Online!');
-			console.log('|Author:         |', 'HydraNhani#8303');
-			console.log("------------------------------------------------------------------");
+			this.DBfilter(true);
+			//ACTIVITY\\
 			const activityArray: Array<string> = [
 				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
 				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
@@ -239,15 +252,15 @@ export default class GalaxyAlpha extends Discord.Client {
 	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
 	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
 	//PRIVATE METHODS\\
-	private async readCommand(commandPath: string) {
+	private async readCommands(commandPath: string) {
 		const files = fs.readdirSync(path.join(__dirname, commandPath))
 		for (const file of files) {
 			const stat = fs.lstatSync(path.join(__dirname, commandPath, file));
 			if (stat.isDirectory()) {
-				this.readCommand(path.join(commandPath, file));
+				this.readCommands(path.join(commandPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					console.log(`|Command:        |❌ NO TypeScript file - ${file}`);
+					commandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Command } = await import(path.join(__dirname, commandPath, file));
@@ -263,43 +276,43 @@ export default class GalaxyAlpha extends Discord.Client {
 				if (command.aliases) {
 					command.aliases.map(alias => this.aliases.set(alias, command.name));
 				};
-				console.log(`|Command:        |✅ ${command.name}`);
+				commandTable.addRow(`${command.name}`, "✅");
 			};
 		};
 	};
-	private async readEvent(eventPath: string) {
+	private async readEvents(eventPath: string) {
 		const files = fs.readdirSync(path.join(__dirname, eventPath));
 		for (const file of files) {
 			const stat = fs.lstatSync(path.join(__dirname, eventPath, file));
 			if (stat.isDirectory()) {
-				this.readEvent(path.join(eventPath, file));
+				this.readEvents(path.join(eventPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					console.log(`|Event:          |❌ NO TypeScript file ${file}`);
+					eventTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Event } = await import(path.join(__dirname, eventPath, file));
 				const event: Event = new Event();
 				this.on(event.name, event.run.bind(null, this));
-				console.log(`|Event:          |✅ ${event.name}`);
+				eventTable.addRow(`${event.name}`, "✅");
 			};
 		};
 	};
-	private async readFeature(featurePath: string) {
+	private async readFeatures(featurePath: string) {
 		const files = fs.readdirSync(path.join(__dirname, featurePath));
 		for (const file of files) {
 			const stat = fs.lstatSync(path.join(__dirname, featurePath, file));
 			if (stat.isDirectory()) {
-				this.readFeature(path.join(featurePath, file));
+				this.readFeatures(path.join(featurePath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					console.log(`|Feature:        |❌ NO TypeScript file ${file}`);
+					featureTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Feature } = await import(path.join(__dirname, featurePath, file));
 				const feature: Feature = new Feature();
 				this.features.set(feature.name, feature);
-				console.log(`|Feature:        |✅ ${feature.name}`);
+				featureTable.addRow(`${feature.name}`, "✅");
 			};
 		}
 	};
@@ -307,7 +320,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public humanizer(ms: number, options?: duration.Options): string {
 		return duration(ms, options);
 	};
-	public createEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
 				color: this.defaultColor,
@@ -342,7 +355,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
-	public createGreenEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createGreenEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
 				color: '#2ECC71',
@@ -377,7 +390,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
-	public createYellowEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createYellowEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
 				color: '#F1C40F',
@@ -412,7 +425,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
-	public createRedEmbed(usageField?: Boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createRedEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
 				color: '#ff0000',

@@ -9,7 +9,8 @@ export default class TicTacToeCommand extends Command {
             usage: "tictactoe [@User/User ID]",
             aliases: ["ttt"],
             guildOnly: true,
-            category: "games"
+            category: "games",
+            clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

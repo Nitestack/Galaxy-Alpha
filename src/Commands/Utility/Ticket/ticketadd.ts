@@ -11,13 +11,14 @@ export default class AddUserToTicketCommand extends Command {
             guildOnly: true,
             aliases: ["tadd"],
             category: "ticket",
-            usage: "ticketadd <@User/User ID>"
+            usage: "ticketadd <@User/User ID>",
+            clientPermissions: ["MANAGE_CHANNELS"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         let member: GuildMember;
-        if (message.mentions.users.first()) member = message.guild.members.cache.filter(member => !member.user.bot).get(message.mentions.users.first().id);
-        if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).get(args[0])) member = message.guild.members.cache.filter(member => !member.user.bot).get(args[0]);
+        if (message.mentions.users.first() && message.guild.members.cache.filter(member => !member.user.bot).has(message.mentions.users.first().id)) member = message.guild.members.cache.filter(member => !member.user.bot).get(message.mentions.users.first().id);
+        if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).has(args[0])) member = message.guild.members.cache.filter(member => !member.user.bot).get(args[0]);
         if (!member) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
             .setTitle(ticketsManager)
             .setDescription("You have to mention an user or provide an user ID"));

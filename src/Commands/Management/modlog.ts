@@ -9,7 +9,8 @@ export default class ModLogsCommand extends Command {
             description: "modlogs command",
             usage: "modlogs set <#channel/channel ID>",
             category: "management",
-            guildOnly: true
+            guildOnly: true,
+            userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -54,7 +55,6 @@ export default class ModLogsCommand extends Command {
                         });
                         return message.channel.send(client.createGreenEmbed().setTitle("📊 Mod Log Manager").setDescription(`Successfully set the mod logs channel to ${check}!`));
                     } else {
-                        msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                         return msg.channel.send(client.createRedEmbed().setTitle("📊 Mod Log Manager").setDescription("Setting mod logs channel cancelled!"));
                     };
                 });

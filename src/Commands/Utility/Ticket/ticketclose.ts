@@ -10,7 +10,8 @@ export default class CloseTicketCommand extends Command {
             aliases: ["tclose"],
             guildOnly: true,
             usage: "ticketclose [reason]",
-            category: "ticket"
+            category: "ticket",
+            clientPermissions: ["MANAGE_CHANNELS"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

@@ -9,7 +9,8 @@ export default class MusicPanelCommand extends Command {
             name: "panel",
             description: "sends a music panel to control the music",
             guildOnly: true,
-            category: "music"
+            category: "music",
+            clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

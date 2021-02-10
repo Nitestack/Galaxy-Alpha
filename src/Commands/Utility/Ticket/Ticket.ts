@@ -23,6 +23,9 @@ export default class Ticket {
             }, {
                 id: ticketManager.id,
                 allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'ATTACH_FILES']
+            }, {
+                id: this.client.user.id,
+                allow: ["VIEW_CHANNEL", "MANAGE_MESSAGES", "MANAGE_CHANNELS", "READ_MESSAGE_HISTORY", "SEND_MESSAGES", "USE_EXTERNAL_EMOJIS"]
             }]
         }).then(async channel => {
             const ghostPing = `${user} ${ticketManager}`;

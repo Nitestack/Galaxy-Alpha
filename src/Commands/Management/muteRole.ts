@@ -9,7 +9,8 @@ export default class MuteRoleCommand extends Command {
             description: "mute role commands",
             category: "management",
             guildOnly: true,
-            usage: "muterole create <mute role name> or muterole set <@Role/Role ID> or muterole remove"
+            usage: "muterole create <mute role name> or muterole set <@Role/Role ID> or muterole remove",
+            userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -33,7 +34,6 @@ export default class MuteRoleCommand extends Command {
                         const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                         YesOrNo.on('collect', async (reaction, user) => {
                             if (reaction.emoji.id == client.yesEmojiID) {
-                                msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                 message.guild.roles.create({
                                     data: {
                                         name: args[1],
@@ -74,7 +74,6 @@ export default class MuteRoleCommand extends Command {
                                         But if you want, that all members can be muted without the staff members, move the role between all member roles and the staff roles!`));
                                 }).catch((err) => console.log(err));
                             } else {
-                                msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                 return msg.channel.send(client.createRedEmbed().setTitle("🔇 Mute Role Manager").setDescription("Creating mute role cancelled!"));
                             };
                         });
@@ -108,7 +107,6 @@ export default class MuteRoleCommand extends Command {
                         const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                         YesOrNo.on('collect', async (reaction, user) => {
                             if (reaction.emoji.id == client.yesEmojiID) {
-                                msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                 await Guild.findOneAndUpdate({
                                     guildID: message.guild.id,
                                 }, {
@@ -138,7 +136,6 @@ export default class MuteRoleCommand extends Command {
                                     });
                                 return message.channel.send(client.createGreenEmbed().setTitle("🔇 Mute Role Manager").setDescription(`Sucessfully updated the mute role to ${role}!`));
                             } else {
-                                msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                 return msg.channel.send(client.createRedEmbed().setTitle("🔇 Mute Role Manager").setDescription("Updating mute role cancelled!"));
                             };
                         });

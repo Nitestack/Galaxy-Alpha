@@ -8,7 +8,8 @@ export default class PrefixCommand extends Command {
             description: "prefix commands",
             category: "management",
             guildOnly: true,
-            usage: "prefix <new prefix>"
+            usage: "prefix <new prefix>",
+            userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -31,7 +32,6 @@ export default class PrefixCommand extends Command {
                 const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                 YesOrNo.on('collect', async (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
-                        msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                         await Guild.findOneAndUpdate({
                             guildID: message.guild.id,
                         }, {
@@ -46,7 +46,6 @@ export default class PrefixCommand extends Command {
                             .setTitle(`${client.workingGearEmoji} Prefix Manager`)
                             .setDescription(`Your server prefix has been updated to \`${args.slice().join(" ")}\`!`));
                     } else {
-                        msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                         return msg.channel.send(client.createRedEmbed().setTitle(`${client.workingGearEmoji} Prefix Manager`).setDescription("Updating prefix cancelled!"));
                     };
                 });

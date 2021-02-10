@@ -39,7 +39,6 @@ export default class TempBanCommand extends Command {
             const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 10000, max: 1 });
             YesOrNo.on('collect', (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID) {
-                    msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                     member.ban({ reason: `${reason} (banned by ${message.author.tag})` })
                         .then(() => {
                             WebhookSchema.findOne({
@@ -71,7 +70,6 @@ export default class TempBanCommand extends Command {
                         }).catch(err => console.log(err));
                     setTimeout(() => message.guild.members.unban(member.id), banDuration);
                 } else {
-                    msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                     return msg.channel.send(client.createRedEmbed().setTitle("🔨 Ban Manager").setDescription("Ban cancelled!"));
                 };
             });

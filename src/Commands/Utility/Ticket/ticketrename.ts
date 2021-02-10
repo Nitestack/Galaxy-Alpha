@@ -11,7 +11,8 @@ export default class RenameTicketChannelCommand extends Command {
             usage: "ticketrename <new name>",
             category: "ticket",
             aliases: ["trename"],
-            guildOnly: true
+            guildOnly: true,
+            clientPermissions: ["MANAGE_CHANNELS"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

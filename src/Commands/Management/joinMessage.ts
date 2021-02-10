@@ -8,7 +8,8 @@ export default class JoinMessageCommand extends Command {
             description: "join message commands",
             category: "management",
             usage: "joinmessage set [embed] <text> or joinmessage remove",
-            guildOnly: true
+            guildOnly: true,
+            userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -30,7 +31,6 @@ export default class JoinMessageCommand extends Command {
                             const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                             YesOrNo.on('collect', async (reaction, user) => {
                                 if (reaction.emoji.id == client.yesEmojiID) {
-                                    msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                     await GuildSchema.findOneAndUpdate({
                                         guildID: message.guild.id
                                     }, {
@@ -43,7 +43,6 @@ export default class JoinMessageCommand extends Command {
                                         .setTitle(welcomeManager)
                                         .setDescription("Successfully updated the join messages!"));
                                 } else {
-                                    msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                     return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
                                 };
                             });
@@ -81,7 +80,6 @@ export default class JoinMessageCommand extends Command {
                                         .setTitle(welcomeManager)
                                         .setDescription("Successfully updated the join messages!"));
                                 } else {
-                                    msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                     return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
                                 };
                             });

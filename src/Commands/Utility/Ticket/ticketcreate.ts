@@ -12,7 +12,8 @@ export default class CreateTicketCommand extends Command {
             aliases: ["tcreate"],
             usage: "ticketcreate [reason]",
             category: "ticket",
-            guildOnly: true
+            guildOnly: true,
+            clientPermissions: ["MANAGE_CHANNELS"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

@@ -13,7 +13,8 @@ export default class Connect4Command extends Command {
             category: "games",
             guildOnly: true,
             aliases: ["c4"],
-            usage: "connect4 [@User/User ID]"
+            usage: "connect4 [@User/User ID]",
+            clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

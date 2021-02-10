@@ -56,7 +56,6 @@ export default class MuteCommand extends Command {
                         const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
                         YesOrNo.on('collect', async (reaction, user) => {
                             if (reaction.emoji.id == client.yesEmojiID) {
-                                msg.reactions.cache.get(client.yesEmojiID).users.remove(message.author.id);
                                 if (timeMute) {
                                     await member.roles.remove(memberRole);
                                     await member.roles.add(muteRole);
@@ -86,7 +85,6 @@ export default class MuteCommand extends Command {
                                 return msg.channel.send(client.createGreenEmbed().setTitle("🔇 Mute Manager")
                                     .setDescription(`${member} was sucessfully muted ${timeMute ? `for ${args[1]}` : "permanently"}!\n📝 **Reason:** ${reason}`));
                             } else {
-                                msg.reactions.cache.get(client.noEmojiID).users.remove(message.author.id);
                                 return msg.channel.send(client.createRedEmbed().setTitle("🔇 Mute Manager").setDescription("Mute cancelled!"));
                             };
                         });
