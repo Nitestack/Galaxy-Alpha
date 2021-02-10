@@ -24,22 +24,16 @@ export default class HelpCommand extends Command {
                     .setDescription(`In order to more infos about every single command,\nuse the command \`${prefix}help <command name>\`\n\n\`${commands.join("` `")}\``));
             } else {
                 const command = client.commands.get(args[0].toLowerCase()) || client.commands.get(client.aliases.get(args[0].toLowerCase()));
-                if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return message.author.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                    .setTitle("Command Manager")
-                    .setDescription(`Cannot find the command \`${args[0].toLowerCase()}\` in the commands list!`));
+                if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return client.createArgumentError(message, { title: "Command Manager", description: `Cannot find the command \`${args[0].toLowerCase()}\` in the commands list!`}, this.usage);
                 let text: string = "";
                 let userPermissions: Array<string> = [];
                 let clientPermissions: Array<string> = [];
-                if (command.userPermissions) {
-                    command.userPermissions.forEach(permission => {
-                        userPermissions.push(client.permissionsShowCase[client.permissions.indexOf(permission)]);
-                    });
-                };
-                if (command.clientPermissions) {
-                    command.clientPermissions.forEach(permission => {
-                        clientPermissions.push(client.permissionsShowCase[client.permissions.indexOf(permission)]);
-                    });
-                };
+                if (command.userPermissions) command.userPermissions.forEach(permission => {
+                    userPermissions.push(client.permissionsShowCase[client.permissions.indexOf(permission)]);
+                });
+                if (command.clientPermissions) command.clientPermissions.forEach(permission => {
+                    clientPermissions.push(client.permissionsShowCase[client.permissions.indexOf(permission)]);
+                });
                 if (command.name) text += `**Name:** ${command.name}\n`;
                 if (command.category) text += `**Category:** ${command.category[0].toUpperCase() + command.category.slice(1).toLowerCase()}\n`
                 if (command.description) text += `**Description:** ${command.description}\n`;
@@ -48,14 +42,15 @@ export default class HelpCommand extends Command {
                 if (command.userPermissions) text += `**User ${command.userPermissions.length > 1 ? "Permissions" : "Permission"}:** \`${userPermissions.join("`, `")}\`\n`
                 if (command.clientPermissions) text += `**Bot ${command.clientPermissions.length > 1 ? "Permissions" : "Permission"}**: \`${clientPermissions.join("`, `")}\`\n`;
                 if (command.usage) text += `**Usage:** \`${prefix}${command.usage}\`\n`;
-                if (command.dmOnly || command.guildOnly || command.nsfw || command.newsChannelOnly) text += `\n📝 **NOTES:**\n`
+                if (command.dmOnly || command.guildOnly || command.nsfw || command.newsChannelOnly || command.textChannelOnly) text += `\n📝 **NOTES:**\n`
                 if (command.guildOnly) text += `Works only in servers!\n`;
                 if (command.dmOnly) text += `Works only in DM's\n`;
                 if (command.nsfw) text += `Works only in NSFW channels or in DM's\n`;
-                if (command.newsChannelOnly) text +=`Works only in Announcement channels\n`;
+                if (command.newsChannelOnly) text += `Works only in Announcement channels\n`;
+                if (command.textChannelOnly) text += `Works only in Text channels\n`;
                 return message.author.send(client.createEmbed()
                     .setAuthor(client.user.tag, client.user.displayAvatarURL({ dynamic: true }))
-                    .setTitle(`Command Info | ${command.name[0].toUpperCase() + command.name.slice(1).toLowerCase()}`)
+                    .setTitle(`Command Info | ${client.util.toUpperCaseBeginning(command.name)}`)
                     .setDescription(text));
             };
         } else {
@@ -89,38 +84,35 @@ export default class HelpCommand extends Command {
                 embedArray.push(embed);
             };
             let page: number = 0;
-            return message.author.send(embedArray[0]).then(async msg => {
-                if (message.channel.type != "dm") message.channel.send(client.createEmbed()
-                    .setTitle("❓ Help")
-                    .setDescription("You got an DM from me! Check it out!"));
-                await msg.react('ℹ️');
-                await msg.react('◀️');
-                await msg.react('▶️');
-                const Buttons = msg.createReactionCollector((reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id, { time: 24 * 60 * 60 * 1000 });
-                Buttons.on('collect', async (reaction, user) => {
-                    if (reaction.emoji.name == '◀️') {
-                        if (page == 0) {
-                            await msg.edit(embedArray[embedArray.length - 1]);
-                            page = embedArray.length - 1;
-                        } else {
-                            page--;
-                            await msg.edit(embedArray[page]);
-                        };
-                    } else if (reaction.emoji.name == '▶️') {
-                        if (page == embedArray.length - 1) {
-                            await msg.edit(embedArray[0]);
-                            page = 0;
-                        } else {
-                            page++;
-                            await msg.edit(embedArray[page]);
-                        };
+            const msg = await message.author.send(embedArray[0]);
+            if (message.channel.type != "dm") client.createSuccess(message, { title: "❓ Help", description: "You got an DM from me! Check it out!" });
+            await msg.react('ℹ️');
+            await msg.react('◀️');
+            await msg.react('▶️');
+            const Buttons = msg.createReactionCollector((reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id, { time: 24 * 60 * 60 * 1000 });
+            Buttons.on('collect', async (reaction, user) => {
+                if (reaction.emoji.name == '◀️') {
+                    if (page == 0) {
+                        await msg.edit(embedArray[embedArray.length - 1]);
+                        page = embedArray.length - 1;
                     } else {
-                        if (page != 0) {
-                            await msg.edit(embedArray[0]);
-                            page = 0;
-                        };
+                        page--;
+                        await msg.edit(embedArray[page]);
                     };
-                });
+                } else if (reaction.emoji.name == '▶️') {
+                    if (page == embedArray.length - 1) {
+                        await msg.edit(embedArray[0]);
+                        page = 0;
+                    } else {
+                        page++;
+                        await msg.edit(embedArray[page]);
+                    };
+                } else {
+                    if (page != 0) {
+                        await msg.edit(embedArray[0]);
+                        page = 0;
+                    };
+                };
             });
         };
     };

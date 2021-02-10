@@ -6,7 +6,7 @@ export default class RestartCommand extends Command {
             name: "restart",
             description: "restarts the current node process",
             category: "developer",
-            ownerOnly: true
+            developerOnly: true
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -18,21 +18,18 @@ export default class RestartCommand extends Command {
                 const YesOrNo = msg.createReactionCollector((reaction, user) => client.developers.includes(user.id) && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1 });
                 YesOrNo.on("collect", (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
-                        let embed = client.createEmbed().setTitle('🟢 Node JS Manager').setDescription('NodeJS will left the process in 10s!');
-                        return message.channel.send(embed).then(msg => {
+                        client.createSuccess(message, { title: "🟢 Node JS Manager", description: 'NodeJS will left the process in 10s!'}).then(msg => {
                             let counter = 10;
                             setInterval(() => {
                                 if (counter <= 0) {
-                                    msg.delete();
+                                    client.cache.clearCacheAndSave();
                                     return process.exit();
-                                }
+                                };
                                 counter--;
-                                msg.edit(embed.setDescription(`NodeJS will left the process ${counter == 0 ? 'now' : `in ${counter}s`}!`));
+                                msg.edit(msg.embeds[0].setDescription(`NodeJS will left the process ${counter == 0 ? 'now' : `in ${counter}s`}!`));
                             }, 1000);
                         });
-                    } else return message.channel.send(client.createRedEmbed()
-                        .setTitle("🟢 Node JS Manager")
-                        .setDescription("Leaving NodeJS process cancelled!"));
+                    } else return client.createArgumentError(message, { title: "🟢 Node JS Manager", description: "Leaving NodeJS process cancelled!" }, this.usage);
                 });
             });
     };

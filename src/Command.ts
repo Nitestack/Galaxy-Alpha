@@ -73,50 +73,8 @@ export default class Command {
 		this.nsfw = info.nsfw ? info.nsfw : false;
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
 		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
-		this.validateInfo({
-			name: this.name,
-			aliases: this.aliases,
-			description: this.description,
-			category: this.category,
-			usage: this.usage,
-			cooldown: this.cooldown,
-			userPermissions: this.userPermissions,
-			clientPermissions: this.clientPermissions,
-			developerOnly: this.developerOnly,
-			ownerOnly: this.ownerOnly,
-			guildOnly: this.guildOnly,
-			dmOnly: this.dmOnly,
-			nsfw: this.nsfw,
-			newsChannelOnly: this.newsChannelOnly
-		});
 	};
 	public run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
-	};
-	private validateInfo(info: CommandInfos) {
-		if (!info.name) throw new Error("A command name must be specified!");
-		if (!info.description) throw new Error("A command description must be specified!");
-		if (!info.category) throw new Error("A command category must be specified!");
-		if (typeof info != 'object') throw new TypeError("The command infos must be an object!");
-		if (typeof info.name != 'string') throw new TypeError("The command name must be a string!");
-		if (info.name != info.name.toLowerCase()) throw new Error("The command name must be lowercase!");
-		if (info.aliases && (!Array.isArray(info.aliases) || info.aliases.some(ali => typeof ali !== 'string'))) {
-			throw new TypeError('Command aliases must be an Array of strings!');
-		};
-		if (info.aliases && info.aliases.some(ali => ali !== ali.toLowerCase())) {
-			throw new RangeError('Command aliases must be lowercase!');
-		};
-		if (typeof info.description != "string") throw new TypeError("The command description must be a string!");
-		if (typeof info.category != "string") throw new TypeError("The command category must be a string!");
-		if (info.category != info.category.toLowerCase()) throw new RangeError("The command category must be in lowercase!");
-		if (typeof info.usage != "string") throw new TypeError("The command usage must be a string!");
-		if (info.userPermissions) {
-			if (!Array.isArray(info.userPermissions)) throw new TypeError("The command user permissions must be an Array of strings!");
-			for (const permission of info.userPermissions) if (!this.client.permissions.includes(permission)) throw new RangeError(`Invalid command user permission: ${permission}`);
-		};
-		if (info.clientPermissions) {
-			if (!Array.isArray(info.clientPermissions)) throw new TypeError("The command client permissions must be an Array of strings!");
-			for (const permission of info.clientPermissions) if (!this.client.permissions.includes(permission)) throw new RangeError(`Invalid command client permission: ${permission}`);
-		};
 	};
 };

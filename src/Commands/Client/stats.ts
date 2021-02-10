@@ -17,7 +17,6 @@ export default class StatsCommand extends Command {
         let platform = os.platform();
         let NodeVersion = process.version;
         let cores = os.cpus().length;
-
         return message.channel.send(client.createEmbed().setTitle(`📊 Statistics of ${client.user.username}`).setDescription(`🗓️ **Created at:** ${weekDays[dateMonthWeek.getUTCDay()]}, ${monthNames[dateMonthWeek.getUTCMonth()]} ${dateMonthWeek.getUTCDate()}, ${dateMonthWeek.getUTCFullYear()}, ${dateMonthWeek.getUTCHours()}:${dateMonthWeek.getUTCMinutes()}:${dateMonthWeek.getUTCSeconds()} UTC
         <a:protected:786707379470598174> **Servers Cache Count:** ${client.guilds.cache.size}
         ${client.memberEmoji} **Users Cache Count:** ${client.users.cache.size}

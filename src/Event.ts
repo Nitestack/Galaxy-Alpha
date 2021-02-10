@@ -19,16 +19,6 @@ export default class Event {
 	 */
 	constructor(info: EventInfos) {
 		this.name = info.name;
-		this.validateInfo({
-			name: this.name
-		});
-	};
-	private validateInfo(info: {
-		name: string
-	}) {
-		if (!info.name) throw new Error("A event name must be specified!");
-		if (typeof info.name != 'string') throw new TypeError("The event name must be a string!");
-		if (!this.client.util.validEvents.includes(info.name)) throw new Error(`Invalid event: ${info.name}`);
 	};
 	public run: EventRunner = async (client: GalaxyAlpha, ...params: unknown[]): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);

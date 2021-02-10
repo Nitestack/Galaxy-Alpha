@@ -48,12 +48,11 @@ export default class MessageEvent extends Event {
 		} else mentionPrefix = false;
 		//LEVEL AND MESSAGES\\
 		async function appendXp(): Promise<boolean> {
-			const xp = client.xpPerMessage;
 			client.cache.levels.set(key, ({
 				guildID: message.guild.id,
 				userID: message.author.id,
 				messages: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).messages + 1,
-				xp: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp + parseInt((xp as unknown as string), 10),
+				xp: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp + parseInt((client.xpPerMessage as unknown as string), 10),
 				level: Math.floor(0.1 * Math.sqrt((await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp))
 			} as Level));
 			const userLevel = (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level + 1;

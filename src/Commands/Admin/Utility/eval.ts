@@ -13,14 +13,9 @@ export default class EvalCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const evalChannel = '789116457655992350';
-        const createdAt = new Date(message.createdAt);
-        const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',];
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
         let output = eval(args.join(' '));
-        if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle('Eval Manager')
-            .setDescription('You have to provide valid JavaScript code, that I can evaluate!'));
+        if (!args[0]) return client.createArgumentError(message, { title: "Eval Manager", description: 'You have to provide valid JavaScript code, that I can evaluate!'}, this.usage);
         try {
             const start = process.hrtime();
             const difference = process.hrtime(start);
@@ -32,12 +27,10 @@ export default class EvalCommand extends Command {
                 .addField("🕐 Executed in", `${difference[0] > 0 ? `${difference[0]}s` : ""}${difference[1] / 1000000}ms`)
                 .addField(`${client.developerToolsEmoji} Type of`, `\`\`\`js\n${typeof output}\`\`\``)
                 .addField(`${client.memberEmoji} User`, `${message.author}`)
-                .addField("🗓️ Used on", `${weekDays[createdAt.getUTCDay()]}, ${monthNames[createdAt.getUTCMonth()]} ${createdAt.getUTCDate()}, ${createdAt.getUTCFullYear()}, ${createdAt.getUTCHours()}:${createdAt.getUTCMinutes()}:${createdAt.getUTCSeconds()} UTC`)
+                .addField("🗓️ Used on", client.util.dateFormatter(message.createdAt))
                 .setThumbnail(message.author.displayAvatarURL()));
         } catch (error) {
-            return message.channel.send(client.createRedEmbed()
-                .setTitle('❌ Error')
-                .setDescription(`${error}`));
+            return client.createArgumentError(message, { title: "ERROR", description: `${error}`}, this.usage);
         };
     };
 };

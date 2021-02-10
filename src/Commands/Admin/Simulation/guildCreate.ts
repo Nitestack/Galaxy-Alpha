@@ -14,9 +14,7 @@ export default class GuildCreateCommand extends Command {
     run: CommandRunner = async (client, message, args, prefix) => {
         let guild: Guild = message.channel.type != "dm" ? message.guild : null;
         if (args[0] && client.guilds.cache.has(args[0])) guild = client.guilds.cache.get(args[0]);
-        if (!guild) return message.channel.send(client.createRedEmbed(true,  `${prefix}${this.usage}`)
-            .setTitle("Simulation Manager")
-            .setDescription("You have to provide a guild ID!"));
+        if (!guild) return client.createArgumentError(message, { title: "Simulation Manager", description: "You have to provide a valid guild ID!"}, this.usage);
         return client.emit("guildCreate", guild);
     };
 };

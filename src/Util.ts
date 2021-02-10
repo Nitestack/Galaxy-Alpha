@@ -120,15 +120,21 @@ export default class GalaxyAlphaUtil {
         'error',
         'modMail'
     ];
-
     public weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     public monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
+    /**
+     * Returns a number from the provided minimum to the provided maximum
+     * @param {number} min The minimum number
+     * @param {number} max The maximum number
+     */
     public getRandomArbitrary(min: number, max: number) {
         return Math.random() * (max - min) + min;
     };
-
+    /**
+     * Formats a duration into a string value
+     * @param {number} milliseconds The duration in milliseconds
+     */
     public getDuration(milliseconds: number): string {
         if (!milliseconds || isNaN(milliseconds)) return "00:00";
         const seconds = Math.floor(milliseconds % 60000 / 1000);
@@ -142,12 +148,25 @@ export default class GalaxyAlphaUtil {
             return `${int}`;
         };
     };
-
+    /**
+     * Returns a string with the first letter in upper case
+     * @param {string} string The string to format
+     */
     public toUpperCaseBeginning(string: string): string {
         return `${string[0].toUpperCase() + string.slice(1).toLowerCase()}`;
     };
-
+    /**
+     * Returns a number from 0 to the provided maximal number
+     * @param {number} max The maximum number
+     */
     public getRandomInt(max: number) {
         return Math.floor(Math.random() * Math.floor(max));
+    };
+    /**
+     * Formats a date into a string value
+     * @param {Date} date The date to format
+     */
+    public dateFormatter(date: Date): string {
+        return `${this.weekDays[date.getUTCDay()]}, ${this.monthNames[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}, ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} UTC`;
     };
 };

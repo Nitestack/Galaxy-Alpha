@@ -123,7 +123,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			//GUILD\\
 			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			//CLIENT INFO\\
-			clientInfoTable.addRow('Created At', `${this.util.weekDays[this.user.createdAt.getUTCDay()]}, ${this.util.monthNames[this.user.createdAt.getUTCMonth()]} ${this.user.createdAt.getUTCDate()}, ${this.user.createdAt.getUTCFullYear()}, ${this.user.createdAt.getUTCHours()}:${this.user.createdAt.getUTCMinutes()}:${this.user.createdAt.getUTCSeconds()}:${this.user.createdAt.getUTCMilliseconds()} UTC`);
+			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
 			clientInfoTable.addRow('Presence Status', this.user.presence.status);
 			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
 			clientInfoTable.addRow('WS Status', this.ws.status);
@@ -252,6 +252,10 @@ export default class GalaxyAlpha extends Discord.Client {
 	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
 	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
 	//PRIVATE METHODS\\
+	/**
+	 * Reads all commands of the provided directory
+	 * @param {string} commandPath The command directory
+	 */
 	private async readCommands(commandPath: string) {
 		const files = fs.readdirSync(path.join(__dirname, commandPath))
 		for (const file of files) {
@@ -265,21 +269,32 @@ export default class GalaxyAlpha extends Discord.Client {
 				};
 				const { default: Command } = await import(path.join(__dirname, commandPath, file));
 				const command: Command = new Command();
-				if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)) continue;
-				for (const alias of command.aliases ? command.aliases : []) {
-					if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
+				if (!command.name) {
+					commandTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
+					continue;
+				} else if (!command.description) {
+					commandTable.addRow(`${command.name}`, "❌", "Description left!");
+					continue;
+				} else if (!command.category) {
+					commandTable.addRow(`${command.name}`, "❌", "Category left!");
+					continue;
+				} else {
+					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)) continue;
+					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
+					this.commands.set(command.name, command);
+					const commandsArray: Array<Command> = this.categories.get(command.category) || [];
+					commandsArray.push(command);
+					this.categories.set(command.category, commandsArray);
+					if (command.aliases) command.aliases.map(alias => this.aliases.set(alias, command.name));
+					commandTable.addRow(`${command.name}`, "✅");
 				};
-				this.commands.set(command.name, command);
-				const commandsArray: Array<Command> = this.categories.get(command.category) || [];
-				commandsArray.push(command);
-				this.categories.set(command.category, commandsArray);
-				if (command.aliases) {
-					command.aliases.map(alias => this.aliases.set(alias, command.name));
-				};
-				commandTable.addRow(`${command.name}`, "✅");
 			};
 		};
 	};
+	/**
+	 * Reads all events of the provided directory
+	 * @param {string} eventPath The event directory 
+	 */
 	private async readEvents(eventPath: string) {
 		const files = fs.readdirSync(path.join(__dirname, eventPath));
 		for (const file of files) {
@@ -293,11 +308,23 @@ export default class GalaxyAlpha extends Discord.Client {
 				};
 				const { default: Event } = await import(path.join(__dirname, eventPath, file));
 				const event: Event = new Event();
-				this.on(event.name, event.run.bind(null, this));
-				eventTable.addRow(`${event.name}`, "✅");
+				if (!event.name) {
+					eventTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
+					continue;
+				} else if (!this.util.validEvents.includes(event.name)) {
+					eventTable.addRow(`${event.name}`, "❌", "Invalid Event!");
+					continue;
+				} else {
+					this.on(event.name, event.run.bind(null, this));
+					eventTable.addRow(`${event.name}`, "✅");
+				};
 			};
 		};
 	};
+	/**
+	 * Reads all features of the provided directory
+	 * @param {string} featurePath The feature directory 
+	 */
 	private async readFeatures(featurePath: string) {
 		const files = fs.readdirSync(path.join(__dirname, featurePath));
 		for (const file of files) {
@@ -311,31 +338,64 @@ export default class GalaxyAlpha extends Discord.Client {
 				};
 				const { default: Feature } = await import(path.join(__dirname, featurePath, file));
 				const feature: Feature = new Feature();
-				this.features.set(feature.name, feature);
-				featureTable.addRow(`${feature.name}`, "✅");
+				if (!feature.name){
+					featureTable.addRow(`${feature.name}`, "❌", "Name left!");
+					continue;
+				} else {
+					this.features.set(feature.name, feature);
+					featureTable.addRow(`${feature.name}`, "✅");
+				};
 			};
 		}
 	};
 	//PUBLIC METHODS\\
+	/**
+	 * Formats a duration in a string value
+	 * @param {number} ms The duration in milliseconds
+	 * @param {duration.Options} options The options of the time formatter 
+	 */
 	public humanizer(ms: number, options?: duration.Options): string {
 		return duration(ms, options);
 	};
-	public async createArgumentError(message: Discord.Message, embed: { title: string, description: string }, usage: string){
+	/**
+	 * Creates an error and sends it to the channel
+	 * @param {Message} message The created message 
+	 * @param {object} embed The embed object 
+	 * @param {string} usage The command usage
+	 */
+	public async createArgumentError(message: Discord.Message, embed: { title: string, description: string }, usage: string) {
 		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}`)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
-	public async createSuccess(message: Discord.Message, embed: { title: string, description: string }, usage?: string){
+	/**
+	 * Creates a success message and sends it to the channel
+	 * @param {Message} message The created message 
+	 * @param {object} embed The embed object 
+	 * @param {string} usage The command usage 
+	 */
+	public async createSuccess(message: Discord.Message, embed: { title: string, description: string }, usage?: string) {
 		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}` : null)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
-	public createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>){
+	/**
+	 * Creates a help table for sub commands and sends it to the channel
+	 * @param {Message} message The created message 
+	 * @param {object} embed The embed object
+	 * @param {Array<object>} commands The sub commands
+	 */
+	public createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
 		if (embed.description) EMBED.setDescription(embed.description);
 		commands.forEach(async command => EMBED.addField(command.description, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${command.usage}`));
 		return message.channel.send(EMBED);
 	};
+	/**
+	 * Creates an embed with the default embed color
+	 * @param {boolean} usageField If it is true, it adds a usage field 
+	 * @param {string} usage The command usage
+	 */
 	public createEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
@@ -371,6 +431,11 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
+	/**
+	 * Creates an embed with green embed color
+	 * @param {boolean} usageField If it is true, it adds a usage field 
+	 * @param {string} usage The command usage
+	 */
 	public createGreenEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
@@ -406,6 +471,11 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
+	/**
+	 * Creates an embed with yellow embed color
+	 * @param {boolean} usageField If it is true, it adds a usage field 
+	 * @param {string} usage The command usage
+	 */
 	public createYellowEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
@@ -441,6 +511,11 @@ export default class GalaxyAlpha extends Discord.Client {
 			}).setTimestamp();
 		};
 	};
+	/**
+	 * Creates an embed with red embed color
+	 * @param {boolean} usageField If it is true, it adds a usage field 
+	 * @param {string} usage The command usage
+	 */
 	public createRedEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
 		if (usageField) {
 			return new Discord.MessageEmbed({
@@ -477,10 +552,18 @@ export default class GalaxyAlpha extends Discord.Client {
 		};
 	};
 	//GET EMOJI ID\\
+	/**
+	 * Gets the emoji ID from the "unicode" of the custom emoji
+	 * @param {string} emoji The emoji
+	 */
 	private getEmojiID(emoji: string): string {
 		return emoji.split(":")[2].split(">")[0];
 	};
 	//AUTO FILTER DATABASE\\
+	/**
+	 * Filters the database after every start
+	 * @param {boolean} enable If it is enabled, this automatically filters the database to clear storage
+	 */
 	private async DBfilter(enable: boolean) {
 		if (!enable) return;
 		//GIVEAWAYS\\

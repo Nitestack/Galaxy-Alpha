@@ -21,6 +21,9 @@ export default class GlobalCache {
     public guilds: Discord.Collection<string, Guild> = new Discord.Collection();
     public clientData: ClientData = ({} as ClientData);
     //METHODS\\
+    /**
+     * Clears the cache and uploads the caches data to the database
+     */
     public async clearCacheAndSave() {
         if (this.levels.first()) {
             this.levels.forEach(async message => {
@@ -88,6 +91,11 @@ export default class GlobalCache {
         this.levels.clear();
         this.guilds.clear();
     };
+    /**
+     * Gets the level, xp and messages of an user
+     * @param {string} guildID The ID of the guild 
+     * @param {string} userID The ID of the user
+     */
     public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
         const key = `${userID}-${guildID}`;
         const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
@@ -101,6 +109,10 @@ export default class GlobalCache {
         } as Level));
         return this.levels.get(key);
     };
+    /**
+     * Gets a currency profile of an user
+     * @param {string} userID The ID of the user 
+     */
     public async getCurrency(userID: string): Promise<Profile> {
         const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID });
         if (profile) this.currency.set(userID, profile);
@@ -112,9 +124,16 @@ export default class GlobalCache {
         } as Profile));
         return this.currency.get(userID);
     };
+    /**
+     * Gets the client data
+     */
     public getClientData() {
         return this.clientData;
     };
+    /**
+     * Gets the data of a guild
+     * @param {string} guildID The ID of the guild 
+     */
     public async getGuild(guildID: string): Promise<Guild> {
         if (!this.guilds.has(guildID)){
             const results = await GuildSchema.findOne({ guildID: guildID });
