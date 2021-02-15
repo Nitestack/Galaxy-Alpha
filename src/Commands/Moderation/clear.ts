@@ -136,6 +136,7 @@ export default class ClearCommand extends Command {
                     const result = messages.filter(m => !m.pinned);
                     if (user) messages.filter(m => m.author.id == user.id);
                     counter += result.size;
+                    message.delete();
                     (message.channel as TextChannel | NewsChannel).bulkDelete(result);
                     if (messageYesOrNo) {
                         if (counter == 0) {

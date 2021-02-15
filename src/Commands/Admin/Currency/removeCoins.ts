@@ -35,7 +35,8 @@ export default class RemoveCoinsCommand extends Command {
             userID: user.id,
             bank: oldProfile.bank - (balance ? coins : 0),
             wallet: oldProfile.wallet - (balance ? 0 : coins),
-            messageCount: 0
+            messageCount: 0,
+            passive: oldProfile.passive
         } as Profile));
     };
 };

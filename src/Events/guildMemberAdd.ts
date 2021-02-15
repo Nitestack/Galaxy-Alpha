@@ -13,9 +13,9 @@ export default class GuildMemberAddEvent extends Event {
 			guildID: member.guild.id
 		}, {}, {}, (err, guild) => {
 			if (err) return console.log(err);
-			if (guild.welcomeChannelID == 'dm') {
+			if (guild.welcomeChannelID == 'dm' && guild.welcomeMessage && guild.welcomeEmbed) {
 				member.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);
-			} else {
+			} else if (guild.welcomeChannelID != "dm" && guild.welcomeEmbed && guild.welcomeMessage){
 				const welcomeChannel: TextChannel | NewsChannel = (client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(guild.welcomeChannelID) as TextChannel | NewsChannel);
 				if (welcomeChannel) {
 					welcomeChannel.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);

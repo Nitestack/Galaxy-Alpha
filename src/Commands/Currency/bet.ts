@@ -18,7 +18,8 @@ export default class BetCommand extends Command {
 			userID: message.author.id,
 			bank: userProfile.bank,
 			wallet: userProfile.wallet,
-			messageCount: userProfile.messageCount + 1
+			messageCount: userProfile.messageCount + 1,
+			passive: userProfile.passive
 		} as Profile));
 		const errorEmbed = client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager");
 		if (userProfile.wallet < minimum) return message.channel.send(errorEmbed.setDescription(`You must have atleast \`${minimum}\`$ in your wallet!`));
@@ -40,7 +41,8 @@ export default class BetCommand extends Command {
 					userID: message.author.id,
 					bank: oldProfile.bank,
 					wallet: oldProfile.wallet + win,
-					messageCount: oldProfile.messageCount
+					messageCount: oldProfile.messageCount,
+					passive: oldProfile.passive
 				} as Profile));
 			} else {
 				message.channel.send(client.createRedEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL()).setDescription(`You lost \`${number.toLocaleString()}\`$!\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(oldProfile.wallet - number).toLocaleString()}\`$`));
@@ -48,7 +50,8 @@ export default class BetCommand extends Command {
 					userID: message.author.id,
 					bank: oldProfile.bank,
 					wallet: oldProfile.wallet - number,
-					messageCount: oldProfile.messageCount
+					messageCount: oldProfile.messageCount,
+					passive: oldProfile.passive
 				} as Profile));
 			};
 		};

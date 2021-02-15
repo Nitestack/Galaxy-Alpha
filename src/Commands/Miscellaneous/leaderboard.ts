@@ -16,7 +16,7 @@ export default class LeaderboardCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const usage = `${prefix}${this.usage}`;
-        if (args[0].toLowerCase() == 'messages') {
+        if (args[0]?.toLowerCase() == 'messages') {
             const embed = client.createEmbed().setTitle(`${client.chatEmoji} Leaderboard`);
             let text: string = '';
             let users = (await LevelSchema.find({ guildID: message.guild.id }).sort({
@@ -40,7 +40,7 @@ export default class LeaderboardCommand extends Command {
                 };
             };
             return message.channel.send(embed.setDescription(text));
-        } else if (args[0].toLowerCase() == 'levels') {
+        } else if (args[0]?.toLowerCase() == 'levels') {
             const embed = client.createEmbed().setTitle("🎚️ Leaderboard")
             let text: string = "";
             const users = (await LevelSchema.find({ guildID: message.guild.id }).sort({
@@ -64,9 +64,9 @@ export default class LeaderboardCommand extends Command {
                 };
             };
             return message.channel.send(embed.setDescription(text));
-        } else if (args[0].toLowerCase() == 'invites') {
+        } else if (args[0]?.toLowerCase() == 'invites') {
             
-        } else if (args[0].toLowerCase() == 'currency') {
+        } else if (args[0]?.toLowerCase() == 'currency') {
             const embed = client.createEmbed().setTitle(`💰 Leaderboard`);
             let text: string = '';
             const profilesWallet = (await ProfileSchema.find({}).sort({
@@ -90,7 +90,7 @@ export default class LeaderboardCommand extends Command {
                 };
             };
             return message.channel.send(embed.setDescription(text));
-        } else if (args[0].toLowerCase() == 'vouches') {
+        } else if (args[0]?.toLowerCase() == 'vouches') {
             const embed = client.createEmbed().setTitle(":people_hugging: Leaderboard");
             let text: string = '';
             const vouches = (await VouchSchema.find({}).sort({

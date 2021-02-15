@@ -18,7 +18,8 @@ export default class DepositCommand extends Command {
             userID: message.author.id,
             bank: userProfile.bank,
             wallet: userProfile.wallet,
-            messageCount: userProfile.messageCount + 1
+            messageCount: userProfile.messageCount + 1,
+            passive: userProfile.passive
         } as Profile));
         if (userProfile.wallet == 0) return message.channel.send(client.createRedEmbed(true, commandUsage)
             .setTitle("💰 Currency Manager")
@@ -48,7 +49,8 @@ export default class DepositCommand extends Command {
                 userID: message.author.id,
                 bank: userProfile.bank + number,
                 wallet: userProfile.wallet - number,
-                messageCount: userProfile.wallet
+                messageCount: userProfile.wallet,
+                passive: userProfile.passive
             } as Profile));
         };
     };

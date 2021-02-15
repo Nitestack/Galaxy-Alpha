@@ -166,7 +166,8 @@ export default class GalaxyAlphaUtil {
      * Formats a date into a string value
      * @param {Date} date The date to format
      */
-    public dateFormatter(date: Date): string {
+    public dateFormatter(date: Date | number): string {
+        if (typeof date == "number") date = new Date(date);
         return `${this.weekDays[date.getUTCDay()]}, ${this.monthNames[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}, ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} UTC`;
     };
 };

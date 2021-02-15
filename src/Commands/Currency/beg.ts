@@ -24,7 +24,8 @@ export default class BegCommand extends Command {
 			userID: message.author.id,
 			messageCount: userProfile.messageCount + 1,
 			bank: userProfile.bank,
-			wallet: userProfile.wallet + (probabilityOfBeg >= 6 ? begCoins : 0)
+			wallet: userProfile.wallet + (probabilityOfBeg >= 6 ? begCoins : 0),
+			passive: userProfile.passive
 		} as Profile));
 	};
 };

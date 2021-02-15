@@ -11,6 +11,7 @@ export interface Profile extends mongoose.Document {
 	wallet: number;
 	bank: number;
 	messageCount: number;
+	passive: boolean;
 };
 
 const profileSchema = new mongoose.Schema({
@@ -31,6 +32,11 @@ const profileSchema = new mongoose.Schema({
 		required: true,
 		default: 0,
 	},
+	passive: {
+		type: Boolean,
+		required: true,
+		default: false
+	}
 });
 
 export default mongoose.model<Profile>('profile', profileSchema, 'profiles');

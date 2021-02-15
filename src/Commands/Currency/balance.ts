@@ -21,7 +21,8 @@ export default class BalanceCommand extends Command {
 			userID: message.author.id,
 			bank: (await client.cache.getCurrency(message.author.id)).bank,
 			wallet: (await client.cache.getCurrency(message.author.id)).wallet,
-			messageCount: (await client.cache.getCurrency(message.author.id)).messageCount + 1
+			messageCount: (await client.cache.getCurrency(message.author.id)).messageCount + 1,
+			passive: (await client.cache.getCurrency(message.author.id)).passive
 		} as Profile));
 		const userProfile = await client.cache.getCurrency(user.id);
 		return message.channel.send(client.createEmbed()

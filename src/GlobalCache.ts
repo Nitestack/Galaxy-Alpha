@@ -47,7 +47,8 @@ export default class GlobalCache {
                 }, {
                     bank: currency.bank,
                     wallet: currency.wallet,
-                    messageCount: currency.messageCount
+                    messageCount: currency.messageCount,
+                    passive: currency.passive
                 }, {
                     upsert: true
                 });

@@ -22,7 +22,8 @@ export default class WorkCommand extends Command {
             userID: message.author.id,
             bank: userProfile.bank,
             wallet: userProfile.wallet + wage,
-            messageCount: userProfile.messageCount + 1
+            messageCount: userProfile.messageCount + 1,
+            passive: userProfile.passive
         } as Profile));
     };
 };

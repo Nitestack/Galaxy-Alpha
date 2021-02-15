@@ -38,6 +38,18 @@ export default class MessageEvent extends Event {
 			newGuild.save().catch(err => console.log(err)); //saves the data and returns erros, if there are any
 			client.cache.guilds.set(message.guild.id, newGuild);
 		};
+		//AFK\\
+		if (client.afks.has(message.author.id)) {
+			client.createSuccess(message, { title: "AFK Manager", description: `You're back! Removed AFK status! You were AFK for ${client.humanizer(message.createdTimestamp - client.afks.get(message.author.id).afkSince.getTime(), { round: true, units: ["y", "mo", "w", "d", "h", "m", "s"] })}!` })
+			client.afks.delete(message.author.id);
+		};
+		if (client.afks.first()) client.afks.forEach(afk => {
+			if (client.afks.has(afk.userID)) {
+				message.channel.send(client.createRedEmbed()
+					.setTitle("AFK Manager")
+					.setDescription(`🌛 ${message.mentions.users.get(afk.userID)} is AFK since\n${client.util.dateFormatter(afk.afkSince)} (${client.humanizer(message.createdTimestamp - afk.afkSince.getTime(), { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} ago)\n📝 **Reason:** ${afk.reason}`));
+			};
+		});
 		//COMMAND OPTIONS\\
 		const prefix: string = settings && message.channel.type != 'dm' ? settings.guildPrefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
 		const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention

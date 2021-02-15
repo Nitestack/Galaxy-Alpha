@@ -19,7 +19,8 @@ export default class DailyCommand extends Command {
             userID: message.author.id,
             bank: oldProfile.bank,
             wallet: oldProfile.wallet + dailyBonus,
-            messageCount: oldProfile.messageCount + 1
+            messageCount: oldProfile.messageCount + 1,
+            passive: oldProfile.passive
         } as Profile));
     };
 };

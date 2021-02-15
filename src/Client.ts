@@ -5,7 +5,7 @@ import ms from 'ms';
 import Discord from 'discord.js';
 import mongoose from 'mongoose';
 import ytSearch from "yt-search";
-import duration from "humanize-duration";
+import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
 import Command, { Categories } from '@root/Command';
@@ -192,6 +192,11 @@ export default class GalaxyAlpha extends Discord.Client {
 		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
 	}> = new Discord.Collection();
 	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
+	public afks: Discord.Collection<string, {
+		userID: string,
+		afkSince: Date,
+		reason: string
+	}> = new Discord.Collection();
 	public modMails: Discord.Collection<string, Discord.Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
@@ -354,8 +359,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {number} ms The duration in milliseconds
 	 * @param {duration.Options} options The options of the time formatter 
 	 */
-	public humanizer(ms: number, options?: duration.Options): string {
-		return duration(ms, options);
+	public humanizer(ms: number, options?: Humanizer.Options): string {
+		return Humanizer(ms, options);
 	};
 	/**
 	 * Creates an error and sends it to the channel
