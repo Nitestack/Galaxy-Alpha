@@ -11,10 +11,19 @@ export default class VoteCommand extends Command {
     run: CommandRunner = async (client, message, args, prefix) => {
         return message.channel.send(client.createEmbed()
             .setTitle("🗳️ Vote")
-            .addField(`❓ Why I should vote for ${client.user.username}?`, `If you are voting for ${client.user.username}, you help the bot to grow and to get popular!`)
-            .addField("💎 What are the perks for every bot and server vote?", "You'll receive 5.000 coins instantly and 25% XP Booster!")
-            .addField(`${client.arrowEmoji} Vote for ${client.user.username}`, `[Coming soon!](${client.topGGBot}) or [Discord Bot List](${client.discordBotList})`)
-            .addField(`${client.arrowEmoji} Vote for Support Server`, `[top.gg](${client.topGGServer}) or [Discord Server List](${client.discordServerList})`)
-            .addField("😫 And if I don't like to vote for the bot, but I want to help?", "Just go to <#790654261968371754> and use `!d bump` to bump our server on [DISBOARD](https://disboard.org/de/server/783440776285651024)!"));
+            .setDescription(`**❓ Why I should vote for ${client.user.username}?**
+            If you are voting for ${client.user.username}, you help our developement! Every vote is new power to create much featured commands!
+            
+            **💎 What are the perks for every bot and server vote?**
+            You'll receive \`5.000\`$ instantly and 25% XP Booster! (coming soon)
+            
+            **${client.arrowEmoji} Vote for ${client.user.username}**
+            Vote on [top.gg (coming soon)](${client.topGGBot}) or on [Discord Bot List](${client.discordBotList})
+            
+            **${client.arrowEmoji} Vote for Support Server**
+            Vote on [top.gg](${client.topGGServer}) or on [Discord Server List](${client.discordServerList})
+            
+            **😫 And if I don't like to vote for the bot, but I want to help?**
+            Just go to <#790654261968371754> and use \`!d bump\` to bump our server on [DISBOARD](https://disboard.org/de/server/783440776285651024)!`));
     };
 };

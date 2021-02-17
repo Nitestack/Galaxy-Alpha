@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
-    guildID: String,
-    channelID: String,
-    categoryID: String,
-    userID: String,
-    reason: String,
+    guildID: mongoose.SchemaTypes.String,
+    channelID: mongoose.SchemaTypes.String,
+    categoryID: mongoose.SchemaTypes.String,
+    userID: mongoose.SchemaTypes.String,
+    reason: mongoose.SchemaTypes.String,
     createdAt: {
-        type: Date,
-        default: Date.now()
+        type: mongoose.SchemaTypes.Date,
+        default: new Date()
     }
 });
 

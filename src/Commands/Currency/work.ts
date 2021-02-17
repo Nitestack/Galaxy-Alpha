@@ -19,11 +19,9 @@ export default class WorkCommand extends Command {
             .setDescription(`You worked as **${jobs[Math.round(client.util.getRandomArbitrary(0, jobs.length - 1))]}** and got payed \`${wage.toLocaleString()}\`$!
             **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + wage).toLocaleString()}\`$`));
         client.cache.currency.set(message.author.id, ({
-            userID: message.author.id,
-            bank: userProfile.bank,
+            ...userProfile,
             wallet: userProfile.wallet + wage,
-            messageCount: userProfile.messageCount + 1,
-            passive: userProfile.passive
+            messageCount: userProfile.messageCount + 1
         } as Profile));
     };
 };

@@ -7,7 +7,7 @@ const token = process.env.TOKEN;
 const betaToken = process.env.BETA_TOKEN;
 export const Bot =  new GalaxyAlpha({
     ownerID: "700277649347575870",
-    globalPrefix: "!!",
+    globalPrefix: process.env.GLOBAL_PREFIX,
     token: betaToken,
     commandsDir: "Commands",
     eventsDir: "Events",

@@ -10,7 +10,6 @@ export default class ClearCacheCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!client.cache.levels.first() && !client.cache.currency.first() && !client.cache.guilds.first()) return client.createArgumentError(message, { title: "Cache Manager", description: "There is nothing in cache!"}, this.usage);
         client.cache.clearCacheAndSave();
         return client.createSuccess(message, { title: "Cache Manager", description: "Cleared cache and uploaded data to database!"});
     };

@@ -6,7 +6,7 @@ import duration from "humanize-duration";
 
 export default class Music {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha){
+    constructor(client: GalaxyAlpha) {
         this.client = client;
     };
     async play(message: Message, voiceChannel: VoiceChannel, videoID: string, noSkip: boolean = true, prefix?: string, usage?: string, newSong: boolean = false, panel: boolean = false) {
@@ -42,7 +42,7 @@ export default class Music {
                     let queue = MusicManager.client.queue.get(message.guild.id).queue;
                     queue.push(queue[0]);
                     queue.shift();
-                    if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue); 
+                    if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue);
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: queue,
@@ -59,7 +59,7 @@ export default class Music {
                 } else if (noSkip) {
                     let queue = MusicManager.client.queue.get(message.guild.id).queue;
                     queue.shift();
-                    if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue); 
+                    if (MusicManager.client.queue.get(message.guild.id).shuffle) queue = MusicManager.shuffle(queue);
                     MusicManager.client.queue.set(message.guild.id, {
                         guildID: message.guild.id,
                         queue: queue,
@@ -186,11 +186,11 @@ export default class Music {
     volume(dispatcher: StreamDispatcher, volume: number) {
         return dispatcher.setVolume(volume);
     };
-    shuffle(queue: Array<Queue>): Array<Queue>{
+    shuffle(queue: Array<Queue>): Array<Queue> {
         const newShuffledQueue = queue;
         let newPos: number;
         let temp: Queue;
-        for (let i = newShuffledQueue.length - 1; i > 0; i--){
+        for (let i = newShuffledQueue.length - 1; i > 0; i--) {
             newPos = Math.floor(Math.random() * (i + 1));
             temp = newShuffledQueue[i];
             newShuffledQueue[i] = newShuffledQueue[newPos];

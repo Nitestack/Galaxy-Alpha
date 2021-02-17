@@ -1,50 +1,57 @@
 import mongoose from 'mongoose';
 
 export interface Guild extends mongoose.Document {
-	guildID: string;
-	guildPrefix: string;
-	logChannelID: string;
-	guildShardID: number;
-	muteRole: string;
-	memberRole: string;
-	ticketCategoryID: string;
-	ticketRole: string;
-	giveawayManager: string;
-	giveawayByPass: string;
-	giveawayBlackListed: string;
-	giveawayPing: string;
-	welcomeMessage: string;
-	welcomeEmbed: boolean;
-	welcomeChannelID: string;
-	modMailManager: string;
-	modMailCategory: string;
-	modMailLogChannel: string;
+	guildID: string,
+	prefix: string,
+	modLogChannelID: string,
+	modLogChannelWebhookToken: string,
+	modLogChannelWebhookID: string,
+	muteRoleID: string,
+	memberRoleID: string,
+	ticketCategoryID: string,
+	ticketManagerRoleID: string,
+	giveawayManagerRoleID: string,
+	giveawayBlacklistedRoleID: string,
+	giveawayByPassRoleID: string,
+	serverManagerRoleID: string,
+	welcomeMessageType: "embed" | "message",
+	welcomeChannelID: string | "dm",
+	modMailManagerRoleID: string,
+	modMailLogChannelID: string,
+	modMailCategoryID: string,
+	DJRoleID: string
 };
 
-const reqString = {
-	type: String,
-	required: true,
-};
 const guildSchema = new mongoose.Schema({
-	guildID: reqString,
-	guildPrefix: reqString,
-	logChannelID: String,
-	muteRole: String,
-	memberRole: String,
-	ticketCategoryID: String,
-	ticketRole: String,
-	giveawayManager: String,
-	giveawayByPass: String,
-	giveawayBlackListed: String,
-	welcomeMessage: String,
-	welcomeEmbed: {
-		type: Boolean,
-		default: false
+	guildID: {
+		type: mongoose.SchemaTypes.String,
+		required: true
 	},
-	welcomeChannelID: String,
-	modMailManager: String,
-	modMailCategory: String,
-	modMailLogChannel: String
+	prefix: {
+		type: mongoose.SchemaTypes.String,
+		required: true,
+		default: process.env.GLOBAL_PREFIX
+	},
+	modLogChannelID: mongoose.SchemaTypes.String,
+	modLogChannelWebhookToken: mongoose.SchemaTypes.String,
+	modLogChannelWebhookID: mongoose.SchemaTypes.String,
+	muteRoleID: mongoose.SchemaTypes.String,
+	memberRoleID: mongoose.SchemaTypes.String,
+	ticketCategoryID: mongoose.SchemaTypes.String,
+	ticketManagerRoleID: mongoose.SchemaTypes.String,
+	giveawayManagerRoleID: mongoose.SchemaTypes.String,
+	giveawayBlacklistedRoleID: mongoose.SchemaTypes.String,
+	giveawayByPassRoleID: mongoose.SchemaTypes.String,
+	serverManagerRoleID: mongoose.SchemaTypes.String,
+	welcomeMessageType: {
+		type: mongoose.SchemaTypes.String,
+		default: "message"
+	},
+	welcomeChannelID: mongoose.SchemaTypes.String,
+	modMailManagerRoleID: mongoose.SchemaTypes.String,
+	modMailLogChannelID: mongoose.SchemaTypes.String,
+	modMailCategoryID: mongoose.SchemaTypes.String,
+	DJRoleID: mongoose.SchemaTypes.String
 });
 
 export default mongoose.model<Guild>('guild', guildSchema, 'guilds');

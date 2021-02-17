@@ -51,7 +51,7 @@ export default class HangManCommand extends Command {
                                 .setTitle("😩 Hangman Manager")
                                 .setDescription(`Alright, <@${validUsers.join("> & <@")}> can play this game!`));
                         };
-                        const word = collectedMessages.first().content.toLowerCase().replace(/[^a-z\s:]/g, "");
+                        const word = collectedMessages.first().content.toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[0-9]/g, "");
                         const letters = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿']
                         const unicode = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
                         let games = [];

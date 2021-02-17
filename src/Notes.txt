@@ -21,8 +21,4 @@ Automoderator
 
 Role Info
 
-Bet Half
-
 Convert Hangman word ö => oe, ß => ss
-
-Currency Share

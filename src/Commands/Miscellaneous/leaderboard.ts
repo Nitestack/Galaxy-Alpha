@@ -28,15 +28,10 @@ export default class LeaderboardCommand extends Command {
             for (let i = 0; i < users.length; i++) {
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID).user : false;
                 if (user) {
-                    if (i == 0) {
-                        text += `🥇 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
-                    } else if (i == 1) {
-                        text += `🥈 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
-                    } else if (i == 2) {
-                        text += `🥉 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
-                    } else {
-                        text += `\`${i + 1}.\` ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
-                    };
+                    if (i == 0) text += `🥇 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
+                    else if (i == 1) text += `🥈 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
+                    else if (i == 2) text += `🥉 ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
+                    else text += `\`${i + 1}.\` ${user} with \`${users[i].messages.toLocaleString()}\` messages\n`;
                 };
             };
             return message.channel.send(embed.setDescription(text));
@@ -52,15 +47,10 @@ export default class LeaderboardCommand extends Command {
             for (let i = 0; i < users.length; i++){
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
                 if (user){
-                    if (i == 0){
-                        text += `🥇 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
-                    } else if (i == 1){
-                        text += `🥈 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
-                    } else if (i == 2){
-                        text += `🥉 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
-                    } else {
-                        text += `\`${i + 1}.\` ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`;
-                    };
+                    if (i == 0) text += `🥇 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                    else if (i == 1) text += `🥈 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                    else if (i == 2) text += `🥉 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
+                    else text += `\`${i + 1}.\` ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`;
                 };
             };
             return message.channel.send(embed.setDescription(text));
@@ -78,15 +68,10 @@ export default class LeaderboardCommand extends Command {
             for (let i = 0; i < profilesWallet.length; i++) {
                 let user = message.guild.members.cache.has(profilesWallet[i].userID) ? message.guild.members.cache.get(profilesWallet[i].userID).user : false;
                 if (user && !client.developers.includes(user.id)) {
-                    if (i == 0) {
-                        text += `🥇 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    } else if (i == 1) {
-                        text += `🥈 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    } else if (i == 2) {
-                        text += `🥉 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    } else {
-                        text += `\`${i + 1}.\` ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    };
+                    if (i == 0) text += `🥇 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
+                    else if (i == 1) text += `🥈 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
+                    else if (i == 2) text += `🥉 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
+                    else text += `\`${i + 1}.\` ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
                 };
             };
             return message.channel.send(embed.setDescription(text));
@@ -100,24 +85,19 @@ export default class LeaderboardCommand extends Command {
                 let user = message.guild.members.cache.has(vouches[i].userID) ? message.guild.members.cache.get(vouches[i].userID).user : false;
                 const upVotes = (vouches[i].upVotes - vouches[i].downVotes).toLocaleString();
                 if (user) {
-                    if (i == 0) {
-                        text += `🥇 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
-                    } else if (i == 1) {
-                        text += `🥈 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
-                    } else if (i == 2) {
-                        text += `🥉 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
-                    } else {
-                        text += `\`${i + 1}.\` ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
-                    };
+                    if (i == 0) text += `🥇 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
+                    else if (i == 1) text += `🥈 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
+                    else if (i == 2) text += `🥉 ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
+                    else text += `\`${i + 1}.\` ${user} with \`${upVotes}\` vouches (\`${vouches[i].upVotes.toLocaleString()}\`/\`${vouches[i].downVotes.toLocaleString()}\`)\n`;
                 };
             };
             return message.channel.send(embed.setDescription(text));
         } else {
-            return message.channel.send(client.createRedEmbed(true, usage).setTitle('Leaderboard Manager').setDescription('You have to provide a leaderboard category!'));
+            return message.channel.send(client.createRedEmbed(true, usage).setTitle('Leaderboard Manager').setDescription('You have to provide a leaderboard category!\n`vouches`, `levels`, `messages`, `currency`'));
         };
     };
 };
 
 function xpFor(level: number): number {
-    return (level + 1) * (level + 1)* 100;
+    return (level + 1) * (level + 1) * 100;
 };

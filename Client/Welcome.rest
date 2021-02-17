@@ -1,0 +1,35 @@
+POST https://discord.com/api/v8/channels/783451196789882921/messages
+Content-Type: application/json
+Authorization: Bot NzYxNTkwMTM5MTQ3MTI0ODEw.X3c0Fg.iCXl-m52KcN_XVxXjI4CC1F0P10
+
+{
+    "content": "<:galaxy_alpha:792083061666873345> **GALAXY ALPHA** <:galaxy_alpha:792083061666873345>",
+    "tts": false,
+    "embed": {
+        "title": "Galaxy Alpha",
+        "description": "Welcome to **Galaxy Alpha™️**, the official support and community server of the bot **Galaxy Alpha**!",
+        "type": "rich",
+        "url": "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot",
+        "footer": {
+            "text": "Created By HydraNhani",
+            "icon_url": "https://cdn.discordapp.com/avatars/761590139147124810/af4f3ecc03a56e0f9d63aa8c320f4a2a.webp"
+        },
+        "color": "3562376",
+        "fields": [{
+            "name": "❓ Who is Galaxy Alpha",
+            "value": "**Galaxy Alpha** is a multifunctional bot, that helps you managing your server and get your server more active! This bot has some moderation commands, a ticket system, a giveaway and drop system and also a currency system for fun! There are also games like connect 4 and tic tac toe implemented in this bot! Feel free to test this bot and use the feedback function => <#807675277122994176>"
+        }, {
+            "name": "🔗 INVITE LINK",
+            "value": "[Click here](https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot)"
+        }, {
+            "name": "👍 Vote",
+            "value": "Vote for bot on [top.gg](https://top.gg/bot/761590139147124810/vote) or on [Discord Bot List](https://discordbotlist.com/bots/galaxy-alpha/upvote)\nVote for server on [top.gg](https://top.gg/servers/783440776285651024/vote) or on [Discord Server List](https://discordbotlist.com/servers/galaxy-alpha/upvote)"
+        }, {
+            "name": "<:desktop_dev:786332949226323988> Developers",
+            "value": "<@700277649347575870>"
+        }, {
+            "name": "<:tools_dev:786332338207457340> Contributors",
+            "value": "<@694162762020159539>"
+        }]
+    }
+}

@@ -164,7 +164,7 @@ export default class GalaxyAlphaUtil {
     };
     /**
      * Formats a date into a string value
-     * @param {Date} date The date to format
+     * @param {Date | number} date The date or timestamp to format
      */
     public dateFormatter(date: Date | number): string {
         if (typeof date == "number") date = new Date(date);

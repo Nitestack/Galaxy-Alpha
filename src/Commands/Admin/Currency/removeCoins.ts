@@ -13,7 +13,6 @@ export default class RemoveCoinsCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const commandUsage: string = `${prefix}${this.usage}`;
         let user: User;
         if (!args[0]) return client.createArgumentError(message, { title: "Currency Manager", description: "You have to mention an user or provide an user ID!"}, this.usage);
         if (args[1].toLowerCase() != 'bank' && args[1].toLowerCase() != 'wallet') return client.createArgumentError(message, { title: "Currency Manager", description: "You have to specify, if you want to remove coins from the bank or from the wallet!"}, this.usage);
@@ -32,11 +31,9 @@ export default class RemoveCoinsCommand extends Command {
             **${balance ? 'Bank' : 'Wallet'}:** \`${balance ? oldProfile.bank.toLocaleString() : oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${balance ? (oldProfile.bank - coins).toLocaleString() : (oldProfile.wallet - coins).toLocaleString()}\`$`
         });
         client.cache.currency.set(user.id, ({
-            userID: user.id,
+            ...oldProfile,
             bank: oldProfile.bank - (balance ? coins : 0),
-            wallet: oldProfile.wallet - (balance ? 0 : coins),
-            messageCount: 0,
-            passive: oldProfile.passive
+            wallet: oldProfile.wallet - (balance ? 0 : coins)
         } as Profile));
     };
 };

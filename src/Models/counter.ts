@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const undefinedString = {
-    type: String,
+    type: mongoose.SchemaTypes.String,
     default: undefined
 };
 
@@ -25,7 +25,7 @@ export interface counterSchema extends mongoose.Document {
 
 const countSchema = new mongoose.Schema({
     guildID: {
-        type: String,
+        type: mongoose.SchemaTypes.String,
         required: true
     },
     allMembers: undefinedString,

@@ -13,14 +13,14 @@ interface MemberSchema extends mongoose.Document {
 
 const memberSchema = new mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
-    guildID: String,
-    memberID: String,
-    kickCount: Number,
-    banCount: Number,
-    muteCount: Number,
-    warnCount: Number,
+    guildID: mongoose.SchemaTypes.String,
+    memberID: mongoose.SchemaTypes.String,
+    kickCount: mongoose.SchemaTypes.Number,
+    banCount: mongoose.SchemaTypes.Number,
+    muteCount: mongoose.SchemaTypes.Number,
+    warnCount: mongoose.SchemaTypes.Number,
     isMuted: {
-        type: Boolean,
+        type: mongoose.SchemaTypes.Boolean,
         default: false
     }
 });

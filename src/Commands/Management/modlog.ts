@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import ModLogsSchema from '@models/modlogs';
 import { GuildChannel, NewsChannel, TextChannel } from 'discord.js';
 
 export default class ModLogsCommand extends Command {

@@ -30,11 +30,9 @@ export default class AddCoinsCommand extends Command {
             **${balance ? 'Bank' : 'Wallet'}:** \`${balance ? oldProfile.bank.toLocaleString() : oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${balance ? (oldProfile.bank + coins).toLocaleString() : (oldProfile.wallet + coins).toLocaleString()}\`$`
         })
         client.cache.currency.set(user.id, ({
-            userID: user.id,
+            ...oldProfile,
             bank: oldProfile.bank + (balance ? coins : 0),
-            wallet: oldProfile.wallet + (balance ? 0 : coins),
-            messageCount: 0,
-            passive: oldProfile.passive
+            wallet: oldProfile.wallet + (balance ? 0 : coins)
         } as Profile));
     };
 };

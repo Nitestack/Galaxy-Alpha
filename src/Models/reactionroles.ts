@@ -10,12 +10,12 @@ interface ReactionRoleSchema extends mongoose.Document {
 };
 
 const reactionRolesSchema = new mongoose.Schema({
-    messageID: String,
-    channelID: String,
-    title: String,
-    description: String,
-    emojiIDs: [String],
-    roleIDs: [String]
+    messageID: mongoose.SchemaTypes.String,
+    channelID: mongoose.SchemaTypes.String,
+    title: mongoose.SchemaTypes.String,
+    description: mongoose.SchemaTypes.String,
+    emojiIDs: [mongoose.SchemaTypes.String],
+    roleIDs: [mongoose.SchemaTypes.String]
 });
 
 export default mongoose.model<ReactionRoleSchema>("Reaction Roles", reactionRolesSchema, "reaction-roles");

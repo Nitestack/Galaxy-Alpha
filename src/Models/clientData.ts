@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 
 const clientDataSchema = new mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
-	autoPublishChannels: [String],
-	blockedUser: [String],
-	autoPollChannels: [String]
+	autoPublishChannels: [mongoose.SchemaTypes.String],
+	blockedUser: [mongoose.SchemaTypes.String],
+	autoPollChannels: [mongoose.SchemaTypes.String]
 });
 
 export interface ClientData extends mongoose.Document {

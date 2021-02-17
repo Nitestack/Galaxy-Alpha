@@ -48,9 +48,9 @@ export default class HelpCommand extends Command {
                 if (command.nsfw) text += `Works only in NSFW channels or in DM's\n`;
                 if (command.newsChannelOnly) text += `Works only in Announcement channels\n`;
                 if (command.textChannelOnly) text += `Works only in Text channels\n`;
-                return message.author.send(client.createEmbed()
+                return message.channel.send(client.createEmbed()
                     .setAuthor(client.user.tag, client.user.displayAvatarURL({ dynamic: true }))
-                    .setTitle(`Command Info | ${client.util.toUpperCaseBeginning(command.name)}`)
+                    .setTitle("Command Info")
                     .setDescription(text));
             };
         } else {

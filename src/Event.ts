@@ -1,6 +1,5 @@
 import GalaxyAlpha from '@root/Client';
 import { EventEmitter } from 'events';
-import { Bot } from "@root/index";
 
 export interface EventRunner {
 	(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown>;
@@ -12,7 +11,6 @@ interface EventInfos {
 };
 
 export default class Event {
-	private client: GalaxyAlpha = Bot;
 	public name: string;
 	/**
 	 * @param {EventInfos} info The event informations

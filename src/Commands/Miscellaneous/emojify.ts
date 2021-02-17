@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import { User } from 'discord.js';
 
 export default class EmojifyCommand extends Command {
     constructor(){
@@ -11,14 +10,33 @@ export default class EmojifyCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let user: User = message.author;
-        if (message.mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) user = message.mentions.users.first();
-        if (args[0] && client.users.cache.has(args[0])) user = client.users.cache.get(args[0]);
-        const alphabets = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-        const emojifiedName: string = user.username;
-        alphabets.forEach(letter => {
-            emojifiedName.replace(/HydraNhani/g, `:regional_indicator_${letter}:`)
-        });
-        return message.channel.send(`@${emojifiedName}`);
+        let text: string = message.author.username;
+        if (message.mentions.users.first() && client.users.cache.has(message.mentions.users.first().id)) text = message.mentions.users.first().username;
+        else if (args[0] && client.users.cache.has(args[0])) text = client.users.cache.get(args[0]).username;
+        else if (args[0]) text = args.join(" ");
+
+        const specialCodes = {
+            '0': ':zero:',
+            '1': ':one:',
+            '2': ':two:',
+            '3': ':three:',
+            '4': ':four:',
+            '5': ':five:',
+            '6': ':six:',
+            '7': ':seven:',
+            '8': ':eight:',
+            '9': ':nine:',
+            '#': ':hash:',
+            '*': ':asterisk:',
+            '?': ':grey_question:',
+            '!': ':grey_exclamation:',
+            ' ': '   '
+          }
+        text = text.toLowerCase().split('').map(letter => {
+            if(/[a-z]/g.test(letter)) return `:regional_indicator_${letter}:`;
+            else if (specialCodes[letter]) return `${specialCodes[letter]}`;
+            return letter;
+        }).join('');
+        return message.channel.send(text);
     };
 };

@@ -16,11 +16,9 @@ export default class DailyCommand extends Command {
         const oldProfile = await client.cache.getCurrency(message.author.id);
         message.channel.send(embed.setDescription(`You redeemed your daily coins of \`${dailyBonus.toLocaleString()}\`$\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(oldProfile.wallet + dailyBonus).toLocaleString()}\`$`));
         return client.cache.currency.set(message.author.id, ({
-            userID: message.author.id,
-            bank: oldProfile.bank,
+            ...oldProfile,
             wallet: oldProfile.wallet + dailyBonus,
-            messageCount: oldProfile.messageCount + 1,
-            passive: oldProfile.passive
+            messageCount: oldProfile.messageCount + 1
         } as Profile));
     };
 };

@@ -21,11 +21,9 @@ export default class BegCommand extends Command {
 		if (probabilityOfBeg >= 6) message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${getCoins[Math.round(client.util.getRandomArbitrary(0, getCoins.length - 1))]}\n**Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + begCoins).toLocaleString()}\`$`));
 		else message.channel.send(embed.setDescription(`**${list[Math.round(client.util.getRandomArbitrary(0, list.length - 1))]}:** ${noCoins[Math.round(client.util.getRandomArbitrary(0, noCoins.length - 1))]}\n**Wallet:** \`${userProfile.wallet.toLocaleString()}\`$`));
 		client.cache.currency.set(message.author.id, ({
-			userID: message.author.id,
+			...userProfile,
 			messageCount: userProfile.messageCount + 1,
-			bank: userProfile.bank,
-			wallet: userProfile.wallet + (probabilityOfBeg >= 6 ? begCoins : 0),
-			passive: userProfile.passive
+			wallet: userProfile.wallet + (probabilityOfBeg >= 6 ? begCoins : 0)
 		} as Profile));
 	};
 };

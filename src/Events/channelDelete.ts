@@ -1,9 +1,7 @@
 import Event, { EventRunner } from '@root/Event';
 import { DMChannel, GuildChannel } from 'discord.js';
-import GuildSchema from '@models/guild';
-import autoPublishSchema from '@models/clientData';
+import { Guild } from '@models/guild';
 import TicketSchema from '@models/ticket';
-import ModLogsSchema from '@models/modlogs';
 import CounterSchema from '@models/counter';
 
 export default class ChannelDeleteEvent extends Event {
@@ -14,107 +12,16 @@ export default class ChannelDeleteEvent extends Event {
 	};
 	run: EventRunner = async (client, channel: DMChannel | GuildChannel) => {
 		if (channel.type == 'category') {
-			GuildSchema.findOne({
-				ticketCategoryID: channel.id
-			}, {}, {}, (err, guild) => {
-				if (err) return console.log(err);
-				if (!guild || !guild.ticketCategoryID) return;
-				GuildSchema.findOneAndUpdate({
-					guildID: channel.guild.id
-				}, {
-					ticketCategoryID: null
-				}, {
-					upsert: false
-				});
-				return;
-			});
+			const ticketCategory = await client.cache.getGuild(channel.guild.id);
+			if (ticketCategory.ticketCategoryID == channel.id) client.cache.guilds.set(channel.guild.id, ({
+				...ticketCategory,
+				ticketCategoryID: null
+			} as Guild));
 		} else if (channel.type != 'voice') {
-			await autoPublishSchema.findById(client.dataSchemaObjectId, (err: unknown, result: any) => {
-				if (err) {
-					return console.log(err);
-				} else if (result) {
-					if (result.autoPublishChannels.includes(channel.id)) {
-						//if the channel is in the list of auto publish channels
-						result.autoPublishChannels.splice(result.autoPublishChannels.indexOf(channel.id), 1);
-						return autoPublishSchema
-							.findByIdAndUpdate(client.dataSchemaObjectId, {
-								autoPublishChannels: result.autoPublishChannels,
-							}, {
-								upsert: false,
-							}, (err: unknown) => {
-								if (err) {
-									return console.log(err);
-								} else {
-									return;
-								}
-							}).exec().catch((err: unknown) => console.log(err));
-					} else if (result.autoPollChannels.includes(channel.id)) {
-						//if the channel is in the list of auto publish channels
-						result.autoPollChannels.splice(result.autoPollChannels.indexOf(channel.id), 1);
-						return autoPublishSchema
-							.findByIdAndUpdate(client.dataSchemaObjectId, {
-								autoPollChannels: result.autoPollChannels,
-							}, {
-								upsert: false,
-							}, (err: unknown) => {
-								if (err) {
-									return console.log(err);
-								} else {
-									return;
-								};
-							}).exec().catch((err: unknown) => console.log(err));
-					} else {
-						return;
-					}
-				}
-			});
-			await GuildSchema.findOne({
-				guildID: (channel as GuildChannel).guild.id
-			}, {}, {}, async (err, guild) => {
-				if (err) return console.log(err);
-				if (!guild) return;
-				if (guild.logChannelID == channel.id) {
-					await GuildSchema.findOneAndUpdate({
-						guildID: (channel as GuildChannel).guild.id
-					}, {
-						logChannelID: null
-					}, {
-						upsert: false
-					});
-				} else if (guild.welcomeChannelID == channel.id) {
-					await GuildSchema.findOneAndUpdate({
-						guildID: (channel as GuildChannel).guild.id
-					}, {
-						welcomeChannelID: null
-					}, {
-						upsert: false
-					});
-				} else {
-					return;
-				};
-			});
-			await TicketSchema.findOne({
-				guildID: (channel as GuildChannel).guild.id
-			}, {}, {}, async (err, ticket) => {
-				if (err) return console.log(err);
-				if (!ticket) return;
-				if (ticket.channelID == channel.id) {
-					await TicketSchema.findOneAndDelete({
-						channelID: channel.id
-					});
-				} else {
-					return;
-				};
-			});
-			await ModLogsSchema.findOne({
-				channelID: channel.id
-			}, {}, {}, async (err, modlogs) => {
-				if (err) return console.log(err);
-				if (!modlogs) return;
-				await ModLogsSchema.findOneAndDelete({
-					channelID: channel.id
-				});
-			});
+			const autoPublishSchema = client.cache.getClientData();
+			if (autoPublishSchema.autoPublishChannels.includes(channel.id)) autoPublishSchema.autoPublishChannels.splice(autoPublishSchema.autoPublishChannels.findIndex(autoChannel => autoChannel == channel.id), 1);
+			const ticket = await TicketSchema.findOne({ channelID: channel.id });
+			if (ticket) await TicketSchema.findOneAndDelete({ channelID: channel.id });
 		} else {
 			await CounterSchema.findOne({
 				guildID: channel.guild.id

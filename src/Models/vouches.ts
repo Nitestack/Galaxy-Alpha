@@ -8,17 +8,17 @@ export interface Vouch extends mongoose.Document {
 };
 
 const vouchSchema = new mongoose.Schema({
-	userID: String,
+	userID: mongoose.SchemaTypes.String,
 	upVotes: {
-		type: Number,
+		type: mongoose.SchemaTypes.Number,
 		default: 0
 	},
 	downVotes: {
-		type: Number,
+		type: mongoose.SchemaTypes.Number,
 		default: 0
 	},
 	lastUpdated: {
-		type: Date,
+		type: mongoose.SchemaTypes.Date,
 		default: new Date()
 	}
 });

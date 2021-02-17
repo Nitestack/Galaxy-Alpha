@@ -1,22 +1,18 @@
 import mongoose from 'mongoose';
 
 const levelSchema = new mongoose.Schema({
-    userID: String,
-    guildID: String,
-    xp: { 
-        type: Number, 
-        default: 0 
-    },
-    level: { 
-        type: Number, 
-        default: 0 
-    },
-    lastUpdated: { 
-        type: Date, 
-        default: new Date() 
+    userID: mongoose.SchemaTypes.String,
+    guildID: mongoose.SchemaTypes.String,
+    xp: {
+        type: mongoose.SchemaTypes.Number,
+        default: 0
+    }, 
+    level: {
+        type: mongoose.SchemaTypes.Number,
+        default: 0
     },
     messages: {
-        type: Number,
+        type: mongoose.SchemaTypes.Number,
         default: 0
     }
 });
@@ -26,8 +22,7 @@ export interface Level extends mongoose.Document {
     guildID: string,
     xp: number,
     level: number,
-    messages: number,
-    lastUpdated: Date
+    messages: number
 };
 
 export default mongoose.model<Level>('Level', levelSchema, 'levels');

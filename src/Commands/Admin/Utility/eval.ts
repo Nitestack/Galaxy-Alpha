@@ -12,10 +12,10 @@ export default class EvalCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
+        if (!args[0]) return client.createArgumentError(message, { title: "Eval Manager", description: 'You have to provide valid JavaScript code, that I can evaluate!'}, this.usage);
         const evalChannel = '789116457655992350';
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
         let output = eval(args.join(' '));
-        if (!args[0]) return client.createArgumentError(message, { title: "Eval Manager", description: 'You have to provide valid JavaScript code, that I can evaluate!'}, this.usage);
         try {
             const start = process.hrtime();
             const difference = process.hrtime(start);

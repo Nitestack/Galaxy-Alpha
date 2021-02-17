@@ -176,7 +176,6 @@ export default class GalaxyAlpha extends Discord.Client {
 	//MODULES\\
 	public ms = ms;
 	public discordJS = Discord;
-	public mongoose = mongoose;
 	//INFOS\\
 	public dataSchemaObjectId: string = "5ffb5b87ef40ba40a0842eb5";
 	public inviteLink: string = "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot";
@@ -343,7 +342,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				};
 				const { default: Feature } = await import(path.join(__dirname, featurePath, file));
 				const feature: Feature = new Feature();
-				if (!feature.name){
+				if (!feature.name) {
 					featureTable.addRow(`${feature.name}`, "❌", "Name left!");
 					continue;
 				} else {
@@ -351,7 +350,7 @@ export default class GalaxyAlpha extends Discord.Client {
 					featureTable.addRow(`${feature.name}`, "✅");
 				};
 			};
-		}
+		};
 	};
 	//PUBLIC METHODS\\
 	/**
@@ -369,7 +368,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} usage The command usage
 	 */
 	public async createArgumentError(message: Discord.Message, embed: { title: string, description: string }, usage: string) {
-		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}`)
+		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}`)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
@@ -380,7 +379,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} usage The command usage 
 	 */
 	public async createSuccess(message: Discord.Message, embed: { title: string, description: string }, usage?: string) {
-		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${usage}` : null)
+		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}` : null)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
@@ -393,7 +392,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
 		if (embed.description) EMBED.setDescription(embed.description);
-		commands.forEach(async command => EMBED.addField(command.description, `${(await this.cache.getGuild(message.guild.id)).guildPrefix}${command.usage}`));
+		commands.forEach(async command => EMBED.addField(command.description, `${(await this.cache.getGuild(message.guild.id)).prefix}${command.usage}`));
 		return message.channel.send(EMBED);
 	};
 	/**

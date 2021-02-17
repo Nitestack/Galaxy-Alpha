@@ -20,20 +20,9 @@ export default class MessageEvent extends Event {
 		//PREFIX\\
 		const settings = message.channel.type != "dm" ? await client.cache.getGuild(message.guild.id) : null;
 		if (!settings && message.channel.type != "dm") {
-			const newGuild = new GuildSchema({//adds the guild to the database file of prefixes
+			const newGuild = await GuildSchema.create({//adds the guild to the database file of prefixes
 				guildID: message.guild.id,
-				guildPrefix: client.globalPrefix,
-				logChannelID: null,
-				guildShardID: message.guild.shardID,
-				muteRole: null,
-				memberRole: null,
-				ticketCategory: null,
-				ticketRole: null,
-				giveawayByPass: null,
-				giveawayBlackListed: null,
-				giveawayPing: null,
-				welcomeMessage: null,
-				welcomeEmbed: false
+				prefix: client.globalPrefix
 			});
 			newGuild.save().catch(err => console.log(err)); //saves the data and returns erros, if there are any
 			client.cache.guilds.set(message.guild.id, newGuild);
@@ -51,44 +40,26 @@ export default class MessageEvent extends Event {
 			};
 		});
 		//COMMAND OPTIONS\\
-		const prefix: string = settings && message.channel.type != 'dm' ? settings.guildPrefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
+		const prefix: string = message.channel.type != 'dm' && settings?.prefix ? settings.prefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
 		const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
-		let mentionPrefix: Boolean;
+		let mentionPrefix: boolean;
 		if (prefixRegex.test(message.content)) {
 			mentionPrefix = true;
 			if (message.mentions.users.has(client.user.id)) message.mentions.users.delete(client.user.id);
 		} else mentionPrefix = false;
-		//LEVEL AND MESSAGES\\
-		async function appendXp(): Promise<boolean> {
-			client.cache.levels.set(key, ({
-				guildID: message.guild.id,
-				userID: message.author.id,
-				messages: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).messages + 1,
-				xp: (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp + parseInt((client.xpPerMessage as unknown as string), 10),
-				level: Math.floor(0.1 * Math.sqrt((await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp))
-			} as Level));
-			const userLevel = (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level + 1;
-			return (await client.cache.getLevelandMessages(message.guild.id, message.author.id)).xp >= userLevel * userLevel * 100;
-		};
-
-		const key = message.channel.type != "dm" ? `${message.author.id}-${message.guild.id}` : null;
 		if (!message.author.bot && message.channel.type != "dm") {
-			const LevelUp = await appendXp();
-			if (LevelUp) {
-				const user = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
-				if (user) {
-					client.cache.levels.set(key, ({
-						guildID: message.guild.id,
-						userID: message.author.id,
-						level: user.level + 1,
-						xp: user.xp,
-						messages: user.messages
-					} as Level));
-					message.channel.send(client.createEmbed()
-						.setAuthor(message.author.tag, message.author.displayAvatarURL())
-						.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${(await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level}!** 🎉\nCheck your level card with \`${prefix}level\`!`));
-				};
-			};
+			const authorStats = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
+			const xp = authorStats.xp + parseInt((client.xpPerMessage as unknown as string), 10);
+			const levelUp = xp >= (authorStats.level + 1) * (authorStats.level + 1) * 100;
+			client.cache.levels.set(`${message.author.id}-${message.guild.id}`, ({
+				...authorStats,
+				messages: authorStats.messages + 1,
+				xp: xp,
+				level: levelUp ? authorStats.level + 1 : authorStats.level
+			} as Level));
+			if (levelUp) message.channel.send(client.createEmbed()
+				.setAuthor(message.author.tag, message.author.displayAvatarURL())
+				.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${(await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level}!** 🎉\nCheck your level card with \`${prefix}level\`!`));
 		};
 		if (message.channel.type == "dm" && client.cache.getClientData().autoPublishChannels.includes(message.channel.id)) message.crosspost();
 		/*if (!client.developers.includes(message.author.id) && !client.contributors.includes(message.author.id)) {

@@ -1,6 +1,5 @@
 import Discord from 'discord.js';
 import GalaxyAlpha from '@root/Client';
-import { Bot } from "@root/index";
 
 export interface CommandRunner {
 	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown>;
@@ -38,7 +37,6 @@ interface CommandInfos {
 };
 
 export default class Command {
-	private client: GalaxyAlpha = Bot;
 	public name: string;
 	public aliases?: Array<string>;
 	public description: string;

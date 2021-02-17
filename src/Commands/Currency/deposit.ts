@@ -15,11 +15,8 @@ export default class DepositCommand extends Command {
         const commandUsage: string = `${prefix}${this.usage}`;
         const userProfile = await client.cache.getCurrency(message.author.id);
         client.cache.currency.set(message.author.id, ({
-            userID: message.author.id,
-            bank: userProfile.bank,
-            wallet: userProfile.wallet,
-            messageCount: userProfile.messageCount + 1,
-            passive: userProfile.passive
+            ...userProfile,
+            messageCount: userProfile.messageCount + 1
         } as Profile));
         if (userProfile.wallet == 0) return message.channel.send(client.createRedEmbed(true, commandUsage)
             .setTitle("💰 Currency Manager")
@@ -45,12 +42,11 @@ export default class DepositCommand extends Command {
                 **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet - number).toLocaleString()}\`$
                 **Bank:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.bank + number).toLocaleString()}\`$`)
                 .setAuthor(`💰 ${message.author.username} deposits money to their bank!`, message.author.displayAvatarURL()));
+            const oldProfile = await client.cache.getCurrency(message.author.id);    
             client.cache.currency.set(message.author.id, ({
-                userID: message.author.id,
+                ...oldProfile,
                 bank: userProfile.bank + number,
-                wallet: userProfile.wallet - number,
-                messageCount: userProfile.wallet,
-                passive: userProfile.passive
+                wallet: userProfile.wallet - number
             } as Profile));
         };
     };

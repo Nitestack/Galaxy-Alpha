@@ -15,8 +15,8 @@ export default class ChannelUpdateEvent extends Event {
 			guildID: newChannel.guild.id,
 		}, {}, {}, (err, guild) => {
 			if (err) console.log(err);
-			if (!guild || !guild.muteRole) return;
-			if (guild.muteRole) return muteRole(client, newChannel, guild.guildID, guild.muteRole);
+			if (!guild || !guild.muteRoleID) return;
+			if (guild.muteRoleID) return muteRole(client, newChannel, guild.guildID, guild.muteRoleID);
 		});
 	};
 };

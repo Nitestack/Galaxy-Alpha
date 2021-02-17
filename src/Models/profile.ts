@@ -1,42 +1,60 @@
 import mongoose from 'mongoose';
 
 const reqString = {
-	type: String,
+	type: mongoose.SchemaTypes.String,
 	required: true,
 };
 
 export interface Profile extends mongoose.Document {
-	_id: mongoose.Schema.Types.ObjectId,
 	userID: string;
 	wallet: number;
 	bank: number;
 	messageCount: number;
 	passive: boolean;
+	items: Array<{
+		name: string,
+		aliases?: Array<string>,
+		amount: number,
+		worth: number,
+		category: "Loot" | "Utilty"
+	}>
 };
 
 const profileSchema = new mongoose.Schema({
-	_id: mongoose.Schema.Types.ObjectId,
 	userID: reqString,
 	wallet: {
-		type: Number,
+		type: mongoose.SchemaTypes.Number,
 		required: true,
 		default: 0,
 	},
 	bank: {
-		type: Number,
+		type: mongoose.SchemaTypes.Number,
 		required: true,
 		default: 0,
 	},
 	messageCount: {
-		type: Number,
+		type: mongoose.SchemaTypes.Number,
 		required: true,
 		default: 0,
 	},
 	passive: {
-		type: Boolean,
+		type: mongoose.SchemaTypes.Boolean,
 		required: true,
 		default: false
-	}
+	},
+	items: [{
+		name: mongoose.SchemaTypes.String,
+		aliases: [mongoose.SchemaTypes.String],
+		amount: {
+			type: mongoose.SchemaTypes.Number,
+			default: 0
+		},
+		worth: {
+			type: mongoose.SchemaTypes.Number,
+			default: 0
+		},
+		category: mongoose.SchemaTypes.String
+	}]
 });
 
 export default mongoose.model<Profile>('profile', profileSchema, 'profiles');
