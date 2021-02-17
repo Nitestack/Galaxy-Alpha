@@ -29,7 +29,7 @@ export default class PlayCommand extends Command {
             if (voiceChannel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(embed.setDescription("You need to be in the same voice channel, where I am!"));
             if (videoResults.type == "list") {
                 const playList = await ytSearch({ listId: videoResults.listId });
-                playList.videos.forEach(video => addToQueue(video.videoId));
+                playList.videos.forEach(async video => await client.music.addToQueue(client, message, video.videoId));
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription(`Added the playlist with \`${playList.videos.length}\` videos to the queue!
@@ -37,7 +37,7 @@ export default class PlayCommand extends Command {
                     **<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList.date}`));
             } else {
-                addToQueue(videoResults.videoId);
+                await client.music.addToQueue(client, message, videoResults.videoId);
                 const video = await ytSearch({ videoId: videoResults.videoId });
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
@@ -61,54 +61,12 @@ export default class PlayCommand extends Command {
                     .setTitle(`🎧 Music Manager`)
                     .setDescription(`**<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})*`));
-                playList.videos.forEach(video => addToQueue(video.videoId));
-                return client.music.play(message, voiceChannel, playList.videos[0].videoId, true, prefix, this.usage, true);
+                playList.videos.forEach(async video => await client.music.addToQueue(client, message, video.videoId));
+                return client.music.play(message, voiceChannel);
             } else {
-                return client.music.play(message, voiceChannel, videoResults.videoId, true, prefix, this.usage, true);
+                await client.music.addToQueue(client, message, videoResults.videoId);
+                return client.music.play(message, voiceChannel);
             };
-        };
-        async function addToQueue(videoID: string) {
-            if (!client.queue.has(message.guild.id)) client.queue.set(message.guild.id, {
-                guildID: message.guild.id,
-                queue: [],
-                nowPlaying: false,
-                dispatcher: null,
-                voiceChannel: null,
-                beginningToPlay: null,
-                stopToPlay: null,
-                multipleLoop: false,
-                singleLoop: false,
-                shuffle: false
-            });
-            await ytSearch({ videoId: videoID }, (err, video) => {
-                if (err || !video) return;
-                const queue = client.queue.get(message.guild.id).queue;
-                queue.push({
-                    title: video.title,
-                    url: video.url,
-                    requesterID: message.author.id,
-                    duration: video.duration,
-                    views: video.views,
-                    image: video.image,
-                    author: video.author,
-                    videoID: videoID,
-                    ago: video.ago,
-                    uploadDate: video.uploadDate,
-                    genre: video.genre
-                });
-                client.queue.set(message.guild.id, {
-                    guildID: message.guild.id,
-                    queue: queue,
-                    nowPlaying: client.queue.get(message.guild.id).nowPlaying,
-                    dispatcher: client.queue.get(message.guild.id).dispatcher,
-                    voiceChannel: client.queue.get(message.guild.id).voiceChannel,
-                    beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
-                    stopToPlay: null,
-                    multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                    singleLoop: client.queue.get(message.guild.id).singleLoop,
-                    shuffle: client.queue.get(message.guild.id).shuffle
-                });
-            });
         };
     };
 };

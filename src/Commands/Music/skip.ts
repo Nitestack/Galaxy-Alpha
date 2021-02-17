@@ -15,47 +15,46 @@ export default class SkipCommand extends Command {
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
         if (args[0] && !isNaN((args[0] as unknown as number))) {
-            if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
-                if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
+            if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue?.length > 1) {
+                const serverQueue = client.queue.get(message.guild.id);
+                if (message.member.voice.channel.id != serverQueue.voiceChannel.id) return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription("You have to be in the same voice channel as me!"));
-                if (parseInt(args[0]) == 0 || parseInt(args[0]) > client.queue.get(message.guild.id).queue.length) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                if (parseInt(args[0]) == 0 || parseInt(args[0]) > serverQueue.queue.length) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                     .setTitle("🎧 Music Manager")
-                    .setDescription(`You can only the numbers \`0 - ${client.queue.get(message.guild.id).queue.length}\`!`));
-                let queue = client.queue.get(message.guild.id).queue;
-                if (!client.queue.get(message.guild.id).singleLoop) {
-                    if (!client.queue.get(message.guild.id).multipleLoop) queue.slice(1);
-                    if (client.queue.get(message.guild.id).shuffle) queue = client.music.shuffle(queue);
+                    .setDescription(`You can only the numbers \`1 - ${serverQueue.queue.length}\`!`));
+                const queueIndex = parseInt(args[0]);
+                let queue = serverQueue.queue;
+                if (serverQueue.singleLoop){
+                    queue.slice(queueIndex - 1);
+                } else {
+                    if (serverQueue.shuffle) queue = client.music.shuffle(serverQueue.queue);
+                    if (serverQueue.multipleLoop){
+                        const oldElements = queue.splice(0, queueIndex);
+                        queue.concat(oldElements);
+                        queue.splice(0, queueIndex);
+                    };
                 };
                 client.queue.set(message.guild.id, {
-                    guildID: message.guild.id,
+                    ...serverQueue,
                     queue: queue,
                     nowPlaying: false,
-                    dispatcher: client.queue.get(message.guild.id).dispatcher,
-                    voiceChannel: client.queue.get(message.guild.id).voiceChannel,
                     stopToPlay: null,
-                    beginningToPlay: null,
-                    multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                    singleLoop: client.queue.get(message.guild.id).singleLoop,
-                    shuffle: client.queue.get(message.guild.id).shuffle
+                    beginningToPlay: null
                 });
-                client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].videoID, false);
-            } else {
-                return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                    .setTitle("🎧 Music Manager")
-                    .setDescription("There is no queue in this server!"));
-            };
+                client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].videoId);
+            } else return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                .setTitle("🎧 Music Manager")
+                .setDescription("There is no queue in this server!"));
         } else {
-            if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 1) {
+            if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue?.length > 1) {
                 if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription("You have to be in the same voice channel as me!"));
                 client.queue.get(message.guild.id).dispatcher.emit("finish");
-            } else {
-                return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                    .setTitle("🎧 Music Manager")
-                    .setDescription("There is no queue in this server!"));
-            };
+            } else return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+                .setTitle("🎧 Music Manager")
+                .setDescription("There is no queue in this server!"));
         };
     };
 };

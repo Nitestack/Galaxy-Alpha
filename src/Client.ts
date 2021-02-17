@@ -49,18 +49,8 @@ interface GalaxyAlphaOptions {
 	xpPerMessage?: number;
 };
 
-export interface Queue {
-	title: string;
+export interface Queue extends ytSearch.VideoMetadataResult {
 	requesterID: string;
-	author: ytSearch.Author;
-	image: string;
-	duration: ytSearch.Duration;
-	views: number;
-	url: string;
-	videoID: string;
-	genre: string;
-	ago: string;
-	uploadDate: string;
 };
 
 export default class GalaxyAlpha extends Discord.Client {

@@ -17,19 +17,13 @@ export default class LoopCommand extends Command {
         if (!args[0] || (args[0].toLowerCase() != "disable" && args[0].toLowerCase() != "enable")) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("You need to enable or disable the queue!"));
+        const serverQueue = client.queue.get(message.guild.id);
         if (args[0].toLowerCase() == "enable") {
             if ((args[1] && args[1].toLowerCase() == "queue" && !client.queue.get(message.guild.id).singleLoop) || (!args[1] && !client.queue.get(message.guild.id).multipleLoop)) {
                 client.queue.set(message.guild.id, {
-                    guildID: message.guild.id,
-                    queue: client.queue.get(message.guild.id).queue,
-                    beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
-                    stopToPlay: client.queue.get(message.guild.id).stopToPlay,
-                    voiceChannel: client.queue.get(message.guild.id).voiceChannel,
-                    dispatcher: client.queue.get(message.guild.id).dispatcher,
+                    ...serverQueue,
                     singleLoop: args[1] && args[1].toLowerCase() == "queue" ? false : true,
-                    multipleLoop: args[1] && args[1].toLowerCase() == "queue" ? true : false,
-                    nowPlaying: client.queue.get(message.guild.id).nowPlaying,
-                    shuffle: client.queue.get(message.guild.id).shuffle
+                    multipleLoop: args[1] && args[1].toLowerCase() == "queue" ? true : false
                 });
                 return message.channel.send(client.createGreenEmbed()
                     .setTitle("🎧 Music Manager")
@@ -41,16 +35,9 @@ export default class LoopCommand extends Command {
             };
         } else if (args[0].toLowerCase() == "disable") {
             client.queue.set(message.guild.id, {
-                guildID: message.guild.id,
-                queue: client.queue.get(message.guild.id).queue,
-                beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
-                stopToPlay: client.queue.get(message.guild.id).stopToPlay,
-                voiceChannel: client.queue.get(message.guild.id).voiceChannel,
-                dispatcher: client.queue.get(message.guild.id).dispatcher,
-                singleLoop: args[1] && args[1].toLowerCase() == "queue" ? client.queue.get(message.guild.id).singleLoop : false,
-                multipleLoop: args[1] && args[1].toLowerCase() == "queue" ? false : client.queue.get(message.guild.id).multipleLoop,
-                nowPlaying: client.queue.get(message.guild.id).nowPlaying,
-                shuffle: client.queue.get(message.guild.id).shuffle
+                ...serverQueue,
+                singleLoop: args[1]?.toLowerCase() == "queue" ? serverQueue.singleLoop : false,
+                multipleLoop: args[1]?.toLowerCase() == "queue" ? false : serverQueue.multipleLoop
             });
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")
