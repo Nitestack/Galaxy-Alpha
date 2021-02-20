@@ -3,19 +3,19 @@ import { requiredString, requiredDefaultNumber, requiredDefaultDate } from "@mod
 
 //TODO: Everytime update the interfaces, when updating the schema
 export interface Profile {
-	userID: string;
-	wallet: number;
-	bank: number;
-	messageCount: number;
-	passive: boolean;
-	items: Array<{
+	userID?: string;
+	wallet?: number;
+	bank?: number;
+	messageCount?: number;
+	passive?: boolean;
+	items?: Array<{
 		name: string,
 		aliases?: Array<string>,
 		amount: number,
 		worth: number,
 		category: "Loot" | "Utilty"
 	}>,
-	profileCreatedAt: Date
+	profileCreatedAt?: Date
 };
 
 interface ProfileDocuement extends Document {

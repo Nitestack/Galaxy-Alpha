@@ -15,6 +15,7 @@ export default class PlayCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
+        const max: number = 50;
         const embed = client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🎧 Music Manager");
         const voiceChannel: VoiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send(embed.setDescription('You need to be in a voice channel to use this command!'));
@@ -29,15 +30,15 @@ export default class PlayCommand extends Command {
             if (voiceChannel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(embed.setDescription("You need to be in the same voice channel, where I am!"));
             if (videoResults.type == "list") {
                 const playList = await ytSearch({ listId: videoResults.listId });
-                playList.videos.forEach(async video => client.music.addToQueue(client, message, video.videoId));
+                playList.videos.forEach(async video => addToQueue(video.videoId));
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
-                    .setDescription(`Added the playlist with \`${playList.videos.length}\` videos to the queue!
+                    .setDescription(`Added the playlist with \`${playList.videos.length > max ? max : playList.videos.length}\` videos to the queue!
                     
                     **<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList.date}`));
             } else {
-                client.music.addToQueue(client, message, videoResults.videoId);
+                addToQueue(videoResults.videoId);
                 const video = await ytSearch({ videoId: videoResults.videoId });
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
@@ -61,13 +62,44 @@ export default class PlayCommand extends Command {
                     .setTitle(`🎧 Music Manager`)
                     .setDescription(`**<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})*`));
-                playList.videos.forEach(video => client.music.addToQueue(client, message, video.videoId));
-                console.log(client.queue.get(message.guild.id).queue.length);
-                /*return client.music.play(message, voiceChannel);*/
+                const maxPlaylist = playList.videos.splice(0, max);
+                for (const video of maxPlaylist){
+                    addToQueue(video.videoId);
+                };
+                return client.music.play(message, voiceChannel);
             } else if (videoResults.type == "video") {
-                client.music.addToQueue(client, message, videoResults.videoId);
+                addToQueue(videoResults.videoId);
                 return client.music.play(message, voiceChannel);
             };
+        };
+
+        function addToQueue(videoID: string) {
+            if (!client.queue.has(message.guild.id)) client.queue.set(message.guild.id, {
+                guildID: message.guild.id,
+                queue: [],
+                nowPlaying: false,
+                dispatcher: null,
+                voiceChannel: null,
+                beginningToPlay: null,
+                stopToPlay: null,
+                multipleLoop: false,
+                singleLoop: false,
+                shuffle: false
+            });
+            ytSearch({ videoId: videoID }, (err, video) => {
+                if (err) console.log(err);
+                if (video) console.log(video);
+                const queue = client.queue.get(message.guild.id).queue;
+                queue.push({
+                    ...video,
+                    requesterID: message.author.id
+                });
+                const serverQueue = client.queue.get(message.guild.id);
+                client.queue.set(message.guild.id, {
+                    ...serverQueue,
+                    queue: queue
+                });
+            });
         };
     };
 };

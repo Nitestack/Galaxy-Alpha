@@ -1,10 +1,10 @@
 //MODULES\\
-import fs from 'fs';
-import path from 'path';
+import { readdirSync, lstatSync } from 'fs';
+import { join } from 'path';
 import ms from 'ms';
 import Discord from 'discord.js';
-import mongoose from 'mongoose';
-import ytSearch from "yt-search";
+import { connect, set } from 'mongoose';
+import { VideoMetadataResult } from "yt-search";
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
@@ -49,7 +49,7 @@ interface GalaxyAlphaOptions {
 	xpPerMessage?: number;
 };
 
-export interface Queue extends ytSearch.VideoMetadataResult {
+export interface Queue extends VideoMetadataResult {
 	requesterID: string;
 };
 
@@ -99,15 +99,15 @@ export default class GalaxyAlpha extends Discord.Client {
 		this.readEvents(options.eventsDir);
 		this.readFeatures(options.featuresDir);
 		//MONGO DB\\
-		mongoose.connect(options.mongoDBUrl, {
+		connect(options.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 			useCreateIndex: true
 		}).then(() => clientInfoTable.addRow("MongoDB", "✅ Connected!")).catch(err => console.log(err));
-		mongoose.set('useNewUrlParser', true);
-		mongoose.set('useFindAndModify', false);
-		mongoose.set('useUnifiedTopology', true);
+		set('useNewUrlParser', true);
+		set('useFindAndModify', false);
+		set('useUnifiedTopology', true);
 		//READY EVENT\\
 		this.once("ready", async () => {
 			//GUILD\\
@@ -251,17 +251,17 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} commandPath The command directory
 	 */
 	private async readCommands(commandPath: string) {
-		const files = fs.readdirSync(path.join(__dirname, commandPath))
+		const files = readdirSync(join(__dirname, commandPath))
 		for (const file of files) {
-			const stat = fs.lstatSync(path.join(__dirname, commandPath, file));
+			const stat = lstatSync(join(__dirname, commandPath, file));
 			if (stat.isDirectory()) {
-				this.readCommands(path.join(commandPath, file));
+				this.readCommands(join(commandPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					commandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
-				const { default: Command } = await import(path.join(__dirname, commandPath, file));
+				const { default: Command } = await import(join(__dirname, commandPath, file));
 				const command: Command = new Command();
 				if (!command.name) {
 					commandTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
@@ -290,17 +290,17 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} eventPath The event directory 
 	 */
 	private async readEvents(eventPath: string) {
-		const files = fs.readdirSync(path.join(__dirname, eventPath));
+		const files = readdirSync(join(__dirname, eventPath));
 		for (const file of files) {
-			const stat = fs.lstatSync(path.join(__dirname, eventPath, file));
+			const stat = lstatSync(join(__dirname, eventPath, file));
 			if (stat.isDirectory()) {
-				this.readEvents(path.join(eventPath, file));
+				this.readEvents(join(eventPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					eventTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
-				const { default: Event } = await import(path.join(__dirname, eventPath, file));
+				const { default: Event } = await import(join(__dirname, eventPath, file));
 				const event: Event = new Event();
 				if (!event.name) {
 					eventTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
@@ -320,17 +320,17 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} featurePath The feature directory 
 	 */
 	private async readFeatures(featurePath: string) {
-		const files = fs.readdirSync(path.join(__dirname, featurePath));
+		const files = readdirSync(join(__dirname, featurePath));
 		for (const file of files) {
-			const stat = fs.lstatSync(path.join(__dirname, featurePath, file));
+			const stat = lstatSync(join(__dirname, featurePath, file));
 			if (stat.isDirectory()) {
-				this.readFeatures(path.join(featurePath, file));
+				this.readFeatures(join(featurePath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					featureTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
-				const { default: Feature } = await import(path.join(__dirname, featurePath, file));
+				const { default: Feature } = await import(join(__dirname, featurePath, file));
 				const feature: Feature = new Feature();
 				if (!feature.name) {
 					featureTable.addRow(`${feature.name}`, "❌", "Name left!");
@@ -559,7 +559,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * Filters the database after every start
 	 * @param {boolean} enable If it is enabled, this automatically filters the database to clear storage
 	 */
-	private async DBfilter(enable: boolean) {
+	private async DBfilter(enable: boolean = false) {
 		if (!enable) return;
 		//GIVEAWAYS\\
 		const giveaways = await GiveawaySchema.find({});

@@ -28,8 +28,7 @@ export default class BlackListRoleCommand extends Command {
             const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
             YesOrNo.on("collect", async (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID) {
-                    client.cache.guilds.set(message.guild.id, {
-                        ...guildSettings,
+                    await client.cache.updateGuild(message.guild.id, {
                         giveawayBlacklistedRoleID: role.id
                     });
                     return client.createSuccess(message, { title: blackListManager, description: `Set the new giveaway blacklist role to ${role}` });
@@ -48,8 +47,7 @@ export default class BlackListRoleCommand extends Command {
             const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
             YesOrNo.on("collect", async (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID) {
-                    client.cache.guilds.set(message.guild.id, {
-                        ...guildSettings,
+                    await client.cache.updateGuild(message.guild.id, {
                         giveawayBlacklistedRoleID: null
                     });
                     return client.createSuccess(message, { title: blackListManager, description: `Removed the current giveaway blacklist role!` });

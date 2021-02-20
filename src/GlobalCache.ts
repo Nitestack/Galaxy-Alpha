@@ -113,19 +113,7 @@ export default class GlobalCache {
      * @param {string} userID The ID of the user 
      * @param {object} settings The settings to update 
      */
-    public async updateCurrency(userID: string, settings: {
-        wallet?: number,
-        bank?: number,
-        messageCount?: number,
-        passive?: boolean,
-        items?: Array<{
-            name: string,
-            aliases?: Array<string>,
-            amount: number,
-            worth: number,
-            category: "Loot" | "Utilty"
-        }>
-    }) {
+    public async updateCurrency(userID: string, settings: Profile) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -190,5 +178,13 @@ export default class GlobalCache {
             else return null;
         };
         return this.guilds.get(guildID);
+    };
+
+    public async updateGuild(guildID: string, settings: Guild){
+        const guild = await this.getGuild(guildID);
+        return this.guilds.set(guildID, {
+            ...guild, 
+            ...settings
+        });
     };
 };

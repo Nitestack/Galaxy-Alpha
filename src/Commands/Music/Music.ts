@@ -7,7 +7,7 @@ import duration from "humanize-duration";
 export default class Music {
     constructor(private client: GalaxyAlpha){ };
     async play(message: Message, voiceChannel: VoiceChannel, panel: boolean = false) {
-        const videoInfos = this.client.queue.get(message.guild.id).queue[0];
+        const videoInfos = this.getQueue(message.guild.id)[0];
         const dispatcher = (await voiceChannel.join()).play(ytdl(videoInfos.url, {
             filter: 'audioonly',
             highWaterMark: 1,
@@ -113,32 +113,7 @@ export default class Music {
         };
         return newShuffledQueue;
     };
-    addToQueue(client: GalaxyAlpha, message: Message, videoID: string) {
-        if (!client.queue.has(message.guild.id)) client.queue.set(message.guild.id, {
-            guildID: message.guild.id,
-            queue: [],
-            nowPlaying: false,
-            dispatcher: null,
-            voiceChannel: null,
-            beginningToPlay: null,
-            stopToPlay: null,
-            multipleLoop: false,
-            singleLoop: false,
-            shuffle: false
-        });
-        ytSearch({ videoId: videoID }, (err, video) => {
-            const queue = client.queue.get(message.guild.id).queue;
-            queue.push({
-                ...video,
-                requesterID: message.author.id
-            });
-            const serverQueue = client.queue.get(message.guild.id);
-            client.queue.set(message.guild.id, {
-                ...serverQueue,
-                queue: queue
-            });
-        });
-    };
+    
 };
 
 export async function videoFinder(query: string) {

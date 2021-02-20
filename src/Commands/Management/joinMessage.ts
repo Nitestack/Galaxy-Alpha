@@ -31,10 +31,9 @@ export default class JoinMessageCommand extends Command {
                 await msg.react(client.yesEmojiID);
                 await msg.react(client.noEmojiID);
                 const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
-                YesOrNo.on("collect", (reaction, user) => {
+                YesOrNo.on("collect", async (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID){
-                        client.cache.guilds.set(message.guild.id, {
-                            ...guildSettings,
+                        await client.cache.updateGuild(message.guild.id, {
                             welcomeMessageType: "embed",
                             welcomeChannelID: welcomeChannelID,
                             welcomeMessage: args.slice(3).join(" ")
@@ -55,8 +54,7 @@ export default class JoinMessageCommand extends Command {
                 const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
                 YesOrNo.on("collect", async (reaction, user) => {
                     if (reaction.emoji.id == client.yesEmojiID) {
-                        client.cache.guilds.set(message.guild.id, {
-                            ...guildSettings,
+                        await client.cache.updateGuild(message.guild.id, {
                             welcomeMessageType: "message",
                             welcomeChannelID: welcomeChannelID,
                             welcomeMessage: args.slice(2).join(" ")
@@ -78,8 +76,7 @@ export default class JoinMessageCommand extends Command {
             const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
             YesOrNo.on("collect", async (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID) {
-                    client.cache.guilds.set(message.guild.id, {
-                        ...guildSettings,
+                    await client.cache.updateGuild(message.guild.id, {
                         welcomeMessage: null,
                         welcomeMessageType: "message",
                         welcomeChannelID: null
