@@ -42,7 +42,7 @@ export default class SkipCommand extends Command {
                     stopToPlay: null,
                     beginningToPlay: null
                 });
-                client.music.play(message, message.guild.me.voice.channel, client.queue.get(message.guild.id).queue[0].videoId);
+                client.music.play(message, message.guild.me.voice.channel);
             } else return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("There is no queue in this server!"));

@@ -1,17 +1,26 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
-const clientDataSchema = new mongoose.Schema({
-	_id: mongoose.Schema.Types.ObjectId,
-	autoPublishChannels: [mongoose.SchemaTypes.String],
-	blockedUser: [mongoose.SchemaTypes.String],
-	autoPollChannels: [mongoose.SchemaTypes.String]
+//TODO: Everytime update the interfaces, when updating the schema
+const clientDataSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+	autoPublishChannels: [SchemaTypes.String],
+	blockedUser: [SchemaTypes.String],
+	autoPollChannels: [SchemaTypes.String]
 });
 
-export interface ClientData extends mongoose.Document {
-	_id?: mongoose.Schema.Types.ObjectId;
+//TODO: Everytime update the interfaces, when updating the schema
+export interface ClientData {
+	_id?: Schema.Types.ObjectId;
 	autoPublishChannels?: Array<string>;
 	blockedUser?: Array<string>;
 	autoPollChannels?: Array<string>;
 };
 
-export default mongoose.model<ClientData>('clientData', clientDataSchema, 'autopublishchannels'); 
+interface ClientDataDocument extends Document {
+	_id?: Schema.Types.ObjectId,
+	autoPublishChannels?: Array<string>;
+	blockedUser?: Array<string>;
+	autoPollChannels?: Array<string>;
+};
+
+export default model<ClientDataDocument>('clientData', clientDataSchema, 'autopublishchannels'); 

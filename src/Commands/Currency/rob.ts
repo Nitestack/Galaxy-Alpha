@@ -1,6 +1,5 @@
 import Command, { CommandRunner } from "@root/Command";
 import { GuildMember } from "discord.js";
-import { Profile } from "@models/profile";
 
 export default class RobCommand extends Command {
     constructor() {
@@ -15,10 +14,7 @@ export default class RobCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const oldProfile = await client.cache.getCurrency(message.author.id);
-        client.cache.currency.set(message.author.id, ({
-            ...oldProfile,
-            messageCount: oldProfile.messageCount + 1
-        } as Profile));
+        await client.cache.increaseCurrencyMessageCount(message.author.id);
         const minimum = 1000;
         if (oldProfile.passive) return client.createArgumentError(message, { title: "Currency Manager", description: "You have to disable passive mode to rob!" }, this.usage);
         if (oldProfile.wallet < minimum) return client.createArgumentError(message, { title: "Currency Manager", description: `You must have atleast \`${minimum}\`$ in your wallet to rob!` }, this.usage);
@@ -35,15 +31,8 @@ export default class RobCommand extends Command {
             const memberProfile = await client.cache.getCurrency(member.id);
             const winCoins = Math.floor(client.util.getRandomArbitrary(1, memberProfile.bank / 10));
             client.createSuccess(message, { title: "Currency Manager", description: `You won \`${winCoins.toLocaleString()}\`$!\n**Wallet:** \`${profile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(profile.wallet + winCoins).toLocaleString()}\`` });
-            client.cache.currency.set(message.author.id, ({
-                ...profile,
-                wallet: profile.wallet + winCoins
-            } as Profile));
-            const profileOfMember = await client.cache.getCurrency(member.id);
-            return client.cache.currency.set(member.id, ({
-                ...profileOfMember,
-                bank: profileOfMember.bank - winCoins
-            } as Profile));
+            await client.cache.increaseBalance(message.author.id, "wallet", winCoins);
+            await client.cache.increaseBalance(member.id, "bank", -winCoins);
         } else if (shouldRob == 2) {
             return message.channel.send(client.createRedEmbed()
                 .setTitle("Currency Manager")
@@ -53,15 +42,8 @@ export default class RobCommand extends Command {
             message.channel.send(client.createRedEmbed()
                 .setTitle("Currency Manager")
                 .setDescription(`You lost \`${lostCoins.toLocaleString()}\`$!\n**Wallet:** \`${profile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(profile.wallet - lostCoins).toLocaleString()}\``));
-            client.cache.currency.set(message.author.id, ({
-                ...profile,
-                wallet: profile.wallet - lostCoins
-            } as Profile));
-            const profileOfMember = await client.cache.getCurrency(member.id);
-            return client.cache.currency.set(member.id, ({
-                ...profileOfMember,
-                bank: profileOfMember.bank + lostCoins
-            } as Profile));
+            await client.cache.increaseBalance(message.author.id, "wallet", -lostCoins);
+            await client.cache.increaseBalance(member.id, "bank", lostCoins);
         };
     };
 };

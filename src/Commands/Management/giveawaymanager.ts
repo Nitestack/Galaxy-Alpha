@@ -1,6 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
 import { Role } from 'discord.js';
-import Guild from '@models/guild';
 
 export default class GiveawayManagerRoleCommand extends Command {
     constructor(){
@@ -14,72 +13,62 @@ export default class GiveawayManagerRoleCommand extends Command {
         });
     };  
     run: CommandRunner = async (client, message, args, prefix) => {
-        const setUsage = `${prefix}giveawaymanager set <@Role/Role ID>`;
-        const deleteUsage = `${prefix}giveawaymanager remove`;
-        if (args[0].toLowerCase() == 'set') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, setUsage)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
-            const GuildSchema = await Guild.findOne({
-                guildID: message.guild.id
-            }, {}, {}, (err, guild) => {
-                if (err) return console.log(err);
-                if (guild) return guild;
-                if (!guild) return false;
-            });
+        const giveawayManager = "🎉 Giveaway Manager Role Manager";
+        const guildSettings = await client.cache.getGuild(message.guild.id);
+        if (args[0]?.toLowerCase() == "set") {
             let role: Role;
-            if (message.mentions.roles.first()) role = message.mentions.roles.first();
-            if (args[1] && message.guild.roles.cache.get(args[1])) role = message.guild.roles.cache.get(args[1]);
-            if (!role) return message.channel.send(client.createRedEmbed(true, setUsage).setTitle(`🎉 Giveaway Role Manager`).setDescription("You have to mention a role or provide a role ID!"));
-            if (role.id == GuildSchema.giveawayManager) return message.channel.send(client.createRedEmbed(true, setUsage).setTitle(`🎉 Giveaway Role Manager`).setDescription("The role is already the giveaway manager role!"));
-            const check = message.guild.roles.cache.get(role.id);
-            if (check) {
-                return message.channel.send(client.createEmbed(true, setUsage).setTitle(`🎉 Giveaway Role Manager`)
-                    .setDescription(`Do you really want to update the giveaway manager role to ${role}?`)).then(async msg => {
-                        await msg.react(client.yesEmojiID);
-                        await msg.react(client.noEmojiID);
-                        const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
-                        YesOrNo.on('collect', async (reaction, user) => {
-                            if (reaction.emoji.id == client.yesEmojiID) {
-                                await Guild.findOneAndUpdate({
-                                    guildID: message.guild.id,
-                                }, {
-                                    giveawayManager: role.id,
-                                }, {
-                                    upsert: false,
-                                }).catch(err => console.log(err));
-                                return message.channel.send(client.createGreenEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription(`Sucessfully updated the giveaway manager role to ${role}!`));
-                            } else {
-                                return msg.channel.send(client.createRedEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription("Updating giveaway manager role cancelled!"));
-                            };
-                        });
-                        YesOrNo.on('end', collected => {
-                            if (collected.size == 0) {
-                                return msg.channel.send(client.createRedEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription("Updating giveaway manager role cancelled!"));
-                            };
-                        });
-                    }).catch(err => console.log(err));
-            } else {
-                return message.channel.send(client.createRedEmbed(true, setUsage).setTitle(`🎉 Giveaway Role Manager`).setDescription(`Cannot find the role \`${args[1]}\`!`));
-            };
-        } else if (args[0].toLowerCase() == 'remove') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, deleteUsage)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
-            await Guild.findOneAndUpdate({
-                guildID: message.guild.id,
-            }, {
-                giveawayManager: null,
-            }, {
-                upsert: false,
-            }).catch((err) => console.log(err));
-            return message.channel.send(client.createGreenEmbed().setTitle(`🎉 Giveaway Role Manager`).setDescription('Removed the current giveaway manager role!\nNow you have to set a new giveaway manager role!'));
+            if (message.mentions.roles.first() && message.guild.roles.cache.has(message.mentions.roles.first().id)) role = message.mentions.roles.first();
+            if (args[1] && message.guild.roles.cache.has(args[1])) role = message.guild.roles.cache.get(args[1]);
+            if (!role) return client.createArgumentError(message, { title: giveawayManager, description: "You have to mention a role or provide a role ID!" }, this.usage);
+            const msg = await message.channel.send(client.createEmbed()
+                .setTitle(giveawayManager)
+                .setDescription(`Do you really want to change the current giveaway manager role to ${role}?\n\nYou have 30s to react!`));
+            await msg.react(client.yesEmojiID);
+            await msg.react(client.noEmojiID);
+            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+            YesOrNo.on("collect", async (reaction, user) => {
+                if (reaction.emoji.id == client.yesEmojiID) {
+                    client.cache.guilds.set(message.guild.id, {
+                        ...guildSettings,
+                        giveawayManagerRoleID: role.id
+                    });
+                    return client.createSuccess(message, { title: giveawayManager, description: `Set the new giveaway manager role to ${role}` });
+                } else return client.createArgumentError(message, { title: giveawayManager, description: "Setting giveaway manager role cancelled!" }, this.usage);
+            });
+            YesOrNo.on("end", (collected, reason) => {
+                if (collected.size == 0) return client.createArgumentError(message, { title: giveawayManager, description: "Setting giveaway manager role cancelled!" }, this.usage);
+            });
+        } else if (args[0]?.toLowerCase() == "remove") {
+            if (!guildSettings.giveawayManagerRoleID) return client.createArgumentError(message, { title: giveawayManager, description: "There is no giveaway manager role to remove!" }, this.usage);
+            const msg = await message.channel.send(client.createEmbed()
+                .setTitle(giveawayManager)
+                .setDescription(`Do you really want to remove the current giveaway manager role?\n\nYou have 30s to react!`));
+            await msg.react(client.yesEmojiID);
+            await msg.react(client.noEmojiID);
+            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+            YesOrNo.on("collect", async (reaction, user) => {
+                if (reaction.emoji.id == client.yesEmojiID) {
+                    client.cache.guilds.set(message.guild.id, {
+                        ...guildSettings,
+                        giveawayManagerRoleID: null
+                    });
+                    return client.createSuccess(message, { title: giveawayManager, description: `Removed the current giveaway manager role!` });
+                } else return client.createArgumentError(message, { title: giveawayManager, description: "Removing giveaway manager role cancelled!" }, this.usage);
+            });
+            YesOrNo.on("end", (collected, reason) => {
+                if (collected.size == 0) return client.createArgumentError(message, { title: giveawayManager, description: "Removing giveaway manager role cancelled!" }, this.usage);
+            });
         } else {
-            const embed = client.createEmbed()
-                .setTitle(`🎉 Giveaway Role Manager`)
-                .addField('Set a role as the giveaway manager role', `\`${setUsage}\``)
-                .addField('Remove the giveaway role', `\`${deleteUsage}\``);
-            return message.channel.send(embed);
+            return client.createEmbedForSubCommands(message, {
+                title: giveawayManager,
+                description: "Use this commands to set or remove the giveaway manager role!"
+            }, [{
+                usage: "giveawaymanager set <@Role/Role ID>",
+                description: "Sets the giveaway manager role"
+            }, {
+                usage: "giveawaymanager remove",
+                description: "Removes the giveaway manager role"
+            }]);
         };
     };
 };

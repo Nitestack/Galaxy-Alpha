@@ -1,6 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
 import { User } from 'discord.js';
-import { Profile } from "@models/profile";
 
 export default class ProfileCommand extends Command {
     constructor() {
@@ -16,11 +15,7 @@ export default class ProfileCommand extends Command {
         if (message.mentions.users.first() && client.users.cache.filter(user => !user.bot).has(message.mentions.users.first().id)) user = message.mentions.users.first();
         if (args[0] && client.users.cache.filter(user => !user.bot).has(args[0])) user = client.users.cache.get(args[0]);
         if (!client.cache.currency.has(message.author.id)) client.cache.getCurrency(message.author.id);
-        const oldProfile = await client.cache.getCurrency(message.author.id);
-        client.cache.currency.set(message.author.id, ({
-            ...oldProfile,
-            messageCount: (await client.cache.getCurrency(message.author.id)).messageCount + 1
-        } as Profile));
+        await client.cache.increaseCurrencyMessageCount(message.author.id);
         const userProfile = await client.cache.getCurrency(user.id);
         return message.channel.send(client.createEmbed()
             .setAuthor(`💰 ${user.username}'s Profile`, user.displayAvatarURL())

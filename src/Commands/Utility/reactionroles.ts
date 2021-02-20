@@ -1,6 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
 import { Message, NewsChannel, TextChannel } from 'discord.js';
-import ReactionRolesSchema from '@models/reactionroles';
 
 export default class ReactionRolesCommand extends Command {
     constructor() {
@@ -9,7 +8,8 @@ export default class ReactionRolesCommand extends Command {
             description: "reaction role commands",
             category: "utility",
             aliases: ["rr"],
-            userPermissions: ["MANAGE_CHANNELS"]
+            userPermissions: ["MANAGE_CHANNELS"],
+            clientPermissions: ["MANAGE_ROLES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -35,15 +35,15 @@ export default class ReactionRolesCommand extends Command {
             "Please mention the channel, where the reaction role should be in! You can also provide a channel ID instead of a mention!",
             "Now what is the title of the react table?",
             "What is the description of the react table?",
-            "Now react with the emojis! You can use multiple emojis!\nType `done`, if you are ready!",
-            "Now you have to mention the roles or provide role ID's! Make sure to trim each mention or ID with a space!\nYou have to order the role like the emojis order!"
+            "Now you have to mention the roles or provide role ID's! Make sure to trim each mention or ID with a space!\nKeep in mind that my role has to be over all reaction roles!",
+            "5. PROMPT"
         ];
         for (let i = 2; i < prompts.length; i++) {
             if (cancel) return;
-            let messageEmoji: Message;
-            if (i < 2 && i != 5) await message.channel.send(client.createRedEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
-            if (i > 1 && i != 5) await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
-            if (i == 5) messageEmoji = await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i]));
+            let messageEmoji: Message = null;
+            if (i < 2 && i != 6) await message.channel.send(client.createRedEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i] + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
+            if (i > 1 && i != 6) await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i] + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
+            if (i == 6) messageEmoji = await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(`Now react with the emojis! The emojis must be in the same order as this roles:\n <@&${responses.roleIDs.join(">\n<@&")}>\n\nType \`done\`, if you are ready!` + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
             await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 60000 }).then(async messages => {
                 if (messages.size == 0) {
                     cancel = true;
@@ -52,62 +52,51 @@ export default class ReactionRolesCommand extends Command {
                         .setDescription("Reaction Roles settings cancelled!"));
                 } else {
                     const { content } = messages.first();
-                    if (messages.first().content.toLowerCase() == "cancel") {
+                    if (content.toLowerCase() == "cancel") {
                         cancel = true;
                         return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                             .setTitle("Reaction Roles Manager")
                             .setDescription("Reaction Roles settings cancelled!"));
                     };
                     if (i == 0) {
-                        let channel: TextChannel | NewsChannel;
-                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.filter(channel => channel.type == "text" || channel.type == "news").has(messages.first().mentions.channels.first().id)) {
-                            responses.channelID = message.mentions.channels.first().id;
+                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.has(messages.first().mentions.channels.first().id)) {
+                            responses.channelID = messages.first().mentions.channels.first().id;
+                            i = 2;
+                        } else if (content && message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(content)) {
+                            responses.channelID = content;
                             i = 2;
                         } else i = -1;
                     } else if (i == 1) {
-                        const roles = messages.first().content.trim().split(/ +/g);
+                        const roles = content.trim().split(/ +/g);
                         roles.forEach(role => {
                             if (message.guild.roles.cache.has(role)) {
                                 responses.roleIDs.push(role);
                             };
                         });
-                        if (messages.first().mentions.roles.first()){
+                        if (messages.first().mentions.roles.first()) {
                             messages.first().mentions.roles.forEach(role => {
                                 if (message.guild.roles.cache.has(role.id) && !responses.roleIDs.includes(role.id)) responses.roleIDs.push(role.id);
                             });
                         };
                         if (responses.roleIDs.length == 0) {
                             i = 0;
-                        } else i = 6;
+                        } else i = 5;
                     } else if (i == 2) {
-                        let channel: TextChannel | NewsChannel;
-                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.filter(channel => channel.type == "text" || channel.type == "news").has(messages.first().mentions.channels.first().id)) responses.channelID = messages.first().mentions.channels.first().id;
+                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.has(messages.first().mentions.channels.first().id)) responses.channelID = messages.first().mentions.channels.first().id;
+                        else if (content && message.guild.channels.cache.filter(channel => channel.type == "text" || channel.type == "news").has(content)) responses.channelID = content;
                         else i = -1;
                     } else if (i == 3) {
                         responses.title = content;
                     } else if (i == 4) {
                         responses.description = content;
                     } else if (i == 5) {
-                        const EmojiCollector = await messageEmoji.createReactionCollector((reaction, user) => user.id == message.author.id, { time: 30000 });
-                        if (content.toLowerCase() == "done") EmojiCollector.stop();
-                        else cancel = true;
-                        EmojiCollector.on("end", (collected, reason) => {
-                            if (collected.size == 0) {
-                                cancel = true;
-                                return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("Reaction Roles Manager").setDescription("Reaction Roles settings cancelled!"));
-                            } else {
-                                console.log(collected);
-                                collected.forEach(reaction => reaction.emoji.createdAt ? responses.emojiIDs.push(reaction.emoji.id) : responses.emojiIDs.push(reaction.emoji.name));
-                            };
-                        });
-                    } else if (i == 6) {
-                        const roles = messages.first().content.trim().split(/ +/g);
+                        const roles = content.trim().split(/\s+/g);
                         roles.forEach(role => {
                             if (message.guild.roles.cache.has(role)) {
                                 responses.roleIDs.push(role);
                             };
                         });
-                        if (messages.first().mentions.roles.first()){
+                        if (messages.first().mentions.roles.first()) {
                             messages.first().mentions.roles.forEach(role => {
                                 if (message.guild.roles.cache.has(role.id) && !responses.roleIDs.includes(role.id)) responses.roleIDs.push(role.id);
                             });
@@ -115,56 +104,34 @@ export default class ReactionRolesCommand extends Command {
                         if (responses.roleIDs.length == 0) {
                             i = 0;
                         };
+                    } else if (i == 6) {
+                        if (content.toLowerCase() == "done") {
+                            if (messageEmoji.reactions.cache.size !=  responses.roleIDs.length) i = 5;
+                            messageEmoji.reactions.cache.forEach(reaction => responses.emojiIDs.push(reaction.emoji.createdTimestamp ? reaction.emoji.id : reaction.emoji.name.toString()));
+                        } else i = 5;
                     };
                 };
             });
         };
         if (cancel) return;
-        (message.guild.channels.cache.get(responses.channelID) as TextChannel | NewsChannel).send(client.createEmbed()
+        const msg = await (message.guild.channels.cache.get(responses.channelID) as TextChannel | NewsChannel).send(client.createEmbed()
             .setTitle(responses.title)
-            .setDescription(responses.description)
-            .addField("How to get the roles?", "Simply react with the emojis below to gain specific roles!")).then(msg => {
-                responses.messageID = msg.id
-                responses.emojiIDs.forEach(async emojiID => await msg.react(emojiID));
+            .setDescription(responses.description));
+        responses.messageID = msg.id
+        responses.emojiIDs.forEach(async emojiID => await msg.react(emojiID));
+        const serverSettings = await client.cache.getGuild(message.guild.id);
+        const reactionRoles = serverSettings.reactionRoles || [];
+        for (let i = 0; i < responses.roleIDs.length; i++) {
+            reactionRoles.push({
+                roleID: responses.roleIDs[i],
+                emojiID: responses.emojiIDs[i],
+                channelID: responses.channelID,
+                messageID: responses.messageID
             });
-
-        await ReactionRolesSchema.findOneAndUpdate({
-            messageID: responses.messageID
-        }, {
-            channelID: responses.channelID,
-            title: responses.title,
-            description: responses.description,
-            emojiIDs: responses.emojiIDs,
-            roleIDs: responses.roleIDs
-        }, {
-            upsert: true
-        });
-
-        client.on("messageReactionAdd", async (reaction, user) => {
-            if (reaction.message.partial) await reaction.message.fetch();
-            if (reaction.partial) await reaction.fetch();
-            if (user.bot) return;
-            if (!reaction.message.guild) return;
-            if (reaction.message.id == responses.messageID){
-                if (reaction.emoji.createdAt){
-                    message.guild.members.cache.get(user.id).roles.add(responses.roleIDs[responses.emojiIDs.indexOf(reaction.emoji.id)]);
-                } else {
-                    message.guild.members.cache.get(user.id).roles.add(responses.roleIDs[responses.emojiIDs.indexOf(reaction.emoji.name)]);
-                };
-            };
-        });
-        client.on("messageReactionRemove", async (reaction, user) => {
-            if (reaction.message.partial) await reaction.message.fetch();
-            if (reaction.partial) await reaction.fetch();
-            if (user.bot) return;
-            if (!reaction.message.guild) return;
-            if (reaction.message.id == responses.messageID){
-                if (reaction.emoji.createdAt){
-                    message.guild.members.cache.get(user.id).roles.remove(responses.roleIDs[responses.emojiIDs.indexOf(reaction.emoji.id)]);
-                } else {
-                    message.guild.members.cache.get(user.id).roles.remove(responses.roleIDs[responses.emojiIDs.indexOf(reaction.emoji.name)]);
-                };
-            };
+        };
+        client.cache.guilds.set(message.guild.id, {
+            ...serverSettings,
+            reactionRoles: reactionRoles
         });
     };
 };

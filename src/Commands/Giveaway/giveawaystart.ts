@@ -1,6 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
 import { giveawayManager } from '@root/Commands/Giveaway/Giveaway';
-import Guild from '@models/guild';
+import { Role } from "discord.js";
 
 export default class GiveawayStartCommand extends Command {
     constructor() {
@@ -11,28 +11,15 @@ export default class GiveawayStartCommand extends Command {
             category: "giveaway",
             usage: "giveawaystart <duration> <winner(s)> <prize>",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"],
             clientPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let giveawayManagerRole;
-        await Guild.findOne({
-            guildID: message.guild.id
-        }, {}, {}, (err, guild) => {
-            if (err) return console.log(err);
-            if (!guild.giveawayManager) return;
-            if (guild.giveawayManager) giveawayManagerRole = message.guild.roles.cache.get(guild.giveawayManager);
-        });
-        if (giveawayManagerRole) {
-            if (!message.member.roles.cache.has(giveawayManagerRole.id) && !message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                .setTitle(giveawayManager)
-                .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
-        } else {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                .setTitle(giveawayManager)
-                .setDescription("You need the permission `Manage Server` or the giveaway creator role for this server!"));
-        };
+        const guildSettings = await client.cache.getGuild(message.guild.id);
+        let giveawayManagerRole: Role;
+        if (guildSettings.giveawayManagerRoleID && message.guild.roles.cache.has(guildSettings.giveawayManagerRoleID)) giveawayManagerRole = message.guild.roles.cache.get(guildSettings.giveawayManagerRoleID);
+        if (giveawayManagerRole && !message.member.roles.cache.has(giveawayManagerRole.id) && !message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!"}, this.usage);
+        else if (!message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!" }, this.usage);
         const giveawayDuration = args[0];
         if (!giveawayDuration || !client.ms(args[0])) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)

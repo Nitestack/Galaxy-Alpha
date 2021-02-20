@@ -1,6 +1,8 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
+import { requiredString } from '@models/ModelBase';
 
-export interface Guild extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Guild {
 	guildID: string,
 	prefix: string,
 	modLogChannelID: string,
@@ -14,44 +16,92 @@ export interface Guild extends mongoose.Document {
 	giveawayBlacklistedRoleID: string,
 	giveawayByPassRoleID: string,
 	serverManagerRoleID: string,
+	welcomeMessage: string,
 	welcomeMessageType: "embed" | "message",
 	welcomeChannelID: string | "dm",
 	modMailManagerRoleID: string,
 	modMailLogChannelID: string,
 	modMailCategoryID: string,
-	DJRoleID: string
+	DJRoleID: string,
+	reactionRoles: Array<{
+		emojiID: string,
+		roleID: string,
+		messageID: string,
+		channelID: string
+	}>
 };
 
-const guildSchema = new mongoose.Schema({
-	guildID: {
-		type: mongoose.SchemaTypes.String,
-		required: true
-	},
+//TODO: Everytime update the interfaces, when updating the schema
+interface GuildDocument extends Document {
+	guildID: string,
+	prefix: string,
+	modLogChannelID: string,
+	modLogChannelWebhookToken: string,
+	modLogChannelWebhookID: string,
+	muteRoleID: string,
+	memberRoleID: string,
+	ticketCategoryID: string,
+	ticketManagerRoleID: string,
+	giveawayManagerRoleID: string,
+	giveawayBlacklistedRoleID: string,
+	giveawayByPassRoleID: string,
+	serverManagerRoleID: string,
+	welcomeMessage: string,
+	welcomeMessageType: "embed" | "message",
+	welcomeChannelID: string | "dm",
+	modMailManagerRoleID: string,
+	modMailLogChannelID: string,
+	modMailCategoryID: string,
+	DJRoleID: string,
+	reactionRoles: Array<{
+		emojiID: string,
+		roleID: string,
+		messageID: string,
+		channelID: string
+	}>
+};
+
+//TODO: Everytime update the interfaces, when updating the schema
+const guildSchema = new Schema({
+	guildID: requiredString,
 	prefix: {
-		type: mongoose.SchemaTypes.String,
+		type: SchemaTypes.String,
 		required: true,
 		default: process.env.GLOBAL_PREFIX
 	},
-	modLogChannelID: mongoose.SchemaTypes.String,
-	modLogChannelWebhookToken: mongoose.SchemaTypes.String,
-	modLogChannelWebhookID: mongoose.SchemaTypes.String,
-	muteRoleID: mongoose.SchemaTypes.String,
-	memberRoleID: mongoose.SchemaTypes.String,
-	ticketCategoryID: mongoose.SchemaTypes.String,
-	ticketManagerRoleID: mongoose.SchemaTypes.String,
-	giveawayManagerRoleID: mongoose.SchemaTypes.String,
-	giveawayBlacklistedRoleID: mongoose.SchemaTypes.String,
-	giveawayByPassRoleID: mongoose.SchemaTypes.String,
-	serverManagerRoleID: mongoose.SchemaTypes.String,
+	modLogChannelID: requiredString,
+	modLogChannelWebhookToken: requiredString,
+	modLogChannelWebhookID: requiredString,
+	muteRoleID: requiredString,
+	memberRoleID: requiredString,
+	ticketCategoryID: requiredString,
+	ticketManagerRoleID: requiredString,
+	giveawayManagerRoleID: requiredString,
+	giveawayBlacklistedRoleID: requiredString,
+	giveawayByPassRoleID: requiredString,
+	serverManagerRoleID: requiredString,
 	welcomeMessageType: {
-		type: mongoose.SchemaTypes.String,
+		type: SchemaTypes.String,
+		required: true,
 		default: "message"
 	},
-	welcomeChannelID: mongoose.SchemaTypes.String,
-	modMailManagerRoleID: mongoose.SchemaTypes.String,
-	modMailLogChannelID: mongoose.SchemaTypes.String,
-	modMailCategoryID: mongoose.SchemaTypes.String,
-	DJRoleID: mongoose.SchemaTypes.String
+	welcomeChannelID: requiredString,
+	welcomeMessage: requiredString,
+	modMailManagerRoleID: requiredString,
+	modMailLogChannelID: requiredString,
+	modMailCategoryID: requiredString,
+	DJRoleID: requiredString,
+	reactionRoles: {
+		type: [{
+			emojiID: SchemaTypes.String,
+			roleID: SchemaTypes.String,
+			messageID: SchemaTypes.String,
+			channelID: SchemaTypes.String
+		}],
+		required: true,
+		default: []
+	}
 });
 
-export default mongoose.model<Guild>('guild', guildSchema, 'guilds');
+
+export default model<GuildDocument>('guild', guildSchema, 'guilds');

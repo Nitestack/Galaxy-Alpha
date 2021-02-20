@@ -29,7 +29,7 @@ export default class PlayCommand extends Command {
             if (voiceChannel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(embed.setDescription("You need to be in the same voice channel, where I am!"));
             if (videoResults.type == "list") {
                 const playList = await ytSearch({ listId: videoResults.listId });
-                playList.videos.forEach(async video => await client.music.addToQueue(client, message, video.videoId));
+                playList.videos.forEach(async video => client.music.addToQueue(client, message, video.videoId));
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription(`Added the playlist with \`${playList.videos.length}\` videos to the queue!
@@ -37,7 +37,7 @@ export default class PlayCommand extends Command {
                     **<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList.date}`));
             } else {
-                await client.music.addToQueue(client, message, videoResults.videoId);
+                client.music.addToQueue(client, message, videoResults.videoId);
                 const video = await ytSearch({ videoId: videoResults.videoId });
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
@@ -61,10 +61,11 @@ export default class PlayCommand extends Command {
                     .setTitle(`🎧 Music Manager`)
                     .setDescription(`**<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})*`));
-                playList.videos.forEach(async video => await client.music.addToQueue(client, message, video.videoId));
-                return client.music.play(message, voiceChannel);
-            } else {
-                await client.music.addToQueue(client, message, videoResults.videoId);
+                playList.videos.forEach(video => client.music.addToQueue(client, message, video.videoId));
+                console.log(client.queue.get(message.guild.id).queue.length);
+                /*return client.music.play(message, voiceChannel);*/
+            } else if (videoResults.type == "video") {
+                client.music.addToQueue(client, message, videoResults.videoId);
                 return client.music.play(message, voiceChannel);
             };
         };

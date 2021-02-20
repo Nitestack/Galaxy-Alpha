@@ -1,28 +1,50 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
-const levelSchema = new mongoose.Schema({
-    userID: mongoose.SchemaTypes.String,
-    guildID: mongoose.SchemaTypes.String,
+const reqString = {
+    type: SchemaTypes.String,
+    required: true
+};
+
+//TODO: Everytime update the interfaces, when updating the schema
+const levelSchema = new Schema({
+    userID: reqString,
+    guildID: reqString,
     xp: {
-        type: mongoose.SchemaTypes.Number,
+        type: SchemaTypes.Number,
         default: 0
     }, 
     level: {
-        type: mongoose.SchemaTypes.Number,
+        type: SchemaTypes.Number,
         default: 0
     },
     messages: {
-        type: mongoose.SchemaTypes.Number,
+        type: SchemaTypes.Number,
         default: 0
+    },
+    lastUpdated: {
+        type: SchemaTypes.Date,
+        default: new Date
     }
 });
 
-export interface Level extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Level {
     userID: string,
     guildID: string,
     xp: number,
     level: number,
-    messages: number
+    messages: number,
+    lastUpdated: Date
 };
 
-export default mongoose.model<Level>('Level', levelSchema, 'levels');
+//TODO: Everytime update the interfaces, when updating the schema
+interface LevelDocument extends Document {
+    userID: string,
+    guildID: string,
+    xp: number,
+    level: number,
+    messages: number,
+    lastUpdated: Date
+};
+
+export default model<LevelDocument>('Level', levelSchema, 'levels');

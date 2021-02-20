@@ -5,10 +5,7 @@ import ytdl from "ytdl-core";
 import duration from "humanize-duration";
 
 export default class Music {
-    private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha) {
-        this.client = client;
-    };
+    constructor(private client: GalaxyAlpha){ };
     async play(message: Message, voiceChannel: VoiceChannel, panel: boolean = false) {
         const videoInfos = this.client.queue.get(message.guild.id).queue[0];
         const dispatcher = (await voiceChannel.join()).play(ytdl(videoInfos.url, {
@@ -75,7 +72,7 @@ export default class Music {
             .setImage(videoInfos.image));
     };
     getQueue(guildID: string) {
-        if (!this.client.queue.has(guildID)){
+        if (!this.client.queue.has(guildID)) {
             this.client.queue.set(guildID, {
                 guildID: guildID,
                 queue: [],
@@ -116,7 +113,7 @@ export default class Music {
         };
         return newShuffledQueue;
     };
-    async addToQueue(client: GalaxyAlpha, message: Message, videoID: string) {
+    addToQueue(client: GalaxyAlpha, message: Message, videoID: string) {
         if (!client.queue.has(message.guild.id)) client.queue.set(message.guild.id, {
             guildID: message.guild.id,
             queue: [],
@@ -129,16 +126,17 @@ export default class Music {
             singleLoop: false,
             shuffle: false
         });
-        const video = await ytSearch({ videoId: videoID });
-        const queue = client.queue.get(message.guild.id).queue;
-        queue.push({
-            ...video,
-            requesterID: message.author.id
-        });
-        const serverQueue = client.queue.get(message.guild.id);
-        client.queue.set(message.guild.id, {
-            ...serverQueue,
-            queue: queue
+        ytSearch({ videoId: videoID }, (err, video) => {
+            const queue = client.queue.get(message.guild.id).queue;
+            queue.push({
+                ...video,
+                requesterID: message.author.id
+            });
+            const serverQueue = client.queue.get(message.guild.id);
+            client.queue.set(message.guild.id, {
+                ...serverQueue,
+                queue: queue
+            });
         });
     };
 };

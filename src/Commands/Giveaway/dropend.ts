@@ -14,15 +14,9 @@ export default class DropEndCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle(dropManager)
-            .setDescription("You have to provide a message ID!"));
-        const drop = await client.drop.end(args.slice().join(" "));
-        if (drop) return message.channel.send(client.createGreenEmbed()
-            .setTitle(dropManager)
-            .setDescription("Drop successfully ended!"));
-        else return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle(dropManager)
-            .setDescription("Invalid message ID!"));
+        if (!args[0]) return client.createArgumentError(message, { title: dropManager, description: "You have to provide a message ID!" }, this.usage);
+        const drop = await client.drop.end(args.join(" "));
+        if (drop) return client.createSuccess(message, { title: dropManager, description: "Sucessfully ended the drop!" }, this.usage);
+        else return client.createArgumentError(message, { title: dropManager, description: "Invalid message ID!" }, this.usage);
     };
 };

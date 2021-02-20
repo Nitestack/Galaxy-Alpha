@@ -16,9 +16,7 @@ export default class DropStartCommand extends Command {
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const prize: string = args.join(" ");
-        if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle(dropManager)
-            .setDescription("You have to provide a prize!"));
+        if (!args[0]) return client.createArgumentError(message, { title: dropManager, description: "You have to provide a prize!" }, this.usage);
         return client.drop.create({
             prize: prize,
             guildID: message.guild.id,

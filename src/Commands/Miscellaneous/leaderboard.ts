@@ -23,7 +23,7 @@ export default class LeaderboardCommand extends Command {
                 messages: -1
             }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Level>);
             users.forEach(user => {
-                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = (client.cache.levels.get(`${user.userID}-${message.guild.id}`) as Level);
+                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = client.cache.levels.get(`${user.userID}-${message.guild.id}`);
             });
             for (let i = 0; i < users.length; i++) {
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID).user : false;
@@ -42,7 +42,7 @@ export default class LeaderboardCommand extends Command {
                 xp: -1
             }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Level>);
             users.forEach(user => {
-                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = (client.cache.levels.get(`${user.userID}-${message.guild.id}`) as Level);
+                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = client.cache.levels.get(`${user.userID}-${message.guild.id}`);
             });
             for (let i = 0; i < users.length; i++){
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
@@ -63,7 +63,7 @@ export default class LeaderboardCommand extends Command {
                 wallet: -1
             }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Profile>);
             profilesWallet.forEach(profile => {
-                if (client.cache.currency.has(profile.userID)) profilesWallet[profilesWallet.findIndex(p => p.userID == profile.userID)] = (client.cache.currency.get(profile.userID) as Profile)
+                if (client.cache.currency.has(profile.userID)) profilesWallet[profilesWallet.findIndex(p => p.userID == profile.userID)] = client.cache.currency.get(profile.userID);
             });
             for (let i = 0; i < profilesWallet.length; i++) {
                 let user = message.guild.members.cache.has(profilesWallet[i].userID) ? message.guild.members.cache.get(profilesWallet[i].userID).user : false;

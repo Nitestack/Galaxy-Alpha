@@ -7,7 +7,7 @@ Authorization: Bot NzYxNTkwMTM5MTQ3MTI0ODEw.X3c0Fg.iCXl-m52KcN_XVxXjI4CC1F0P10
     "tts": false,
     "embed": {
         "title": "ANNOUNCEMENT",
-        "description": "Sorry for this long downtime, the bot is now online!\nFor any issues please DM me to let me fix that!",
+        "description": "Sorry for the long waiting, but reaction roles were released! `reactionroles`\nI also improved the calculator, so you can do more operations than `+`, `-`, `*`, `/`!\nAlso added a wikipedia command!",
         "type": "rich",
         "url": "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot",
         "footer": {

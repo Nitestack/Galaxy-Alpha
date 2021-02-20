@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
-interface MemberSchema extends mongoose.Document {
-	_id: mongoose.Schema.Types.ObjectId;
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Member extends Document {
+	_id: Schema.Types.ObjectId;
 	guildID: string,
     memberID: string,
     kickCount: number,
@@ -11,18 +12,19 @@ interface MemberSchema extends mongoose.Document {
     isMuted: Boolean
 };
 
-const memberSchema = new mongoose.Schema({
-	_id: mongoose.Schema.Types.ObjectId,
-    guildID: mongoose.SchemaTypes.String,
-    memberID: mongoose.SchemaTypes.String,
-    kickCount: mongoose.SchemaTypes.Number,
-    banCount: mongoose.SchemaTypes.Number,
-    muteCount: mongoose.SchemaTypes.Number,
-    warnCount: mongoose.SchemaTypes.Number,
+//TODO: Everytime update the interfaces, when updating the schema
+const memberSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+    guildID: SchemaTypes.String,
+    memberID: SchemaTypes.String,
+    kickCount: SchemaTypes.Number,
+    banCount: SchemaTypes.Number,
+    muteCount: SchemaTypes.Number,
+    warnCount: SchemaTypes.Number,
     isMuted: {
-        type: mongoose.SchemaTypes.Boolean,
+        type: SchemaTypes.Boolean,
         default: false
     }
 });
 
-export default mongoose.model<MemberSchema>('member', memberSchema, 'members');
+export default model<Member>('member', memberSchema, 'members');

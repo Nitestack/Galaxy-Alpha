@@ -1,26 +1,28 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
-export interface Vouch extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Vouch extends Document {
 	userID: string;
 	upVotes: number;
 	downVotes: number;
 	lastUpdated: Date;
 };
 
-const vouchSchema = new mongoose.Schema({
-	userID: mongoose.SchemaTypes.String,
+//TODO: Everytime update the interfaces, when updating the schema
+const vouchSchema = new Schema({
+	userID: SchemaTypes.String,
 	upVotes: {
-		type: mongoose.SchemaTypes.Number,
+		type: SchemaTypes.Number,
 		default: 0
 	},
 	downVotes: {
-		type: mongoose.SchemaTypes.Number,
+		type: SchemaTypes.Number,
 		default: 0
 	},
 	lastUpdated: {
-		type: mongoose.SchemaTypes.Date,
+		type: SchemaTypes.Date,
 		default: new Date()
 	}
 });
 
-export default mongoose.model<Vouch>('vouch', vouchSchema, 'vouches');
+export default model<Vouch>('vouch', vouchSchema, 'vouches');

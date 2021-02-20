@@ -1,11 +1,8 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
+import { undefinedString } from "@models/ModelBase";
 
-const undefinedString = {
-    type: mongoose.SchemaTypes.String,
-    default: undefined
-};
-
-export interface counterSchema extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Counter extends Document {
     guildID: string;
     allMembers: string;
     members: string;
@@ -23,9 +20,10 @@ export interface counterSchema extends mongoose.Document {
     boostLevel: string;
 };
 
-const countSchema = new mongoose.Schema({
+//TODO: Everytime update the interfaces, when updating the schema
+const countSchema = new Schema({
     guildID: {
-        type: mongoose.SchemaTypes.String,
+        type: SchemaTypes.String,
         required: true
     },
     allMembers: undefinedString,
@@ -44,4 +42,4 @@ const countSchema = new mongoose.Schema({
     boostLevel: undefinedString
 });
 
-export default mongoose.model<counterSchema>("Counter", countSchema, "counters");
+export default model<Counter>("Counter", countSchema, "counters");

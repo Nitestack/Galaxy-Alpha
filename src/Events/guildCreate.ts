@@ -35,6 +35,7 @@ export default class GuildCreateEvent extends Event {
 			.setTitle(title)
 			.setDescription(text));
 		const newGuild = await GuildSchema.create({
+			_id: guild.id,
 			guildID: guild.id,
 			prefix: client.globalPrefix
 		});

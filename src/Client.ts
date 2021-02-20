@@ -379,10 +379,11 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {object} embed The embed object
 	 * @param {Array<object>} commands The sub commands
 	 */
-	public createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
+	public async createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
-		if (embed.description) EMBED.setDescription(embed.description);
-		commands.forEach(async command => EMBED.addField(command.description, `${(await this.cache.getGuild(message.guild.id)).prefix}${command.usage}`));
+		const prefix = (await this.cache.getGuild(message.guild.id)).prefix;
+		const text = commands.map(command => `**${this.util.toUpperCaseBeginning(command.description)}**\n\`${prefix}${command.usage}\``).join("\n");
+		if (embed.description) EMBED.setDescription(embed.description + `\n\n${text}`);
 		return message.channel.send(EMBED);
 	};
 	/**

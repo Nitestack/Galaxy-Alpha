@@ -1,11 +1,8 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
+import { requiredString, requiredDefaultNumber, requiredDefaultDate } from "@models/ModelBase";
 
-const reqString = {
-	type: mongoose.SchemaTypes.String,
-	required: true,
-};
-
-export interface Profile extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Profile {
 	userID: string;
 	wallet: number;
 	bank: number;
@@ -17,44 +14,47 @@ export interface Profile extends mongoose.Document {
 		amount: number,
 		worth: number,
 		category: "Loot" | "Utilty"
-	}>
+	}>,
+	profileCreatedAt: Date
 };
 
-const profileSchema = new mongoose.Schema({
-	userID: reqString,
-	wallet: {
-		type: mongoose.SchemaTypes.Number,
-		required: true,
-		default: 0,
-	},
-	bank: {
-		type: mongoose.SchemaTypes.Number,
-		required: true,
-		default: 0,
-	},
-	messageCount: {
-		type: mongoose.SchemaTypes.Number,
-		required: true,
-		default: 0,
-	},
-	passive: {
-		type: mongoose.SchemaTypes.Boolean,
-		required: true,
-		default: false
-	},
+interface ProfileDocuement extends Document {
+	userID: string;
+	wallet: number;
+	bank: number;
+	messageCount: number;
+	passive: boolean;
+	items: Array<{
+		name: string,
+		aliases?: Array<string>,
+		amount: number,
+		worth: number,
+		category: "Loot" | "Utilty"
+	}>,
+	profileCreatedAt: Date
+};
+
+//TODO: Everytime update the interfaces, when updating the schema
+const profileSchema = new Schema({
+	userID: requiredString,
+	wallet: requiredDefaultNumber,
+	bank: requiredDefaultNumber,
+	messageCount: requiredDefaultNumber,
+	passive: requiredDefaultNumber,
 	items: [{
-		name: mongoose.SchemaTypes.String,
-		aliases: [mongoose.SchemaTypes.String],
+		name: SchemaTypes.String,
+		aliases: [SchemaTypes.String],
 		amount: {
-			type: mongoose.SchemaTypes.Number,
+			type: SchemaTypes.Number,
 			default: 0
 		},
 		worth: {
-			type: mongoose.SchemaTypes.Number,
+			type: SchemaTypes.Number,
 			default: 0
 		},
-		category: mongoose.SchemaTypes.String
-	}]
+		category: SchemaTypes.String
+	}],
+	profileCreatedAt: requiredDefaultDate
 });
 
-export default mongoose.model<Profile>('profile', profileSchema, 'profiles');
+export default model<ProfileDocuement>('profile', profileSchema, 'profiles');

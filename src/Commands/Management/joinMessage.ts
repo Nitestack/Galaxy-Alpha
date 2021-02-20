@@ -1,113 +1,95 @@
 import Command, { CommandRunner } from '@root/Command';
-import GuildSchema from '@models/guild';
+import { NewsChannel, TextChannel } from 'discord.js';
 
 export default class JoinMessageCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "joinmessage",
             description: "join message commands",
             category: "management",
-            usage: "joinmessage set [embed] <text> or joinmessage remove",
+            usage: "joinmessage set <#channel/channel ID/dm> [embed] <text> or joinmessage remove",
             guildOnly: true,
             userPermissions: ["MANAGE_GUILD"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
         const welcomeManager: string = '🤗 Welcome Manager';
-        const setUsage = `${prefix}joinmessage set [embed] <text>`;
+        const setUsage = `${prefix}joinmessage set <#channel/channel ID/dm> [embed] <text>`;
         const removeUsage = `${prefix}joinmessage remove`;
-        if (args[0].toLowerCase() == 'set') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, setUsage)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
-            if (args[1] == 'embed') {
-                if (args[2]) {
-                    const welcomeMessage: string = args.slice(2).join(" ");
-                    return message.channel.send(client.createEmbed()
-                        .setTitle(welcomeManager)
-                        .setDescription(`**Do you really want to update your embed welcome message to:**\n\n${welcomeMessage}\n\nYou have 30s to react!`)).then(async msg => {
-                            await msg.react(client.yesEmojiID);
-                            await msg.react(client.noEmojiID);
-                            const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
-                            YesOrNo.on('collect', async (reaction, user) => {
-                                if (reaction.emoji.id == client.yesEmojiID) {
-                                    await GuildSchema.findOneAndUpdate({
-                                        guildID: message.guild.id
-                                    }, {
-                                        welcomeMessage: welcomeMessage,
-                                        welcomeEmbed: true
-                                    }, {
-                                        upsert: false
-                                    }).catch(err => console.log(err));
-                                    return msg.channel.send(client.createGreenEmbed()
-                                        .setTitle(welcomeManager)
-                                        .setDescription("Successfully updated the join messages!"));
-                                } else {
-                                    return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
-                                };
-                            });
-                            YesOrNo.on('end', collected => {
-                                if (collected.size == 0) {
-                                    return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
-                                };
-                            });
+        const guildSettings = await client.cache.getGuild(message.guild.id);
+        if (args[0]?.toLowerCase() == 'set') {
+            let welcomeChannelID: string;
+            if (message.mentions.channels.first() && message.guild.channels.cache.has(message.mentions.channels.first().id)) welcomeChannelID = message.mentions.channels.first().id;
+            if (args[1] && message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(args[1])) welcomeChannelID = message.guild.channels.cache.get(args[0]).id;
+            if (args[1]?.toLowerCase() == "dm") welcomeChannelID = "dm";
+            if (!welcomeChannelID) return client.createArgumentError(message, { title: welcomeManager, description: "You have to mention a channel, provide a channel id or just write \"dm\" to let the message sent to the users dm!" }, this.usage);
+            if (args[2]?.toLowerCase() == 'embed') {
+                if (!args[3]) return client.createArgumentError(message, { title: welcomeManager, description: "You have to provide a welcome message!" }, this.usage);
+                const msg = await message.channel.send(client.createEmbed()
+                    .setTitle(welcomeManager)
+                    .setDescription(`Do you really want to set the new welcome message to:\n\`${args.slice(3).join(" ")}\`?\n\nYou have 30s to react!`));
+                await msg.react(client.yesEmojiID);
+                await msg.react(client.noEmojiID);
+                const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+                YesOrNo.on("collect", (reaction, user) => {
+                    if (reaction.emoji.id == client.yesEmojiID){
+                        client.cache.guilds.set(message.guild.id, {
+                            ...guildSettings,
+                            welcomeMessageType: "embed",
+                            welcomeChannelID: welcomeChannelID,
+                            welcomeMessage: args.slice(3).join(" ")
                         });
-                } else {
-                    return message.channel.send(client.createRedEmbed(true, setUsage)
-                        .setTitle(welcomeManager)
-                        .setDescription("You have to provide a welcome message for the embed message!"));
-                };
-            } else if (args[1] && args[1] != 'embed') {
-                const welcomeMessage: string = args.slice(1).join(" ");
-                if (args[1]) {
-                    return message.channel.send(client.createEmbed()
-                        .setTitle(welcomeManager)
-                        .setDescription(`**Do you really want to update your welcome message to:**\n\n${welcomeMessage}\n\nYou have 30s to react!`)).then(async msg => {
-                            await msg.react(client.yesEmojiID);
-                            await msg.react(client.noEmojiID);
-                            const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
-                            YesOrNo.on('collect', async (reaction, user) => {
-                                if (reaction.emoji.id == client.yesEmojiID) {
-                                    await GuildSchema.findOneAndUpdate({
-                                        guildID: message.guild.id
-                                    }, {
-                                        welcomeMessage: welcomeMessage,
-                                        welcomeEmbed: false
-                                    }, {
-                                        upsert: false
-                                    });
-                                    return msg.channel.send(client.createGreenEmbed()
-                                        .setTitle(welcomeManager)
-                                        .setDescription("Successfully updated the join messages!"));
-                                } else {
-                                    return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
-                                };
-                            });
-                            YesOrNo.on('end', collected => {
-                                if (collected.size == 0) {
-                                    return msg.channel.send(client.createRedEmbed().setTitle(welcomeManager).setDescription("Updating join message cancelled!"));
-                                };
-                            });
-                        });
-                }
+                        return client.createSuccess(message, { title: welcomeManager, description: `Set the welcome message to: \`${args.slice(3).join(" ")}\``});
+                    } else return client.createArgumentError(message, { title: welcomeManager, description: "Setting welcome message cancelled!" }, this.usage);
+                });
+                YesOrNo.on("end", (collected, reason) => {
+                    if (collected.size == 0) return client.createArgumentError(message, { title: welcomeManager, description: "Setting welcome message cancelled!" }, this.usage);
+                });
             } else {
-                return message.channel.send(client.createRedEmbed(true, setUsage))
+                if (!args[2]) return client.createArgumentError(message, { title: welcomeManager, description: "You have to provide a welcome message!" }, this.usage);
+                const msg = await message.channel.send(client.createEmbed()
+                    .setTitle(welcomeManager)
+                    .setDescription(`Do you really want to set the new welcome message to:\n\`${args.slice(2).join(" ")}\`?\n\nYou have 30s to react!`));
+                await msg.react(client.yesEmojiID);
+                await msg.react(client.noEmojiID);
+                const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+                YesOrNo.on("collect", async (reaction, user) => {
+                    if (reaction.emoji.id == client.yesEmojiID) {
+                        client.cache.guilds.set(message.guild.id, {
+                            ...guildSettings,
+                            welcomeMessageType: "message",
+                            welcomeChannelID: welcomeChannelID,
+                            welcomeMessage: args.slice(2).join(" ")
+                        });
+                        return client.createSuccess(message, { title: welcomeManager, description: `Set the welcome message to: \`${args.slice(2).join(" ")}\``});
+                    } else return client.createArgumentError(message, { title: welcomeManager, description: "Setting welcome message cancelled!" }, this.usage);
+                });
+                YesOrNo.on("end", (collected, reason) => {
+                    if (collected.size == 0) return client.createArgumentError(message, { title: welcomeManager, description: "Setting welcome message cancelled!" }, this.usage);
+                });
             };
         } else if (args[0].toLowerCase() == 'remove') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, removeUsage)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
-            await GuildSchema.findOneAndUpdate({
-                guildID: message.guild.id
-            }, {
-                welcomeMessage: null,
-                welcomeEmbed: false
-            }, {
-                upsert: false
-            });
-            return message.channel.send(client.createGreenEmbed()
+            if (!guildSettings.welcomeMessage) return client.createArgumentError(message, { title: welcomeManager, description: "There is no welcome message to remove!" }, this.usage);
+            const msg = await message.channel.send(client.createEmbed()
                 .setTitle(welcomeManager)
-                .setDescription("Your welcome message was successfully removed!"));
+                .setDescription(`Do you really want to set the new welcome message to:\n\`${args.slice(1).join(" ")}\`?\n\nYou have 30s to react!`));
+            await msg.react(client.yesEmojiID);
+            await msg.react(client.noEmojiID);
+            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+            YesOrNo.on("collect", async (reaction, user) => {
+                if (reaction.emoji.id == client.yesEmojiID) {
+                    client.cache.guilds.set(message.guild.id, {
+                        ...guildSettings,
+                        welcomeMessage: null,
+                        welcomeMessageType: "message",
+                        welcomeChannelID: null
+                    });
+                    return client.createSuccess(message, { title: welcomeManager, description: `Removed the current welcome message!` });
+                } else return client.createArgumentError(message, { title: welcomeManager, description: "Removing welcome message cancelled!" }, this.usage);
+            });
+            YesOrNo.on("end", (collected, reason) => {
+                if (collected.size == 0) return client.createArgumentError(message, { title: welcomeManager, description: "Removing welcome message cancelled!" }, this.usage);
+            });
         } else {
             return message.channel.send(client.createEmbed()
                 .setTitle(welcomeManager)

@@ -13,7 +13,7 @@ export default class QueueCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const queue = await client.music.getQueue(message.guild.id);
+        const queue = client.music.getQueue(message.guild.id);
         if (!queue) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("There is no queue in this server!"));
@@ -36,59 +36,57 @@ export default class QueueCommand extends Command {
         } else {
             let page: number = 0;
             const embedArray: Array<MessageEmbed> = generateQueueEmbed(client.queue.get(message.guild.id).queue);
-            return message.channel.send(embedArray[0]).then(async msg => {
-                if (embedArray.length > 1) {
-                    await msg.react('ℹ️');
-                    await msg.react('◀️');
-                    await msg.react('▶️');
-
-                    const filter = (reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id;
-                    const Buttons = msg.createReactionCollector(filter, { time: 24 * 60 * 60 * 1000 });
-                    Buttons.on('collect', async (reaction, user) => {
-                        if (reaction.emoji.name == '◀️') {
-                            if (page == 0) {
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("◀️").users.remove(user.id);
-                                };
-                                await msg.edit(embedArray[embedArray.length - 1]);
-                                page = embedArray.length - 1;
-                            } else {
-                                page--;
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("◀️").users.remove(user.id);
-                                };
-                                await msg.edit(embedArray[page]);
+            const msg = await message.channel.send(embedArray[0]);
+            if (embedArray.length > 1) {
+                await msg.react('ℹ️');
+                await msg.react('◀️');
+                await msg.react('▶️');
+                const filter = (reaction, user) => (reaction.emoji.name == '◀️' || reaction.emoji.name == '▶️' || reaction.emoji.name == 'ℹ️') && user.id == message.author.id;
+                const Buttons = msg.createReactionCollector(filter, { time: 24 * 60 * 60 * 1000 });
+                Buttons.on('collect', async (reaction, user) => {
+                    if (reaction.emoji.name == '◀️') {
+                        if (page == 0) {
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("◀️").users.remove(user.id);
                             };
-                        } else if (reaction.emoji.name == '▶️') {//TO FIX
-                            if (page > embedArray.length + 1) {
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("▶️").users.remove(user.id);
-                                };
-                                await msg.edit(embedArray[0]);
-                                page = 0;
-                            } else {
-                                page++;
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("▶️").users.remove(user.id);
-                                };
-                                await msg.edit(embedArray[page]);
+                            await msg.edit(embedArray[embedArray.length - 1]);
+                            page = embedArray.length - 1;
+                        } else {
+                            page--;
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("◀️").users.remove(user.id);
+                            };
+                            await msg.edit(embedArray[page]);
+                        };
+                    } else if (reaction.emoji.name == '▶️') {//TO FIX
+                        if (page > embedArray.length + 1) {
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("▶️").users.remove(user.id);
+                            };
+                            await msg.edit(embedArray[0]);
+                            page = 0;
+                        } else {
+                            page++;
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("▶️").users.remove(user.id);
+                            };
+                            await msg.edit(embedArray[page]);
+                        };
+                    } else {
+                        if (page == 0) {
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("ℹ️").users.remove(user.id);
                             };
                         } else {
-                            if (page == 0) {
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("ℹ️").users.remove(user.id);
-                                };
-                            } else {
-                                if (message.channel.type != "dm") {
-                                    msg.reactions.cache.get("ℹ️").users.remove(user.id);
-                                };
-                                await msg.edit(embedArray[0]);
-                                page = 0;
+                            if (message.channel.type != "dm") {
+                                msg.reactions.cache.get("ℹ️").users.remove(user.id);
                             };
+                            await msg.edit(embedArray[0]);
+                            page = 0;
                         };
-                    });
-                };
-            });
+                    };
+                });
+            };
         };
 
         function generateQueueEmbed(queue: Array<Queue>): Array<MessageEmbed> {

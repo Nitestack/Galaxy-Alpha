@@ -1,6 +1,6 @@
 import Event, { EventRunner } from '@root/Event';
+import guild from '@root/Models/guild';
 import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
-import GuildSchema from '@models/guild';
 
 export default class GuildMemberAddEvent extends Event {
 	constructor() {
@@ -9,23 +9,15 @@ export default class GuildMemberAddEvent extends Event {
 		});
 	};
 	run: EventRunner = async (client, member: GuildMember) => {
-		await GuildSchema.findOne({
-			guildID: member.guild.id
-		}, {}, {}, (err, guild) => {
-			if (err) return console.log(err);
-			if (guild.welcomeChannelID == 'dm' && guild.welcomeMessage && guild.welcomeEmbed) {
-				member.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);
-			} else if (guild.welcomeChannelID != "dm" && guild.welcomeEmbed && guild.welcomeMessage){
-				const welcomeChannel: TextChannel | NewsChannel = (client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(guild.welcomeChannelID) as TextChannel | NewsChannel);
-				if (welcomeChannel) {
-					welcomeChannel.send(guild.welcomeEmbed ? client.createEmbed().setDescription(`${replacer(guild.welcomeMessage)}`) : `${replacer(guild.welcomeMessage)}`);
-				} else {
-					return;
-				};
-			};
-		});
 		if (member.guild.id == client.supportGuildID) member.roles.add(client.supportGuild.roles.cache.get("798156877506281473").id);
-		function replacer(string: string) {
+		const guildSettings = await client.cache.getGuild(member.guild.id);
+		if (!guildSettings) return;
+		if (guildSettings.welcomeMessage && (guildSettings.welcomeChannelID == "dm" ? true : member.guild.channels.cache.has(guildSettings.welcomeChannelID)) && guildSettings.welcomeMessageType){
+			const welcomeMessage = replacer(guildSettings.welcomeMessage);
+			(guildSettings.welcomeChannelID == "dm" ? member : member.guild.channels.cache.get(guildSettings.welcomeChannelID) as TextChannel | NewsChannel).send(guildSettings.welcomeMessageType == "embed" ?  client.createEmbed().setAuthor(member.guild.name, member.guild.iconURL()).setDescription(welcomeMessage) :  welcomeMessage);
+		};
+		if (guildSettings.memberRoleID) member.roles.add(guildSettings.memberRoleID);
+		function replacer(string: string): string {
 			let text: string = string;
 			if (string.includes("{user:mention}")) text = text.replace(/{user:mention}/g, `${member}`);
 			if (string.includes("{user:username}")) text = text.replace(/{user:username}/g, `${member.user.username}`);

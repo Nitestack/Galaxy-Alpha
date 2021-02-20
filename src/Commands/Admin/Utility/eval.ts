@@ -15,8 +15,8 @@ export default class EvalCommand extends Command {
         if (!args[0]) return client.createArgumentError(message, { title: "Eval Manager", description: 'You have to provide valid JavaScript code, that I can evaluate!'}, this.usage);
         const evalChannel = '789116457655992350';
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
-        let output = eval(args.join(' '));
         try {
+            let output = eval(args.join(' '));
             const start = process.hrtime();
             const difference = process.hrtime(start);
             if (typeof output != 'string') output = inspect(output, { depth: 2 });

@@ -13,10 +13,10 @@ export default class RoleDeleteEvent extends Event {
 			guildID: role.guild.id,
 		}, {}, {}, (err: unknown, guild) => {
 			if (err) console.log(err);
-			if (!guild || (!guild.muteRole && !guild.memberRole)) return;
+			if (!guild || (!guild.muteRoleID && !guild.memberRoleID)) return;
 		});
 		if (guild) {
-			if (guild.muteRole == role.id) {
+			if (guild.muteRoleID == role.id) {
 				await Guild.findOneAndUpdate({
 					guildID: role.guild.id,
 				}, {
@@ -24,7 +24,7 @@ export default class RoleDeleteEvent extends Event {
 				}, {
 					upsert: false,
 				}).catch(err => console.log(err));
-			} else if (guild.memberRole == role.id) {
+			} else if (guild.memberRoleID == role.id) {
 				await Guild.findOneAndUpdate({
 					guildID: role.guild.id,
 				}, {

@@ -1,18 +1,20 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
-const ticketSchema = new mongoose.Schema({
-    guildID: mongoose.SchemaTypes.String,
-    channelID: mongoose.SchemaTypes.String,
-    categoryID: mongoose.SchemaTypes.String,
-    userID: mongoose.SchemaTypes.String,
-    reason: mongoose.SchemaTypes.String,
+//TODO: Everytime update the interfaces, when updating the schema
+const ticketSchema = new Schema({
+    guildID: SchemaTypes.String,
+    channelID: SchemaTypes.String,
+    categoryID: SchemaTypes.String,
+    userID: SchemaTypes.String,
+    reason: SchemaTypes.String,
     createdAt: {
-        type: mongoose.SchemaTypes.Date,
+        type: SchemaTypes.Date,
         default: new Date()
     }
 });
 
-interface TicketSchema extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface Ticket extends Document {
     guildID: string;
     channelID: string;
     categoryID: string;
@@ -21,4 +23,4 @@ interface TicketSchema extends mongoose.Document {
     createdAt: Date;
 };
 
-export default mongoose.model<TicketSchema>("Ticket", ticketSchema, 'tickets');
+export default model<Ticket>("Ticket", ticketSchema, 'tickets');

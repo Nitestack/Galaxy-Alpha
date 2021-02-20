@@ -1,19 +1,34 @@
-import mongoose from 'mongoose';
+import { SchemaTypes, model, Document, Schema } from 'mongoose';
+import { requiredDefaultDate, requiredString } from '@models/ModelBase';
 
-const giveawaySchema = new mongoose.Schema({
-	guildID: String,
-	channelID: String,
-	hostedBy: String,
-	messageID: String,
-	startsOn: Date,
-	endsOn: Date,
-	winners: Number,
-	hasEnded: Boolean,
-	duration: Number,
-	prize: String,
+//TODO: Everytime update the interfaces, when updating the schema
+const giveawaySchema = new Schema({
+	guildID: requiredString,
+	channelID: requiredString,
+	hostedBy: requiredString,
+	messageID: requiredString,
+	startsOn: requiredDefaultDate,
+	endsOn: requiredDefaultDate,
+	winners: {
+		type: SchemaTypes.Number,
+		required: true,
+		default: 1
+	},
+	hasEnded: {
+		type: SchemaTypes.Boolean,
+		required: true,
+		default: false
+	},
+	duration: {
+		type: SchemaTypes.Number,
+		required: true,
+		default: 0
+	},
+	prize: requiredString,
 });
 
-export interface GiveawaySchema extends mongoose.Document {
+//TODO: Everytime update the interfaces, when updating the schema
+export interface GiveawaySchema extends Document {
 	guildID: string;
 	channelID: string;
 	hostedBy: string;
@@ -26,4 +41,4 @@ export interface GiveawaySchema extends mongoose.Document {
 	prize: string;
 };
 
-export default mongoose.model<GiveawaySchema>('Giveaway', giveawaySchema, "giveaways");
+export default model<GiveawaySchema>('Giveaway', giveawaySchema, "giveaways");

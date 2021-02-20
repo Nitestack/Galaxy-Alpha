@@ -2,28 +2,21 @@ import GalaxyAlpha from '@root/Client';
 import { Guild, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import giveawaySchema, { GiveawaySchema } from '@models/Giveaways/giveaways';
 import GuildSchema from '@models/guild';
-import Level from '@root/Models/level';
 
 export const giveawayManager: string = "🎉 Giveaway Manager";
 
 export default class Giveaway {
     private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha){
+    constructor(client: GalaxyAlpha) {
         this.client = client;
     };
     public async start(options: { duration: number, channelID: string, guildID: string, prize: string, winners: number, hostedBy: User }, message: Message, requirements: { roles: Array<string>, messages: number, invites: number, level: number, guildReq: string }) {
         let blackListedRole: Role;
         let byPassRole: Role;
-        await GuildSchema.findOne({
-            guildID: options.guildID
-        }, {}, {}, (err, guild) => {
-            if (err) return console.log(err);
-            if (!guild) return message.channel.send("An error occurred while you used the command, please try again!");
-            if (guild.giveawayBlackListed && this.client.guilds.cache.get(options.guildID).roles.cache.has(guild.giveawayBlackListed)) blackListedRole = this.client.guilds.cache.get(options.guildID).roles.cache.get(guild.giveawayBlackListed);
-            if (guild.giveawayByPass) byPassRole = this.client.guilds.cache.get(options.guildID).roles.cache.get(guild.giveawayByPass);
-        });
+        const guildSettings = await this.client.cache.getGuild(message.guild.id);
+        if (guildSettings.giveawayBlacklistedRoleID && message.guild.roles.cache.has(guildSettings.giveawayBlacklistedRoleID)) blackListedRole = message.guild.roles.cache.get(guildSettings.giveawayBlacklistedRoleID);
+        if (guildSettings.giveawayByPassRoleID && message.guild.roles.cache.has(guildSettings.giveawayByPassRoleID)) byPassRole = message.guild.roles.cache.get(guildSettings.giveawayByPassRoleID); 
         const channel: TextChannel | NewsChannel = (this.client.guilds.cache.get(options.guildID).channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(options.channelID) as TextChannel | NewsChannel);
-        const channelPermissions = channel.permissionsFor(this.client.user);
         const giveawayEmbed: MessageEmbed = this.client.createEmbed()
             .setTitle(options.prize)
             .setDescription(`${this.client.arrowEmoji} **React with 🎉 to enter!**\n**🏅 ${options.winners == 1 ? "Winner" : "Winners"}**: ${options.winners}\n${this.client.memberEmoji} **Hosted By**: ${options.hostedBy}\n`)
@@ -36,39 +29,64 @@ export default class Giveaway {
         if (requirements.roles.length > 0) text += `🎭 You need to have ${requirements.roles.length == 1 ? "the role" : "one of the follwing roles"} ${requirements.roles.length == 1 ? `<@&${requirements.roles}>` : `: <@&${requirements.roles.join("> | <@&")}>`}!\n`;
         if (requirements.guildReq != 'none') text += `${this.client.protectedEmoji} You should be in **[${(await this.client.fetchInvite(requirements.guildReq)).guild.name}](${requirements.guildReq})**!\n`;
         if (requirements.messages != 0 || requirements.invites != 0 || requirements.level != 0 || requirements.roles.length > 0 || requirements.guildReq != 'none') giveawayEmbed.addField(`${this.client.warningInfoEmoji} Requirements:`, text);
-
         await channel.send(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY**   ${this.client.galaxyAlphaEmoji}`, giveawayEmbed).then(async msg => {
             await msg.react("🎉");
             const Reactions = msg.createReactionCollector((reaction, user) => reaction.emoji.name == '🎉', { time: options.duration });
-            const giveawayPing = await GuildSchema.findOne({
-                guildID: msg.guild.id
-            }, {}, {}, (err, guild) => {
-                if (err) return console.log(err);
-                if (!guild) return false;
-                if (guild.giveawayPing) return true;
-            });
-            msg.channel.send(`${options.hostedBy} ${giveawayPing ? `<@&${giveawayPing.giveawayPing}>` : ''}`).then(async messagePing => {
-                messagePing.delete({ timeout: 1 });
-                message.channel.send(this.client.createGreenEmbed()
-                    .setTitle(giveawayManager)
-                    .setDescription(`Successfully created a giveaway with the prize \`${options.prize}\` in ${channel}!`));
-                Reactions.on('collect', async (reaction, user) => {
-                    if (user.bot) msg.reactions.cache.get("🎉").users.remove(user.id);
-                    const member = message.guild.members.cache.get(user.id);
-                    let userMessages: number = (await this.client.cache.getLevelandMessages(options.guildID, member.id)).messages;
-                    let userLevel: number = (await this.client.cache.getLevelandMessages(options.guildID, member.id)).level;
-                    let serverReq: Guild;
-                    if (requirements.guildReq != 'none') this.client.fetchInvite(requirements.guildReq).then(invite => {
-                            serverReq = invite.guild;
-                        });
-                    let memberRolesHas: number = 0;
-                    if (requirements.roles.length != 0) {
-                        for (const role of requirements.roles) {
-                            const roles = member.roles.cache.map(role => `${role.id}`);
-                            if (roles.includes(requirements.roles[role])) memberRolesHas++;
-                        };
+            const messagePing = await msg.channel.send(`${options.hostedBy}`);
+            messagePing.delete({ timeout: 1 });
+            message.channel.send(this.client.createGreenEmbed()
+                .setTitle(giveawayManager)
+                .setDescription(`Successfully created a giveaway with the prize \`${options.prize}\` in ${channel}!`));
+            Reactions.on('collect', async (reaction, user) => {
+                if (user.bot) msg.reactions.cache.get("🎉").users.remove(user.id);
+                const member = message.guild.members.cache.get(user.id);
+                let userMessages: number = (await this.client.cache.getLevelandMessages(options.guildID, member.id)).messages;
+                let userLevel: number = (await this.client.cache.getLevelandMessages(options.guildID, member.id)).level;
+                let serverReq: Guild;
+                if (requirements.guildReq != 'none') this.client.fetchInvite(requirements.guildReq).then(invite => {
+                    serverReq = invite.guild;
+                });
+                let memberRolesHas: number = 0;
+                if (requirements.roles.length != 0) {
+                    for (const role of requirements.roles) {
+                        const roles = member.roles.cache.map(role => `${role.id}`);
+                        if (roles.includes(requirements.roles[role])) memberRolesHas++;
                     };
-                    if (byPassRole && member.roles.cache.has(byPassRole.id)) {
+                };
+                if (byPassRole && member.roles.cache.has(byPassRole.id)) {
+                    member.send(this.client.createGreenEmbed()
+                        .setTitle(giveawayManager)
+                        .setDescription(`Your giveaway entry has been confirmed!
+                        **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
+                        By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
+                        whether you joined a giveaway or you won a giveaway!`));
+                } else {
+                    if (blackListedRole && member.roles.cache.has(blackListedRole.id) && member.id != message.author.id) {
+                        msg.reactions.cache.get("🎉").users.remove(user.id);
+                        member.send(this.client.createRedEmbed()
+                            .setTitle(giveawayManager)
+                            .setDescription(`Your giveaway entry has been denied!
+                            Your are blacklisted from joining any giveaways, which were created by ${this.client.user}, in **${msg.guild.name}**!`));
+                    } else if (requirements.roles.length != 0 && memberRolesHas == 0) {
+                        msg.reactions.cache.get("🎉").users.remove(user.id);
+                        member.send(this.client.createRedEmbed()
+                            .setTitle(giveawayManager)
+                            .setDescription(`Your giveaway entry has beem denied!
+                            You need one of the required roles to enter this giveaway!`));
+                    } else if (requirements.messages != 0 && requirements.messages > userMessages) {
+                        msg.reactions.cache.get("🎉").users.remove(user.id);
+                        member.send(this.client.createRedEmbed()
+                            .setTitle(giveawayManager)
+                            .setDescription(`Your giveaway entry has been denied!
+                            You need to send \`${requirements.messages - userMessages}\` messagse in **${msg.guild.name}** to enter this giveaway!`));
+                    } else if (requirements.level != 0 && requirements.level > userLevel) {
+                        msg.reactions.cache.get("🎉").users.remove(user.id);
+                        member.send(this.client.createRedEmbed()
+                            .setTitle(giveawayManager)
+                            .setDescription(`Your giveaway entry has been denied!
+                            You need to be Level \`${requirements.level}\` in **${msg.guild.name}** to enter this giveaway!
+                            You are currently Level \`${userLevel}\`!`));
+                    } else if (requirements.invites != 0 && requirements.invites != 0) {
                         member.send(this.client.createGreenEmbed()
                             .setTitle(giveawayManager)
                             .setDescription(`Your giveaway entry has been confirmed!
@@ -76,48 +94,14 @@ export default class Giveaway {
                             By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
                             whether you joined a giveaway or you won a giveaway!`));
                     } else {
-                        if (blackListedRole && member.roles.cache.has(blackListedRole.id) && member.id != message.author.id) {
-                            msg.reactions.cache.get("🎉").users.remove(user.id);
-                            member.send(this.client.createRedEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has been denied!
-                                Your are blacklisted from joining any giveaways, which were created by ${this.client.user}, in **${msg.guild.name}**!`));
-                        } else if (requirements.roles.length != 0 && memberRolesHas == 0) {
-                            msg.reactions.cache.get("🎉").users.remove(user.id);
-                            member.send(this.client.createRedEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has beem denied!
-                                You need one of the required roles to enter this giveaway!`));
-                        } else if (requirements.messages != 0 && requirements.messages > userMessages) {
-                            msg.reactions.cache.get("🎉").users.remove(user.id);
-                            member.send(this.client.createRedEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has been denied!
-                                You need to send \`${requirements.messages - userMessages}\` messagse in **${msg.guild.name}** to enter this giveaway!`));
-                        } else if (requirements.level != 0 && requirements.level > userLevel) {
-                            msg.reactions.cache.get("🎉").users.remove(user.id);
-                            member.send(this.client.createRedEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has been denied!
-                                You need to be Level \`${requirements.level}\` in **${msg.guild.name}** to enter this giveaway!
-                                You are currently Level \`${userLevel}\`!`));
-                        } else if (requirements.invites != 0 && requirements.invites != 0) {
-                            member.send(this.client.createGreenEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has been confirmed!
-                                **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
-                                By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
-                                whether you joined a giveaway or you won a giveaway!`));
-                        } else {
-                            member.send(this.client.createGreenEmbed()
-                                .setTitle(giveawayManager)
-                                .setDescription(`Your giveaway entry has been confirmed!
-                                **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
-                                By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
-                                whether you joined a giveaway or you won a giveaway!`));
-                        };
+                        member.send(this.client.createGreenEmbed()
+                            .setTitle(giveawayManager)
+                            .setDescription(`Your giveaway entry has been confirmed!
+                            **[${options.prize}](${msg.url})** in ${channel} of **${msg.guild.name}**
+                            By reacting to any giveaways, which are created by ${this.client.user}, you agree to be DMed by the bot,
+                            whether you joined a giveaway or you won a giveaway!`));
                     };
-                });
+                };
             });
             const newGiveaway = new giveawaySchema({
                 prize: options.prize,
@@ -140,7 +124,7 @@ export default class Giveaway {
         });
     };
     public async schedule(giveaway: GiveawaySchema) {
-        let { messageID, channelID, endsOn, prize, winners, hostedBy } = giveaway;
+        let { messageID, channelID, prize, winners, hostedBy } = giveaway;
         const channel: TextChannel | NewsChannel = (this.client.channels.cache.filter(channel => channel.type == 'text' || channel.type == 'news').get(channelID) as TextChannel | NewsChannel);
         if (channel) {
             const message = await channel.messages.fetch(messageID);
