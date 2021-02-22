@@ -18,8 +18,8 @@ export default class ProfileCommand extends Command {
         await client.cache.increaseCurrencyMessageCount(message.author.id);
         const userProfile = await client.cache.getCurrency(user.id);
         return message.channel.send(client.createEmbed()
-            .setAuthor(`💰 ${user.username}'s Profile`, user.displayAvatarURL())
-            .setThumbnail(user.displayAvatarURL())
+            .setAuthor(`💰 ${user.username}'s Profile`, user.displayAvatarURL({ dynamic: true }))
+            .setThumbnail(user.displayAvatarURL({ dynamic: true }))
             .setDescription(`**Wallet**: \`${userProfile.wallet.toLocaleString()}\`$
             **Bank:** \`${userProfile.bank.toLocaleString()}\`$
             **Currency commands used:** \`${userProfile.messageCount.toLocaleString()}\``));

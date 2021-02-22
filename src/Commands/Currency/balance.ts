@@ -18,8 +18,8 @@ export default class BalanceCommand extends Command {
 		await client.cache.increaseCurrencyMessageCount(message.author.id);
 		const userProfile = await client.cache.getCurrency(user.id);
 		return message.channel.send(client.createEmbed()
-			.setAuthor(`💰 ${user.username}'s Balance`, user.displayAvatarURL())
-			.setThumbnail(user.displayAvatarURL())
+			.setAuthor(`💰 ${user.username}'s Balance`, user.displayAvatarURL({ dynamic: true }))
+			.setThumbnail(user.displayAvatarURL({ dynamic: true }))
 			.setDescription(`**Wallet:** \`${userProfile.wallet.toLocaleString()}\`$\n**Bank:** \`${userProfile.bank.toLocaleString()}\`$`));
 	};
 };

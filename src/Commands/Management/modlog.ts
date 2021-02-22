@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
-import { GuildChannel, NewsChannel, TextChannel } from 'discord.js';
+import { GuildChannel, MessageAttachment, NewsChannel, TextChannel } from 'discord.js';
 
 export default class ModLogsCommand extends Command {
     constructor(){
@@ -9,66 +9,77 @@ export default class ModLogsCommand extends Command {
             usage: "modlogs set <#channel/channel ID>",
             category: "management",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            clientPermissions: ["MANAGE_WEBHOOKS"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (args[0].toLowerCase() == 'set') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}modlogs set <#channel/channel ID>`)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
-            const result = await ModLogsSchema.findOne({
-                guildID: message.guild.id
-            }, {}, {}, (err, result) => {
-                if (err) return console.log(err);
-                if (result) return result;
-                if (!result) return false;
+        const modLogsManager = "📊 Mod Logs Manager";
+        const guildSettings = await client.cache.getGuild(message.guild.id);
+        if (args[0]?.toLowerCase() == "set"){
+            let channel: TextChannel | NewsChannel;
+            if (message.mentions.channels.first() && message.guild.channels.cache.has(message.mentions.channels.first().id)) channel = message.mentions.channels.first();
+            if (args[1] && message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(args[1])) channel = message.guild.channels.cache.get(args[1]) as TextChannel | NewsChannel;
+            if (!channel) return client.createArgumentError(message, { title: modLogsManager, description: "You have to mention a channel or provide a channel ID!" }, this.usage);
+            const msg = await message.channel.send(client.createEmbed()
+                .setTitle(modLogsManager)
+                .setDescription(`Do you really want to update the mod logs channel to ${channel}?\n\nYou have 30s to react!`));
+            await msg.react(client.yesEmojiID);
+            await msg.react(client.noEmojiID);
+            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+            YesOrNo.on("collect", async (reaction, user) => {
+                if (reaction.emoji.id == client.yesEmojiID){
+                    const webhook = await channel.createWebhook(client.user.username, {
+                        avatar: client.user.avatarURL()
+                    });
+                    await client.cache.updateGuild(message.guild.id, {
+                        modLogChannelID: channel.id,
+                        modLogChannelWebhookID: webhook.id,
+                        modLogChannelWebhookToken: webhook.token
+                    });
+                    return client.createSuccess(message, { title: modLogsManager, description: `Set mod logs channel to ${channel}!`});
+                } else return client.createArgumentError(message, { title: modLogsManager, description: "Setting mod logs channel cancelled!" }, this.usage);
             });
-            const usage: string = `${prefix}modlogs set <#channel/channel ID>`;
-            let channel: GuildChannel;
-            if (message.mentions.channels.first()) channel = message.mentions.channels.first();
-            if (args[1] && message.guild.channels.cache.get(args[1])) channel = message.guild.channels.cache.get(args[1]);
-            if (!channel || !args[1]) return message.channel.send(client.createRedEmbed(true, usage)
-                .setDescription(`You have to mention a valid channel in this server!`)
-                .setTitle("📊 Mod Log Manager"));
-            if (result && channel.id == result.channelID) return message.channel.send(client.createRedEmbed(true, usage).setDescription("This channel is already the mod logs channel!"));
-            const check: TextChannel | NewsChannel = (message.guild.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(channel.id) as TextChannel | NewsChannel);
-            return message.channel.send(client.createGreenEmbed().setTitle("📊 Mod Log Manager").setDescription(`Do you really want to set the mod logs channel to ${check}?\n\nYou have 30s to react!`)).then(async msg => {
-                await msg.react(client.yesEmojiID);
-                await msg.react(client.noEmojiID);
-                const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 30000, max: 1 });
-                YesOrNo.on('collect', async (reaction, user) => {
-                    if (reaction.emoji.id == client.yesEmojiID) {
-                        check.createWebhook(`${client.user.username}`, {
-                            avatar: client.user.displayAvatarURL()
-                        }).then(async webhook => {
-                            await ModLogsSchema.findOneAndUpdate({
-                                guildID: message.guild.id
-                            }, {
-                                channelID: check.id,
-                                webhookID: webhook.id,
-                                webhookToken: webhook.token
-                            }, {
-                                upsert: true
-                            });
+            YesOrNo.on("end", (collected, reason) => {
+                if (collected.size == 0) return client.createArgumentError(message, { title: modLogsManager, description: "Setting mod logs channel cancelled!" }, this.usage);
+            })
+        } else if (args[0]?.toLowerCase() == "remove"){
+            if (!guildSettings.modLogChannelWebhookID || !guildSettings.modLogChannelWebhookToken || !guildSettings.modLogChannelID) return client.createArgumentError(message, { title: modLogsManager, description: "There is no mod log channel to remove!" }, this.usage);
+            const msg = await message.channel.send(client.createEmbed()
+                .setTitle(modLogsManager)
+                .setDescription("Do you really want to remove the current mod log channel?\n\nYou have 30s to react!"));
+            await msg.react(client.yesEmojiID);
+            await msg.react(client.noEmojiID);
+            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
+            YesOrNo.on("collect", async (reaction, user) => {
+                if (reaction.emoji.id == client.yesEmojiID) {
+                    const channel = message.guild.channels.cache.get(guildSettings.modLogChannelID) as TextChannel | NewsChannel;
+                    if (channel){
+                        const webhooks = await channel.fetchWebhooks();
+                        webhooks.delete(guildSettings.modLogChannelWebhookID);
+                        await client.cache.updateGuild(message.guild.id, {
+                            modMailLogChannelID: null,
+                            modLogChannelWebhookID: null,
+                            modLogChannelWebhookToken: null
                         });
-                        return message.channel.send(client.createGreenEmbed().setTitle("📊 Mod Log Manager").setDescription(`Successfully set the mod logs channel to ${check}!`));
-                    } else {
-                        return msg.channel.send(client.createRedEmbed().setTitle("📊 Mod Log Manager").setDescription("Setting mod logs channel cancelled!"));
                     };
-                });
-                YesOrNo.on('end', collected => {
-                    if (collected.size == 0) {
-                        return msg.channel.send(client.createRedEmbed().setTitle("📊 Mod Log Manager").setDescription("Setting mod logs channel cancelled!"));
-                    };
-                });
-            }).catch(err => console.log(err));
-        } else if (args[0].toLowerCase() == 'remove') {
-            if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}modlogs remove`)
-                .setTitle("🎉 Giveaway Role Manager")
-                .setDescription("You need the permission `Manage Server` to use this command!"));
+                    return client.createSuccess(message, { title: modLogsManager, description: "Removed the current mod log channel!"});
+                } else return client.createArgumentError(message, { title: modLogsManager, description: "Removing mod logs channel cancelled!" }, this.usage);
+            });
+            YesOrNo.on("end", (collected, reason) => {
+                if (collected.size == 0) return client.createArgumentError(message, { title: modLogsManager, description: "Removing mod logs channel cancelled!" }, this.usage);
+            });
         } else {
-
+            return client.createEmbedForSubCommands(message, {
+                title: modLogsManager,
+                description: "Use this commands to set or remove the mod logs channel!"
+            }, [{
+                usage: "modlogs set <@Role/Role ID>",
+                description: "Sets the mod log channel"
+            }, {
+                usage: "modlogs remove",
+                description: "Removes the mod log channel"
+            }]);
         };
     };
 };

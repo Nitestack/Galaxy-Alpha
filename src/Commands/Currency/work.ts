@@ -15,7 +15,7 @@ export default class WorkCommand extends Command {
         const userProfile = await client.cache.getCurrency(message.author.id);
         const jobs: Array<string> = ['Cosplayer', 'YouTuber', 'Twitch Streamer', 'Programmer', 'Teacher', 'Game Developer', 'Software Developer', 'Police Officer', 'Cleainig Staff'];
         message.channel.send(client.createGreenEmbed()
-            .setAuthor(`💰 ${message.author.username} was working!`, message.author.displayAvatarURL())
+            .setAuthor(`💰 ${message.author.username} was working!`, message.author.displayAvatarURL({ dynamic: true }))
             .setDescription(`You worked as **${jobs[Math.round(client.util.getRandomArbitrary(0, jobs.length - 1))]}** and got payed \`${wage.toLocaleString()}\`$!
             **Wallet:** \`${userProfile.wallet.toLocaleString()}\`$ ${client.arrowEmoji} \`${(userProfile.wallet + wage).toLocaleString()}\`$`));
         await client.cache.increaseBalance(message.author.id, "wallet", wage);

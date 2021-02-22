@@ -11,7 +11,7 @@ export const nullString = {
 };
 
 export const requiredDefaultNumber = {
-    type: SchemaTypes.String,
+    type: SchemaTypes.Number,
     required: true,
     default: 0
 };

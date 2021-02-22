@@ -15,7 +15,6 @@ export default class RoleDeleteEvent extends Event {
 			};
 		};
 		if (Object.values(guildSettings).includes(role.id)){
-			
 		};
 	};
 };

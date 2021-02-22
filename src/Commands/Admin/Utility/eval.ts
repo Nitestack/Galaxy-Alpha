@@ -33,7 +33,7 @@ export default class EvalCommand extends Command {
                 ${message.author}
                 **🗓️ Used on**
                 ${client.util.dateFormatter(message.createdAt)}`)
-                .setThumbnail(message.author.displayAvatarURL()));
+                .setThumbnail(message.author.displayAvatarURL({ dynamic: true })));
         } catch (error) {
             return client.createArgumentError(message, { title: "ERROR", description: `${error}`}, this.usage);
         };

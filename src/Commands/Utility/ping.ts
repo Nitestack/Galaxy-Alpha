@@ -17,7 +17,7 @@ export default class PingCommand extends Command {
         const pong = client.createEmbed()
             .setTitle(`**🏓   PONG!**`)
             .setDescription(`🤖 **Client Latency:** \`${ping}ms\`\n<:members:786705341484236800> **API Latency:** \`${client.ws.ping}ms\``)
-            .setThumbnail(client.user.displayAvatarURL());
+            .setThumbnail(client.user.displayAvatarURL({ dynamic: true }));
         message.channel.send(pong);
         msg.delete();
     };

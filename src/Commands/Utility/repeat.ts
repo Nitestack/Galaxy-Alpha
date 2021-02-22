@@ -14,7 +14,7 @@ export default class RepeatCommand extends Command {
         if (args[0].toLowerCase() === 'embed') {
             const embed = client.createEmbed()
                 .setDescription(`${args.slice(1).join(' ')}`)
-                .setAuthor(message.author.tag, message.author.displayAvatarURL());
+                .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }));
             return message.channel.send(embed);
         } else {
             return message.channel.send(args.join(' '));

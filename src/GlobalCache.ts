@@ -63,7 +63,7 @@ export default class GlobalCache {
      */
     public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
         const key = `${userID}-${guildID}`;
-        const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID }).catch(err => console.log(err));
+        const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
         if (LevelandMessages && !this.levels.has(key)) this.levels.set(key, {
             userID: LevelandMessages.userID,
             guildID: LevelandMessages.guildID,
@@ -80,14 +80,29 @@ export default class GlobalCache {
             messages: 0,
             lastUpdated: new Date()
         });
+        if (!LevelandMessages) LevelSchema.create(this.levels.get(key));
         return this.levels.get(key);
+    };
+    /**
+     * Updates a user's level stats
+     * @param {string} guildID The ID of the guild 
+     * @param {string} userID The ID of the user
+     * @param {string} settings The settings to update
+     */
+    public async updateLevel(guildID: string, userID: string, settings: Level) {
+        const key = `${userID}-${guildID}`;
+        const usersMessages = await this.getLevelandMessages(guildID, userID);
+        return this.levels.set(key, {
+            ...usersMessages,
+            ...settings
+        });
     };
     /**
      * Gets a currency profile of an user
      * @param {string} userID The ID of the user 
      */
     public async getCurrency(userID: string): Promise<Profile> {
-        const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID }).catch(err => console.log(err));
+        const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID });
         if (profile && !this.currency.has(userID)) this.currency.set(userID, {
             userID: profile.userID,
             bank: profile.bank,
@@ -120,7 +135,13 @@ export default class GlobalCache {
             ...settings
         });
     };
-    public async increaseBalance(userID: string, walletOrBalance: "bank" | "wallet", increaseTo: number){
+    /**
+     * Increases the user's balance
+     * @param {string} userID The ID of the user 
+     * @param {"bank" | "wallet"} walletOrBalance Increase balance in wallet or bank 
+     * @param {number} increaseTo The number to increase to 
+     */
+    public async increaseBalance(userID: string, walletOrBalance: "bank" | "wallet", increaseTo: number) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -130,9 +151,9 @@ export default class GlobalCache {
     };
     /**
      * Increases the message count to 1
-     * @param userID 
+     * @param {string} userID The ID of the user 
      */
-    public async increaseCurrencyMessageCount(userID: string){
+    public async increaseCurrencyMessageCount(userID: string) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -151,39 +172,43 @@ export default class GlobalCache {
      */
     public async getGuild(guildID: string): Promise<Guild> {
         if (!this.guilds.has(guildID)) {
-            const results = await GuildSchema.findOne({ guildID: guildID }).catch(err => console.log(err));
-            if (results) this.guilds.set(guildID, {
-                guildID: results.guildID,
-                prefix: results.prefix,
-                modLogChannelID: results.modLogChannelID,
-                modLogChannelWebhookToken: results.modLogChannelWebhookToken,
-                modLogChannelWebhookID: results.modLogChannelWebhookID,
-                muteRoleID: results.muteRoleID,
-                memberRoleID: results.memberRoleID,
-                ticketCategoryID: results.ticketCategoryID,
-                ticketManagerRoleID: results.ticketManagerRoleID,
-                giveawayManagerRoleID: results.giveawayManagerRoleID,
-                giveawayBlacklistedRoleID: results.giveawayBlacklistedRoleID,
-                giveawayByPassRoleID: results.giveawayByPassRoleID,
-                serverManagerRoleID: results.serverManagerRoleID,
-                welcomeMessageType: results.welcomeMessageType,
-                welcomeMessage: results.welcomeMessage,
-                welcomeChannelID: results.welcomeChannelID,
-                modMailManagerRoleID: results.modMailManagerRoleID,
-                modMailLogChannelID: results.modMailLogChannelID,
-                modMailCategoryID: results.modMailCategoryID,
-                DJRoleID: results.DJRoleID,
-                reactionRoles: results.reactionRoles
+            const results = await GuildSchema.findOne({ guildID: guildID });
+            this.guilds.set(guildID, {
+                guildID: guildID,
+                prefix: results?.prefix || this.client.globalPrefix,
+                modLogChannelID: results?.modLogChannelID || null,
+                modLogChannelWebhookToken: results?.modLogChannelWebhookToken || null,
+                modLogChannelWebhookID: results?.modLogChannelWebhookID || null,
+                muteRoleID: results?.muteRoleID || null,
+                memberRoleID: results?.memberRoleID || null,
+                ticketCategoryID: results?.ticketCategoryID || null,
+                ticketManagerRoleID: results?.ticketManagerRoleID || null,
+                giveawayManagerRoleID: results?.giveawayManagerRoleID || null,
+                giveawayBlacklistedRoleID: results?.giveawayBlacklistedRoleID || null,
+                giveawayByPassRoleID: results?.giveawayByPassRoleID || null,
+                serverManagerRoleID: results?.serverManagerRoleID || null,
+                welcomeMessageType: results?.welcomeMessageType || null,
+                welcomeMessage: results?.welcomeMessage || null,
+                welcomeChannelID: results?.welcomeChannelID || null,
+                modMailManagerRoleID: results?.modMailManagerRoleID || null,
+                modMailLogChannelID: results?.modMailLogChannelID || null,
+                modMailCategoryID: results?.modMailCategoryID || null,
+                DJRoleID: results?.DJRoleID || null,
+                reactionRoles: results?.reactionRoles || []
             });
-            else return null;
+            if (!results) await GuildSchema.create(this.guilds.get(guildID));
         };
         return this.guilds.get(guildID);
     };
-
-    public async updateGuild(guildID: string, settings: Guild){
+    /**
+     * Updates guild settings
+     * @param {string} guildID The ID of the guild 
+     * @param {object} settings The settings 
+     */
+    public async updateGuild(guildID: string, settings: Guild) {
         const guild = await this.getGuild(guildID);
         return this.guilds.set(guildID, {
-            ...guild, 
+            ...guild,
             ...settings
         });
     };

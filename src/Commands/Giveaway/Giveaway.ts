@@ -21,7 +21,7 @@ export default class Giveaway {
             .setTitle(options.prize)
             .setDescription(`${this.client.arrowEmoji} **React with 🎉 to enter!**\n**🏅 ${options.winners == 1 ? "Winner" : "Winners"}**: ${options.winners}\n${this.client.memberEmoji} **Hosted By**: ${options.hostedBy}\n`)
             .setTimestamp(new Date(Date.now() + options.duration))
-            .setFooter(`Ends at`, this.client.user.displayAvatarURL());
+            .setFooter(`Ends at`, this.client.user.displayAvatarURL({ dynamic: true }));
         let text: string = '';
         if (requirements.messages != 0) text += `${this.client.chatEmoji} You need to have \`${requirements.messages}\` messages!\n`;
         if (requirements.invites != 0) text += `📨 You need to have \`${requirements.invites}\` invites!\n`;
@@ -168,7 +168,7 @@ export default class Giveaway {
                     if (!winner) {
                         channel.send(this.client.createRedEmbed().setTitle(giveawayManager).setDescription(`Nobody reacted to the giveaway!\n${message.url}`));
                         embed.setDescription(`**🏅 ${winners == 1 ? "Winner" : "Winners"}:** Nobody reacted!\n${this.client.memberEmoji} **Hosted By:** ${hostedBy}\n`);
-                        embed.setFooter(`Ended at`, this.client.user.displayAvatarURL());
+                        embed.setFooter(`Ended at`, this.client.user.displayAvatarURL({ dynamic: true }));
                         embed.setColor("#818386");
                         await message.edit(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY ENDED**   ${this.client.galaxyAlphaEmoji}`, embed);
                     } else {
@@ -178,7 +178,7 @@ export default class Giveaway {
                             .setTitle(giveawayManager)
                             .setDescription(`Congratulations ${finalWinners}! You won the **${prize}**!\n${message.url}`)).then(async giveawayMessage => {
                                 embed.setDescription(`**🏅 ${winners == 1 ? "Winner" : "Winners"}**:\n${finalWinnersEmbed}\n[or click me](${giveawayMessage.url})\n${this.client.memberEmoji} **Hosted By:** ${hostedBy}\n`);
-                                embed.setFooter(`Ended at`, this.client.user.displayAvatarURL());
+                                embed.setFooter(`Ended at`, this.client.user.displayAvatarURL({ dynamic: true }));
                                 embed.setColor("#818386");
                                 await message.edit(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY ENDED**   ${this.client.galaxyAlphaEmoji}`, embed);
                             });
@@ -301,7 +301,7 @@ export default class Giveaway {
                     if (!winner) {
                         channel.send(this.client.createRedEmbed().setTitle(giveawayManager).setDescription(`Nobody reacted to the giveaway!\n${message.url}`));
                         embed.setDescription(`**🏅 ${data.winners == 1 ? "Winner" : "Winners"}:** Nobody reacted!\n${this.client.memberEmoji} **Hosted By:** ${data.hostedBy}\n`);
-                        embed.setFooter(`Ended at`, this.client.user.displayAvatarURL());
+                        embed.setFooter(`Ended at`, this.client.user.displayAvatarURL({ dynamic: true }));
                         embed.setColor("#818386");
                         await message.edit(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY ENDED**   ${this.client.galaxyAlphaEmoji}`, embed);
                     } else {
@@ -311,7 +311,7 @@ export default class Giveaway {
                             .setTitle(giveawayManager)
                             .setDescription(`Congratulations ${finalWinners}! You won the **${data.prize}**!\n${message.url}`)).then(async giveawayMessage => {
                                 embed.setDescription(`**🏅 ${data.winners == 1 ? "Winner" : "Winners"}**:\n${finalWinnersEmbed}\n[or click me](${giveawayMessage.url})\n${this.client.memberEmoji} **Hosted By**: ${data.hostedBy}\n`);
-                                embed.setFooter(`Ended at`, this.client.user.displayAvatarURL());
+                                embed.setFooter(`Ended at`, this.client.user.displayAvatarURL({ dynamic: true }));
                                 embed.setColor("#818386");
                                 await message.edit(`${this.client.galaxyAlphaEmoji}   **GIVEAWAY ENDED**   ${this.client.galaxyAlphaEmoji}`, embed);
                             });

@@ -58,7 +58,7 @@ export default class HelpCommand extends Command {
             let pages: number = arrayOfCategories.length + 1;
             const helpEmbed = client.createEmbed()
                 .setTitle(`${client.profileEmoji} ${client.user.username}`)
-                .setThumbnail(client.user.displayAvatarURL())
+                .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
                 .setDescription(`**${client.user.username}** is a bot to improve your server! 
                 Better server management and much more utility and fun commands!
                 Ticket system, giveaway and drop management, currency system, moderation commands, some game commands and music commands with basic stream quality!
@@ -75,7 +75,7 @@ export default class HelpCommand extends Command {
                 
                 **Categories**
                 \`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``)
-                .setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`, client.user.displayAvatarURL());
+                .setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`, client.user.displayAvatarURL({ dynamic: true }));
             embedArray.push(helpEmbed);
             for (let i = 0; i < arrayOfCategories.length; i++) {
                 const embed = client.createEmbed().setTitle(client.util.toUpperCaseBeginning(arrayOfCategories[i])).setFooter(`Page ${i + 2}/${pages} • <> = REQUIRED | [] = OPTIONAL`);

@@ -2,7 +2,7 @@
 import { readdirSync, lstatSync } from 'fs';
 import { join } from 'path';
 import ms from 'ms';
-import Discord from 'discord.js';
+import Discord, { MessageEmbed, NewsChannel, TextChannel, WebhookClient } from 'discord.js';
 import { connect, set } from 'mongoose';
 import { VideoMetadataResult } from "yt-search";
 import Humanizer from "humanize-duration";
@@ -65,41 +65,43 @@ export default class GalaxyAlpha extends Discord.Client {
 	/**
 	 * @param {GalaxyAlphaOptions} options The options of Galaxy Alpha
 	 */
-	constructor(options: GalaxyAlphaOptions) {
+	constructor(public config: GalaxyAlphaOptions) {
 		super({
-			ws: { intents: Discord.Intents.ALL },
+			ws: {
+				intents: Discord.Intents.ALL  
+			},
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
 			disableMentions: "everyone",
 			shards: "auto",
 			shardCount: 1
 		});
-		if (!options.ownerID) throw new Error("A bot owner has to be provided!");
-		if (!options.globalPrefix) throw new Error("A global prefix has to be provided!");
-		if (!options.token) throw new Error("A token has to be provided!");
-		if (!options.commandsDir) throw new Error("The command directory has to be provided!");
-		if (!options.eventsDir) throw new Error("The event directory has to be provided!");
-		if (!options.eventsDir) throw new Error("The feature directory has to be provided!");
-		if (!options.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
-		if (options.defaultEmbedColor) this.defaultColor = options.defaultEmbedColor;
+		if (!this.config.ownerID) throw new Error("A bot owner has to be provided!");
+		if (!this.config.globalPrefix) throw new Error("A global prefix has to be provided!");
+		if (!this.config.token) throw new Error("A token has to be provided!");
+		if (!this.config.commandsDir) throw new Error("The command directory has to be provided!");
+		if (!this.config.eventsDir) throw new Error("The event directory has to be provided!");
+		if (!this.config.eventsDir) throw new Error("The feature directory has to be provided!");
+		if (!this.config.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
+		if (this.config.defaultEmbedColor) this.defaultColor = this.config.defaultEmbedColor;
 		else this.defaultColor = "#808080";
-		if (!options.developers) this.developers = [options.ownerID];
-		else this.developers = options.developers;
-		if (options.ignoreFiles) this.ignoreFiles = options.ignoreFiles;
+		if (!this.config.developers) this.developers = [this.config.ownerID];
+		else this.developers = this.config.developers;
+		if (this.config.ignoreFiles) this.ignoreFiles = this.config.ignoreFiles;
 		else this.ignoreFiles = [];
-		if (options.xpPerMessage) this.xpPerMessage = options.xpPerMessage;
-		else this.xpPerMessage = Math.floor(this.util.getRandomArbitrary(1, 20));
-		this.globalPrefix = options.globalPrefix;
-		this.contributors = options.contributors;
-		this.ownerID = options.ownerID;
-		if (options.supportGuildID) this.supportGuildID = options.supportGuildID;
+		if (this.config.xpPerMessage) this.xpPerMessage = this.config.xpPerMessage;
+		else this.xpPerMessage = 20;
+		this.globalPrefix = this.config.globalPrefix;
+		this.contributors = this.config.contributors;
+		this.ownerID = this.config.ownerID;
+		if (this.config.supportGuildID) this.supportGuildID = this.config.supportGuildID;
 		//LOGIN\\
-		this.login(options.token).catch((error: any) => console.log(error));
+		this.login(this.config.token).catch((error: any) => console.log(error));
 		//READ COMMANDS, EVENTS, FEATURES\\
-		this.readCommands(options.commandsDir);
-		this.readEvents(options.eventsDir);
-		this.readFeatures(options.featuresDir);
+		this.readCommands(this.config.commandsDir);
+		this.readEvents(this.config.eventsDir);
+		this.readFeatures(this.config.featuresDir);
 		//MONGO DB\\
-		connect(options.mongoDBUrl, {
+		connect(this.config.mongoDBUrl, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
@@ -111,7 +113,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		//READY EVENT\\
 		this.once("ready", async () => {
 			//GUILD\\
-			if (options.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
+			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			//CLIENT INFO\\
 			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
 			clientInfoTable.addRow('Presence Status', this.user.presence.status);
@@ -172,6 +174,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	public supportGuild: Discord.Guild;
 	//COLLECTIONS\\
 	public commands: Discord.Collection<string, Command> = new Discord.Collection();
+	public disabledCommands: Discord.Collection<string, Command> = new Discord.Collection();
+	public events: Discord.Collection<string, Event> = new Discord.Collection();
 	public aliases: Discord.Collection<string, string> = new Discord.Collection();
 	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
 	public features: Discord.Collection<string, Feature> = new Discord.Collection();
@@ -250,7 +254,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * Reads all commands of the provided directory
 	 * @param {string} commandPath The command directory
 	 */
-	private async readCommands(commandPath: string) {
+	public async readCommands(commandPath: string) {
 		const files = readdirSync(join(__dirname, commandPath))
 		for (const file of files) {
 			const stat = lstatSync(join(__dirname, commandPath, file));
@@ -273,8 +277,14 @@ export default class GalaxyAlpha extends Discord.Client {
 					commandTable.addRow(`${command.name}`, "❌", "Category left!");
 					continue;
 				} else {
-					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)) continue;
-					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)) continue;
+					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)){
+						commandTable.addRow(`${command.name}`, "❌", `Name already existing!`);
+						continue;
+					};
+					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)){
+						commandTable.addRow(`${command.name}`, "❌", "Alias already existing!");
+						continue;
+					};
 					this.commands.set(command.name, command);
 					const commandsArray: Array<Command> = this.categories.get(command.category) || [];
 					commandsArray.push(command);
@@ -289,7 +299,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * Reads all events of the provided directory
 	 * @param {string} eventPath The event directory 
 	 */
-	private async readEvents(eventPath: string) {
+	public async readEvents(eventPath: string) {
 		const files = readdirSync(join(__dirname, eventPath));
 		for (const file of files) {
 			const stat = lstatSync(join(__dirname, eventPath, file));
@@ -310,6 +320,7 @@ export default class GalaxyAlpha extends Discord.Client {
 					continue;
 				} else {
 					this.on(event.name, event.run.bind(null, this));
+					this.events.set(event.name, event);
 					eventTable.addRow(`${event.name}`, "✅");
 				};
 			};
@@ -319,7 +330,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * Reads all features of the provided directory
 	 * @param {string} featurePath The feature directory 
 	 */
-	private async readFeatures(featurePath: string) {
+	public async readFeatures(featurePath: string) {
 		const files = readdirSync(join(__dirname, featurePath));
 		for (const file of files) {
 			const stat = lstatSync(join(__dirname, featurePath, file));
@@ -397,7 +408,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: this.defaultColor,
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -415,7 +426,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: this.defaultColor,
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -437,7 +448,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#2ECC71',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -455,7 +466,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#2ECC71',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -477,7 +488,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#F1C40F',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -495,7 +506,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#F1C40F',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -517,7 +528,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#ff0000',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL(),
+					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
 				fields: [
 					{
@@ -535,7 +546,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				color: '#ff0000',
 				footer: {
 					text: "Created By HydraNhani",
-					iconURL: this.user.displayAvatarURL()
+					iconURL: this.user.displayAvatarURL({ dynamic: true })
 				},
 				fields: [
 					{
@@ -603,5 +614,22 @@ export default class GalaxyAlpha extends Discord.Client {
 				});
 			};
 		});
+	};
+	public async modLogWebhook(guildID: string, embed: MessageEmbed) {
+		const guildSettings = await this.cache.getGuild(guildID);
+		if (guildSettings) {
+			if (guildSettings.modLogChannelID && guildSettings.modLogChannelWebhookID && guildSettings.modLogChannelWebhookToken) {
+				const channel = this.channels.cache.get(guildSettings.modLogChannelID) as TextChannel | NewsChannel;
+				if (channel) {
+					const webhooks = await channel.fetchWebhooks();
+					if (webhooks.has(guildSettings.modLogChannelWebhookID)) {
+						const webhook = new WebhookClient(guildSettings.modLogChannelWebhookID, guildSettings.modLogChannelWebhookToken, {
+							partials: ["CHANNEL", "GUILD_MEMBER", "MESSAGE", "REACTION", "USER"]
+						});
+						webhook.send(embed);
+					};
+				};
+			};
+		};
 	};
 };

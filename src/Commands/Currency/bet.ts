@@ -14,7 +14,7 @@ export default class BetCommand extends Command {
 		const minimum = 200;
 		const userProfile = await client.cache.getCurrency(message.author.id);
 		await client.cache.increaseCurrencyMessageCount(message.author.id);
-		const errorEmbed = client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL()).setTitle("💰 Currency Manager");
+		const errorEmbed = client.createRedEmbed(true, commandUsage).setAuthor(`${message.author.username}`, message.author.displayAvatarURL({ dynamic: true })).setTitle("💰 Currency Manager");
 		if (userProfile.wallet < minimum) return message.channel.send(errorEmbed.setDescription(`You must have atleast \`${minimum}\`$ in your wallet!`));
 		if (!args[0]) return message.channel.send(errorEmbed.setDescription('You have to provide a bet!'));
 		if (isNaN((args[0] as unknown as number)) && args[0].toLowerCase() != 'all' && args[0].toLowerCase() != 'max' && args[0].toLowerCase() != "half") return message.channel.send(errorEmbed.setDescription('You have to provide a number, `max` or `all`!'));
@@ -26,14 +26,14 @@ export default class BetCommand extends Command {
 		async function bet(number: number) {
 			const oldProfile = await client.cache.getCurrency(message.author.id);
 			const luckNumber: boolean = Math.random() < 0.5;
-			const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL());
+			const embed = client.createGreenEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL({ dynamic: true }));
 			if (luckNumber) {
 				const winNumber = Math.round(client.util.getRandomArbitrary(30, 150));
 				const win = Math.round(number * (winNumber / 100));
 				message.channel.send(embed.setDescription(`You won \`${win.toLocaleString()}\`$\n**Percent Won:** \`${winNumber}\`%\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(oldProfile.wallet + win).toLocaleString()}\`$`));
 				return client.cache.increaseBalance(message.author.id, "wallet", win);
 			} else {
-				message.channel.send(client.createRedEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL()).setDescription(`You lost \`${number.toLocaleString()}\`$!\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(oldProfile.wallet - number).toLocaleString()}\`$`));
+				message.channel.send(client.createRedEmbed().setAuthor(`💰 ${message.author.username} bets some coins!`, message.author.displayAvatarURL({ dynamic: true })).setDescription(`You lost \`${number.toLocaleString()}\`$!\n**Wallet:** \`${oldProfile.wallet.toLocaleString()}\` ${client.arrowEmoji} \`${(oldProfile.wallet - number).toLocaleString()}\`$`));
 				return client.cache.increaseBalance(message.author.id, "wallet", -number);
 			};
 		};

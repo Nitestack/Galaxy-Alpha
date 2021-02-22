@@ -22,12 +22,12 @@ export default class WhoisCommand extends Command {
 
         return message.channel.send(client.createEmbed()
             .setColor(member.roles.highest.hexColor)
-            .setAuthor(member.user.tag, member.user.displayAvatarURL())
-            .setThumbnail(member.user.displayAvatarURL())
+            .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
             .setDescription(`${member.user}`)
             .addField("Nickname (username if they don't have one)", member.displayName)
             .addField('ID', member.user.id)
-            .addField('Avatar', `[Link](${member.user.displayAvatarURL()})`)
+            .addField('Avatar', `[Link](${member.user.displayAvatarURL({ dynamic: true })})`)
             .addField('Registered on Discord', `${weekDays[new Date(member.user.createdAt).getUTCDay()]}, ${monthNames[new Date(member.user.createdAt).getUTCMonth()]} ${new Date(member.user.createdAt).getUTCDate()}, ${new Date(member.user.createdAt).getUTCFullYear()}, ${new Date(member.user.createdAt).getUTCHours()}:${new Date(member.user.createdAt).getUTCMinutes()}:${new Date(member.user.createdAt).getUTCSeconds()} UTC`)
             .addField('Joined this server', `${weekDays[new Date(member.joinedAt).getUTCDay()]}, ${monthNames[new Date(member.joinedAt).getUTCMonth()]} ${new Date(member.joinedAt).getUTCDate()}, ${new Date(member.joinedAt).getUTCFullYear()}, ${new Date(member.joinedAt).getUTCHours()}:${new Date(member.joinedAt).getUTCMinutes()}:${new Date(member.joinedAt).getUTCSeconds()} UTC`)
             .addField(`Roles [${roles.length}]`, roles.join(' ')));

@@ -4,7 +4,7 @@ import LevelSchema, { Level } from "@models/level";
 import VouchSchema, { Vouch } from '@models/vouches';
 
 export default class LeaderboardCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "leaderboard",
             description: "shows the server's leaderboard of a category",
@@ -19,12 +19,19 @@ export default class LeaderboardCommand extends Command {
         if (args[0]?.toLowerCase() == 'messages') {
             const embed = client.createEmbed().setTitle(`${client.chatEmoji} Leaderboard`);
             let text: string = '';
-            let users = (await LevelSchema.find({ guildID: message.guild.id }).sort({
-                messages: -1
-            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Level>);
-            users.forEach(user => {
-                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = client.cache.levels.get(`${user.userID}-${message.guild.id}`);
-            });
+            let messages: Array<Level> = await LevelSchema.find({ guildID: message.guild.id }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10);
+            if (messages) for (const user of messages) {
+                if (!client.cache.levels.has(user.userID)) client.cache.levels.set(`${user.userID}-${message.guild.id}`, {
+                    userID: user.userID,
+                    guildID: message.guild.id,
+                    level: user.level,
+                    xp: user.xp,
+                    messages: user.messages,
+                    lastUpdated: user.lastUpdated
+                });
+            };
+            const users = client.cache.levels.filter(user => user.guildID == message.guild.id).array().sort((a, b) => b.messages - a.messages);
+            if (users.length == 0) return client.createArgumentError(message, { title: "Leaderboard Manager", description: "This server sent no messages! Send some messages to gain xp!" }, this.usage);
             for (let i = 0; i < users.length; i++) {
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID).user : false;
                 if (user) {
@@ -38,15 +45,22 @@ export default class LeaderboardCommand extends Command {
         } else if (args[0]?.toLowerCase() == 'levels') {
             const embed = client.createEmbed().setTitle("🎚️ Leaderboard")
             let text: string = "";
-            const users = (await LevelSchema.find({ guildID: message.guild.id }).sort({
-                xp: -1
-            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Level>);
-            users.forEach(user => {
-                if (client.cache.levels.has(`${user.userID}-${message.guild.id}`)) users[users.findIndex(u => u.userID == user.userID)] = client.cache.levels.get(`${user.userID}-${message.guild.id}`);
-            });
-            for (let i = 0; i < users.length; i++){
+            const level = await LevelSchema.find({ guildID: message.guild.id }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10);
+            if (level) for (const user of level){
+                if (!client.cache.levels.has(user.userID)) client.cache.levels.set(`${user.userID}-${message.guild.id}`, {
+                    userID: user.userID,
+                    guildID: message.guild.id,
+                    level: user.level,
+                    xp: user.xp,
+                    messages: user.messages,
+                    lastUpdated: user.lastUpdated
+                });
+            };
+            const users = client.cache.levels.filter(user => user.guildID == message.guild.id).array().sort((a, b) => b.xp - a.xp);
+            if (users.length == 0) return client.createArgumentError(message, { title: "Leaderboard Manager", description: "There are no levels in this server! Send some messages to gain xp!" }, this.usage);
+            for (let i = 0; i < users.length; i++) {
                 let user = message.guild.members.cache.has(users[i].userID) ? message.guild.members.cache.get(users[i].userID) : false;
-                if (user){
+                if (user) {
                     if (i == 0) text += `🥇 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
                     else if (i == 1) text += `🥈 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
                     else if (i == 2) text += `🥉 ${user} on Level \`${users[i].level.toLocaleString()}\` (\`${users[i].xp.toLocaleString()}\`/\`${xpFor(users[i].level).toLocaleString()}\` XP)\n`
@@ -55,32 +69,40 @@ export default class LeaderboardCommand extends Command {
             };
             return message.channel.send(embed.setDescription(text));
         } else if (args[0]?.toLowerCase() == 'invites') {
-            
+
         } else if (args[0]?.toLowerCase() == 'currency') {
             const embed = client.createEmbed().setTitle(`💰 Leaderboard`);
             let text: string = '';
-            const profilesWallet = (await ProfileSchema.find({}).sort({
-                wallet: -1
-            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Profile>);
-            profilesWallet.forEach(profile => {
-                if (client.cache.currency.has(profile.userID)) profilesWallet[profilesWallet.findIndex(p => p.userID == profile.userID)] = client.cache.currency.get(profile.userID);
-            });
+            const currencies = await ProfileSchema.find({}).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10);
+            if (currencies) for (const user of currencies){
+                if (!client.cache.currency.has(user.userID)) client.cache.currency.set(user.userID, {
+                    userID: user.userID,
+                    bank: user.bank,
+                    wallet: user.wallet,
+                    profileCreatedAt: user.profileCreatedAt,
+                    items: user.items,
+                    passive: user.passive,
+                    messageCount: user.messageCount
+                });
+            };
+            const profilesWallet = client.cache.currency.filter(profile => message.guild.members.cache.has(profile.userID)).array().sort((a, b) => (b.wallet + b.bank) - (a.wallet + a.bank));
+            if (profilesWallet.length == 0) return client.createArgumentError(message, { title: "Leaderboard Manager", description: "There is nobody having coins!\nUse the currency commands to gain coins!" }, this.usage);
             for (let i = 0; i < profilesWallet.length; i++) {
                 let user = message.guild.members.cache.has(profilesWallet[i].userID) ? message.guild.members.cache.get(profilesWallet[i].userID).user : false;
-                if (user && !client.developers.includes(user.id)) {
-                    if (i == 0) text += `🥇 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    else if (i == 1) text += `🥈 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    else if (i == 2) text += `🥉 ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
-                    else text += `\`${i + 1}.\` ${user} with \`${profilesWallet[i].wallet.toLocaleString()}\`$\n`;
+                if (user) {
+                    if (i == 0) text += `🥇 ${user} with an total of \`${(profilesWallet[i].wallet + profilesWallet[i].bank).toLocaleString()}\`$\n`;
+                    else if (i == 1) text += `🥈 ${user} with an total of \`${(profilesWallet[i].wallet + profilesWallet[i].bank).toLocaleString()}\`$\n`;
+                    else if (i == 2) text += `🥉 ${user} with an total of \`${(profilesWallet[i].wallet + profilesWallet[i].bank).toLocaleString()}\`$\n`;
+                    else text += `\`${i + 1}.\` ${user} with an total of \`${(profilesWallet[i].wallet + profilesWallet[i].bank).toLocaleString()}\`$\n`;
                 };
             };
             return message.channel.send(embed.setDescription(text));
         } else if (args[0]?.toLowerCase() == 'vouches') {
             const embed = client.createEmbed().setTitle(":people_hugging: Leaderboard");
             let text: string = '';
-            const vouches = (await VouchSchema.find({}).sort({
+            const vouches = await VouchSchema.find({}).sort({
                 upVotes: -1
-            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10).catch(err => console.log(err)) as Array<Vouch>);
+            }).limit(args[1] && !isNaN((args[1] as unknown as number)) ? parseInt(args[1]) : 10);
             for (let i = 0; i < vouches.length; i++) {
                 let user = message.guild.members.cache.has(vouches[i].userID) ? message.guild.members.cache.get(vouches[i].userID).user : false;
                 const upVotes = (vouches[i].upVotes - vouches[i].downVotes).toLocaleString();

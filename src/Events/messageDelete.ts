@@ -19,8 +19,16 @@ export default class MessageDeleteEvent extends Event {
         const dropSchema = await DropSchema.findOne({ messageID: message.id });
         if (dropSchema) await DropSchema.findOneAndDelete({ messageID: message.id });
         const guildSettings = await client.cache.getGuild(message.guild.id);
-        const results = guildSettings.reactionRoles?.filter(reactionrole => reactionrole.messageID == message.id);
-        if (results?.length != 0) {
+        if (guildSettings.modLogChannelID == message.channel.id) return;
+        await client.modLogWebhook(message.guild.id, client.createRedEmbed()
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+            .setTitle("Message Deleted!")
+            .setDescription(`**Author:** ${message.author}
+            **Created At:** *${client.util.dateFormatter(message.createdAt)}*
+            **Content** *${message.embeds[0] ? message.embeds[0].description : message.content}*`));
+        if (!guildSettings.reactionRoles) return;
+        const results = guildSettings.reactionRoles.filter(reactionrole => reactionrole.messageID == message.id);
+        if (results.length != 0) {
             const newReactionRoles = guildSettings.reactionRoles;
             results.forEach(reactionrole => {
                 newReactionRoles.splice(newReactionRoles.indexOf(reactionrole), 1);

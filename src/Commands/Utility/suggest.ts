@@ -26,7 +26,7 @@ export default class SuggestCommand extends Command {
                 .setTitle(suggestionManager)
                 .setDescription(`Your suggestion was successfully sent to the developers!\n**📝 Suggestion:** ${suggestion}`);
             const suggestionEmbed = client.createEmbed()
-                .setAuthor(message.author.tag, message.author.displayAvatarURL())
+                .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
                 .setTitle(suggestionManager)
                 .setDescription(`${suggestion}
                 

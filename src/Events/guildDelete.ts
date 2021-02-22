@@ -37,5 +37,6 @@ export default class GuildDeleteEvent extends Event {
 		GuildSchema.findOneAndDelete({
 			guildID: guild.id
 		});
+		client.cache.guilds.delete(guild.id);
 	};
 };

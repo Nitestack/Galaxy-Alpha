@@ -1,8 +1,8 @@
 import Command, { CommandRunner } from '@root/Command';
-import { NewsChannel, User, TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 
 export default class ClearCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "clear",
             description: "deletes an amount of messages or delete messages, that includes a specific content",
@@ -18,14 +18,14 @@ export default class ClearCommand extends Command {
         const clearManager = "🧹 Clear Manager";
         if (args[0]?.toLowerCase() == 'content') {
             if (!args[1]) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription("You have to provide an content!"));
-            await message.channel.messages.fetch().then(messages => {
-                if (messages.filter(m => m.content.toLowerCase().includes(args[1].toLowerCase())).size == 0) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription(`Cannot find any messages, that includes \`${args[1]}\``));
-                const result = messages.filter(m => !m.pinned && m.content.toLowerCase().includes(args[1].toLowerCase()));
-                (message.channel as TextChannel | NewsChannel).bulkDelete(result);
-                if (result.size == 0) return message.channel.send(client.createRedEmbed(true, clearManager)
-                    .setTitle(clearManager)
-                    .setDescription(`This channel has only pinned messages and I'm not allowed to delete pinned messages!`));
-            });
+            const messages = await message.channel.messages.fetch();
+            if (messages.filter(m => m.content.toLowerCase().includes(args[1].toLowerCase())).size == 0) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription(`Cannot find any messages, that includes \`${args[1]}\``));
+            const result = messages.filter(m => !m.pinned && m.content.toLowerCase().includes(args[1].toLowerCase()));
+            (message.channel as TextChannel | NewsChannel).bulkDelete(result);
+            if (result.size == 0) return message.channel.send(client.createRedEmbed(true, clearManager)
+                .setTitle(clearManager)
+                .setDescription(`This channel has only pinned messages and I'm not allowed to delete pinned messages!`));
+            (message.channel as TextChannel | NewsChannel).bulkDelete(args[2] && !isNaN((args[2] as unknown as number)) ? parseInt(args[2]) + 1 : result);
         } else if (!isNaN((args[0] as unknown as number))) {
             
         };

@@ -1,5 +1,4 @@
 import Event, { EventRunner } from '@root/Event';
-import guild from '@root/Models/guild';
 import { GuildMember, NewsChannel, TextChannel } from 'discord.js';
 
 export default class GuildMemberAddEvent extends Event {
