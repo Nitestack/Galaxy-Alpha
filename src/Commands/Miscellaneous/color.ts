@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export default class ColorCommand extends Command {
 	constructor() {
@@ -13,9 +13,9 @@ export default class ColorCommand extends Command {
 	run: CommandRunner = async (client, message, args, prefix) => {
 		var randomColor = Math.floor(Math.random() * 16777215).toString(16);
 		if (args[0]) randomColor = args[0];
-		let data = await fetch(`https://www.thecolorapi.com/id?hex=${randomColor}`);
-		let res = await data.json();
-		const color = client.createEmbed()
+		let results = await axios.get(`https://www.thecolorapi.com/id?hex=${randomColor}`);
+		let res = results.data;
+		return message.channel.send(client.createEmbed()
 			.setTitle(res.name.value)
 			.setColor(res.hex.value)
 			.setThumbnail(`http://singlecolorimage.com/get/${randomColor}/400x400`)
@@ -24,7 +24,6 @@ export default class ColorCommand extends Command {
 			.addField('**HSL**', '`' + res.hsl.value + '`', true)
 			.addField('**HSV**', '`' + res.hsv.value + '`', true)
 			.addField('**CMYK**', '`' + res.cmyk.value + '`', true)
-			.addField('**XYZ**', '`' + res.XYZ.value + '`', true);
-		return message.channel.send(color);
+			.addField('**XYZ**', '`' + res.XYZ.value + '`', true));
 	};
 };

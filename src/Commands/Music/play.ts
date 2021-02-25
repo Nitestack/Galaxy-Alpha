@@ -26,11 +26,11 @@ export default class PlayCommand extends Command {
         if (!args.length) return message.channel.send(embed.setDescription("You need to send keywords or an valid YouTube link to let me play music!"));
         const videoResults = await (await playlistFinder(args.join(" ")) ? playlistFinder(args.join(" ")) : (await videoFinder(args.join(" ")) ? await videoFinder(args.join(" ")) : null));
         if (!videoResults) return message.channel.send(embed.setDescription(`Cannot find any results, that includes \`${args.join(" ")}\`! Please try again!`));
-        if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 0 && client.queue.get(message.guild.id).nowPlaying) {
+        if (client.music.getQueue(message.guild.id).length > 0 && client.queue.get(message.guild.id).nowPlaying) {
             if (voiceChannel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(embed.setDescription("You need to be in the same voice channel, where I am!"));
             if (videoResults.type == "list") {
                 const playList = await ytSearch({ listId: videoResults.listId });
-                playList.videos.forEach(async video => addToQueue(video.videoId));
+                playList.videos.forEach(async video => await addToQueue(video.videoId));
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
                     .setDescription(`Added the playlist with \`${playList.videos.length > max ? max : playList.videos.length}\` videos to the queue!
@@ -38,7 +38,7 @@ export default class PlayCommand extends Command {
                     **<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})* on ${playList.date}`));
             } else {
-                addToQueue(videoResults.videoId);
+                await addToQueue(videoResults.videoId);
                 const video = await ytSearch({ videoId: videoResults.videoId });
                 return message.channel.send(client.createEmbed()
                     .setTitle("🎧 Music Manager")
@@ -63,42 +63,25 @@ export default class PlayCommand extends Command {
                     .setDescription(`**<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                     *uploaded by [${playList.author.name}](${playList.author.url})*`));
                 const maxPlaylist = playList.videos.splice(0, max);
-                for (const video of maxPlaylist){
-                    addToQueue(video.videoId);
-                };
-                return client.music.play(message, voiceChannel);
+                for (const video of maxPlaylist) await addToQueue(video.videoId);
+                return await client.music.play(message, voiceChannel);
             } else if (videoResults.type == "video") {
-                addToQueue(videoResults.videoId);
-                return client.music.play(message, voiceChannel);
+                await addToQueue(videoResults.videoId);
+                return await client.music.play(message, voiceChannel);
             };
         };
-
-        function addToQueue(videoID: string) {
-            if (!client.queue.has(message.guild.id)) client.queue.set(message.guild.id, {
-                guildID: message.guild.id,
-                queue: [],
-                nowPlaying: false,
-                dispatcher: null,
-                voiceChannel: null,
-                beginningToPlay: null,
-                stopToPlay: null,
-                multipleLoop: false,
-                singleLoop: false,
-                shuffle: false
+        async function addToQueue(videoID: string) {
+            const video = await ytSearch({ videoId: videoID });
+            if (!video) return;
+            const queue = client.music.getQueue(message.guild.id);
+            queue.push({
+                ...video,
+                requesterID: message.author.id
             });
-            ytSearch({ videoId: videoID }, (err, video) => {
-                if (err) console.log(err);
-                if (video) console.log(video);
-                const queue = client.queue.get(message.guild.id).queue;
-                queue.push({
-                    ...video,
-                    requesterID: message.author.id
-                });
-                const serverQueue = client.queue.get(message.guild.id);
-                client.queue.set(message.guild.id, {
-                    ...serverQueue,
-                    queue: queue
-                });
+            const serverQueue = client.queue.get(message.guild.id);
+            client.queue.set(message.guild.id, {
+                ...serverQueue,
+                queue: queue
             });
         };
     };

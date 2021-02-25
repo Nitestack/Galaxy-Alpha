@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from "@root/Command";
-import { ReactionCollector } from "discord.js";
+import { MessageAttachment, ReactionCollector } from "discord.js";
 import duration from "humanize-duration";
 import canvacord from "canvacord";
 
@@ -17,39 +17,25 @@ export default class MusicPanelCommand extends Command {
         if (!message.member.voice.channel) return message.channel.send(client.createEmbed()
             .setTitle("🎧 Music Manager")
             .setDescription("You have to be in a voice channel to use this command!"));
-        if (client.queue.has(message.guild.id) && client.queue.get(message.guild.id).queue && client.queue.get(message.guild.id).queue.length > 0) {
+        if (client.music.getQueue(message.guild.id).length > 0) {
             if (message.member.voice.channel.id != client.queue.get(message.guild.id).voiceChannel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
-            let queue = client.queue.get(message.guild.id).queue;
             let song = 0;
-            const panel = canvacord.Spotify();
-            const msg = await message.channel.send(client.createEmbed()
-                .setTitle("🎧 Music Manager")
-                .setDescription(`**<:youtube:786675436733857793> [${queue[0].title}](${queue[0].url})**
-                *uploaded by [${queue[0].author.name}](${queue[0].author.url}) on ${queue[0].uploadDate} (${queue[0].ago})*
-                
-                **Duration:** ${client.util.getDuration(queue[0].duration.seconds * 1000)} (${duration(queue[0].duration.seconds * 1000, {
-                    units: ["h", "m", "s"],
-                    round: true
-                })})
-                **Views:** ${queue[0].views.toLocaleString()} views
-                **Genre:** ${client.util.toUpperCaseBeginning(queue[0].genre)}
-                
-                ⏮️ ▶️ ⏭️`)
-                .setImage(queue[0].image));
+            let queue = client.music.getQueue(message.guild.id);
+            const panel = new canvacord.Spotify()
+                .setAuthor(queue[0].author.name)
+                .setBackground("IMAGE", "https://www.mobilebeat.com/wp-content/uploads/2016/07/Background-Music-768x576-1280x720.jpg")
+                .setEndTimestamp(queue[0].duration.seconds * 1000)
+                .setStartTimestamp(Date.now() - client.queue.get(message.guild.id).beginningToPlay.getTime())
+                .setTitle(queue[0].title);
+            const buffer = await panel.build();
+            const attachment = new MessageAttachment(buffer, "song.png");
+            const msg = await message.channel.send(attachment);
             client.queue.set(message.guild.id, {
-                beginningToPlay: client.queue.get(message.guild.id).beginningToPlay,
-                dispatcher: client.queue.get(message.guild.id).dispatcher,
+                ...client.queue.get(message.guild.id),
                 guildID: message.guild.id,
-                multipleLoop: client.queue.get(message.guild.id).multipleLoop,
-                nowPlaying: client.queue.get(message.guild.id).nowPlaying,
                 panel: msg,
-                queue: client.queue.get(message.guild.id).queue,
-                shuffle: client.queue.get(message.guild.id).shuffle,
-                singleLoop: client.queue.get(message.guild.id).singleLoop,
-                stopToPlay: client.queue.get(message.guild.id).stopToPlay,
-                voiceChannel: client.queue.get(message.guild.id).voiceChannel
             });
             const reactionArray: Array<string> = ["⏮️", "⏯️", "⏭️", "🔁", "🔂"];
             reactionArray.forEach(async reaction => await msg.react(reaction));
@@ -60,7 +46,6 @@ export default class MusicPanelCommand extends Command {
                     if (song == 0) song = queue.length - 1;
                     else song--;
                     if (client.queue.get(message.guild.id).shuffle) queue = client.music.shuffle(queue);
-                    client.music.play(message, message.member.voice.channel, queue[song].videoID, false, prefix, null, false, true);
                     msg.edit(msg.embeds[0]
                         .setDescription(`**<:youtube:786675436733857793> [${queue[song].title}](${queue[song].url})**
                             *uploaded by [${queue[song].author.name}](${queue[song].author.url}) on ${queue[song].uploadDate} (${queue[song].ago})*
@@ -77,21 +62,18 @@ export default class MusicPanelCommand extends Command {
                 } else if (reaction.emoji.name == "⏭️") {
                     if (song == queue.length - 1) song = 0;
                     else song++;
-                    if (client.queue.get(message.guild.id).shuffle) queue = client.music.shuffle(queue);
-                    client.music.play(message, message.member.voice.channel, queue[song].videoID, false, prefix, null, false, true);
-                    msg.edit(msg.embeds[0]
-                        .setDescription(`**<:youtube:786675436733857793> [${queue[song].title}](${queue[song].url})**
-                            *uploaded by [${queue[song].author.name}](${queue[song].author.url}) on ${queue[song].uploadDate} (${queue[song].ago})*
-                            
-                            **Duration:** ${client.util.getDuration(queue[song].duration.seconds * 1000)} (${duration(queue[song].duration.seconds * 1000, {
-                            units: ["h", "m", "s"],
-                            round: true
-                        })})
-                            **Views:** ${queue[song].views.toLocaleString()} views
-                            **Genre:** ${client.util.toUpperCaseBeginning(queue[song].genre)}
-                            
-                            ⏮️ ▶️ ⏭️`)
-                        .setImage(queue[song].image));
+                    client.queue.get(message.guild.id).dispatcher.emit("finish");
+                    msg.edit(msg.embeds[0].setDescription(`**<:youtube:786675436733857793> [${queue[song].title}](${queue[song].url})**
+                    *uploaded by [${queue[song].author.name}](${queue[song].author.url}) on ${queue[song].uploadDate} (${queue[song].ago})*
+                    **Duration:** ${client.util.getDuration(queue[song].duration.seconds * 1000)} (${duration(queue[song].duration.seconds * 1000, {
+                        units: ["h", "m", "s"],
+                        round: true
+                    })})
+                    **Views:** ${queue[song].views.toLocaleString()} views
+                    **Genre:** ${client.util.toUpperCaseBeginning(queue[song].genre)}
+                    
+                    ⏮️ ▶️ ⏭️`)
+                    .setImage(queue[song].image));
                 } else if (reaction.emoji.name == "⏯️") {
                     if (client.queue.get(message.guild.id).nowPlaying) {
                         client.music.stop(client.queue.get(message.guild.id).dispatcher);

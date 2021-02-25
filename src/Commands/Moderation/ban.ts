@@ -19,6 +19,8 @@ export default class BanCommand extends Command {
         if (message.mentions.users.first()) member = message.guild.members.cache.get(message.mentions.users.first().id);
         if (args[0] && message.guild.members.cache.has(args[0])) member = message.guild.members.cache.get(args[0]);
         if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("You cannot ban yourself!"));
+        if (member.id == message.guild.ownerID) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("You cannot ban the owner!"));
+        if (member.id == client.user.id) return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("Cannot ban myself!"));
         if (member) {
             if (member.bannable) {
                 const reason = args.slice(1).join(" ") || "No reason provided!";
@@ -31,8 +33,10 @@ export default class BanCommand extends Command {
                         try {
                             await member.ban({ reason: `${reason} (banned by ${message.author.tag})` });
                             await client.modLogWebhook(message.guild.id, client.createRedEmbed()
-                                .setTitle("🔨 Ban Manager")
-                                .setDescription(`🔨 ${member.user} was banned by ${message.author}!\n📝 **Reason:** ${reason}`));
+                                .setTitle("Member Banned!")
+                                .setDescription(`**Member:** ${member.user}
+                                **Banned by:** ${message.author}
+                                **Reason:** *${reason}*`));
                             msg.channel.send(client.createGreenEmbed()
                                 .setTitle("🔨 Ban Manager")
                                 .setDescription(`🔨 ${member.user} was banned!\n📝 **Reason:** ${reason}`));

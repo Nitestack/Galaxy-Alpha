@@ -23,7 +23,7 @@ import GiveawaySchema from '@models/Giveaways/giveaways';
 import DropSchema from '@models/Giveaways/drops';
 import TicketSchema from '@models/ticket';
 import GuildSchema from '@models/guild';
-import LevelSchema from '@root/Models/level';
+import LevelSchema from '@models/level';
 //ANY THING ELSE\\
 import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
@@ -54,14 +54,14 @@ export interface Queue extends VideoMetadataResult {
 };
 
 export default class GalaxyAlpha extends Discord.Client {
-	public ownerID: string;
-	public globalPrefix: string;
-	public developers: Array<string>;
-	public contributors: Array<string>;
-	public supportGuildID: string;
-	public defaultColor: string;
-	public ignoreFiles: Array<string>;
-	public xpPerMessage: number;
+	public ownerID: string = this.config.ownerID;
+	public globalPrefix: string = this.config.globalPrefix;
+	public developers: Array<string> = this.config.developers || [this.ownerID];
+	public contributors: Array<string> = this.config.contributors || [];
+	public supportGuildID: string = this.config.supportGuildID || null;
+	public defaultColor: string = this.config.defaultEmbedColor || "#808080";
+	public ignoreFiles: Array<string> = this.config.ignoreFiles || [];
+	public xpPerMessage: number = this.config.xpPerMessage || 20;
 	/**
 	 * @param {GalaxyAlphaOptions} options The options of Galaxy Alpha
 	 */
@@ -82,88 +82,7 @@ export default class GalaxyAlpha extends Discord.Client {
 		if (!this.config.eventsDir) throw new Error("The event directory has to be provided!");
 		if (!this.config.eventsDir) throw new Error("The feature directory has to be provided!");
 		if (!this.config.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
-		if (this.config.defaultEmbedColor) this.defaultColor = this.config.defaultEmbedColor;
-		else this.defaultColor = "#808080";
-		if (!this.config.developers) this.developers = [this.config.ownerID];
-		else this.developers = this.config.developers;
-		if (this.config.ignoreFiles) this.ignoreFiles = this.config.ignoreFiles;
-		else this.ignoreFiles = [];
-		if (this.config.xpPerMessage) this.xpPerMessage = this.config.xpPerMessage;
-		else this.xpPerMessage = 20;
-		this.globalPrefix = this.config.globalPrefix;
-		this.contributors = this.config.contributors;
-		this.ownerID = this.config.ownerID;
-		if (this.config.supportGuildID) this.supportGuildID = this.config.supportGuildID;
-		//LOGIN\\
-		this.login(this.config.token).catch((error: any) => console.log(error));
-		//READ COMMANDS, EVENTS, FEATURES\\
-		this.readCommands(this.config.commandsDir);
-		this.readEvents(this.config.eventsDir);
-		this.readFeatures(this.config.featuresDir);
-		//MONGO DB\\
-		connect(this.config.mongoDBUrl, {
-			useFindAndModify: false,
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useCreateIndex: true
-		}).then(() => clientInfoTable.addRow("MongoDB", "✅ Connected!")).catch(err => console.log(err));
-		set('useNewUrlParser', true);
-		set('useFindAndModify', false);
-		set('useUnifiedTopology', true);
-		//READY EVENT\\
-		this.once("ready", async () => {
-			//GUILD\\
-			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
-			//CLIENT INFO\\
-			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
-			clientInfoTable.addRow('Presence Status', this.user.presence.status);
-			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
-			clientInfoTable.addRow('WS Status', this.ws.status);
-			clientInfoTable.addRow('API Ping', this.ms(this.ws.ping));
-			clientInfoTable.addRow('API Gateway', this.ws.gateway);
-			clientInfoTable.addRow('Servers', this.guilds.cache.size);
-			clientInfoTable.addRow('Members', this.users.cache.size);
-			clientInfoTable.addRow('Channels', this.channels.cache.size);
-			clientInfoTable.addRow('Client Status', '✅ Online!');
-			clientInfoTable.addRow('Author', 'HydraNhani#8303');
-			//TABLES\\
-			console.log(commandTable.toString());
-			console.log(eventTable.toString());
-			console.log(featureTable.toString());
-			console.log(clientInfoTable.toString());
-			//FEATURE HANDLER\\
-			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(false);
-			//ACTIVITY\\
-			const activityArray: Array<string> = [
-				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.users.cache.size.toLocaleString()} users | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.channels.cache.size.toLocaleString()} channels | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.users.cache.get(this.ownerID).tag} | Support Server: discord.gg/qvbFn6bXQX`
-			];
-			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
-				"PLAYING",
-				"WATCHING",
-				"LISTENING"
-			];
-			let index: number = 0;
-			let typeIndex: number = 0;
-			setInterval(() => {
-				if (activityArray.length == index) index = 0;
-				if (typeArray.length == typeIndex) typeIndex = 0;
-				this.user.setPresence({
-					activity: {
-						name: activityArray[index],
-						type: typeArray[typeIndex]
-					},
-					status: "online"
-				});
-				index++;
-				typeIndex++;
-			}, 10000);
-			setInterval(() => this.cache.clearCacheAndSave(), 3600000);
-		});
+		this.start();
 	};
 	//MODULES\\
 	public ms = ms;
@@ -249,16 +168,86 @@ export default class GalaxyAlpha extends Discord.Client {
 	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";
 	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
 	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
-	//PRIVATE METHODS\\
+	//METHODS\\
+	public start(){
+		//LOGIN\\
+		this.login(this.config.token).catch((error: any) => console.log(error));
+		//READ COMMANDS, EVENTS, FEATURES\\
+		this.readCommands(this.config.commandsDir);
+		this.readEvents(this.config.eventsDir);
+		this.readFeatures(this.config.featuresDir);
+		//MONGO DB\\
+		connect(this.config.mongoDBUrl, {
+			useFindAndModify: false,
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+			useCreateIndex: true
+		}).then(() => clientInfoTable.addRow("MongoDB", "✅ Connected!")).catch(err => console.log(err));
+		set('useNewUrlParser', true);
+		set('useFindAndModify', false);
+		set('useUnifiedTopology', true);
+		//READY EVENT\\
+		this.once("ready", async () => {
+			//GUILD\\
+			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
+			//CLIENT INFO\\
+			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
+			clientInfoTable.addRow('Presence Status', this.user.presence.status);
+			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
+			clientInfoTable.addRow('WS Status', this.ws.status);
+			clientInfoTable.addRow('API Ping', this.ms(this.ws.ping));
+			clientInfoTable.addRow('API Gateway', this.ws.gateway);
+			clientInfoTable.addRow('Servers', this.guilds.cache.size);
+			clientInfoTable.addRow('Members', this.users.cache.size);
+			clientInfoTable.addRow('Channels', this.channels.cache.size);
+			clientInfoTable.addRow('Client Status', '✅ Online!');
+			clientInfoTable.addRow('Author', 'HydraNhani#8303');
+			//TABLES\\
+			console.log(commandTable.toString());
+			console.log(eventTable.toString());
+			console.log(featureTable.toString());
+			console.log(clientInfoTable.toString());
+			//FEATURE HANDLER\\
+			this.features.forEach(feature => feature.run(this));
+			this.DBfilter(true);
+			//ACTIVITY\\
+			const activityArray: Array<string> = [
+				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.users.cache.size.toLocaleString()} users | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.channels.cache.size.toLocaleString()} channels | Support Server: discord.gg/qvbFn6bXQX`,
+				`${this.users.cache.get(this.ownerID).tag} | Support Server: discord.gg/qvbFn6bXQX`
+			];
+			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
+				"PLAYING",
+				"WATCHING",
+				"LISTENING"
+			];
+			let index: number = 0;
+			let typeIndex: number = 0;
+			setInterval(() => {
+				if (activityArray.length == index) index = 0;
+				if (typeArray.length == typeIndex) typeIndex = 0;
+				this.user.setPresence({
+					activity: {
+						name: activityArray[index],
+						type: typeArray[typeIndex]
+					},
+					status: "online"
+				});
+				index++;
+				typeIndex++;
+			}, 10000);
+			setInterval(() => this.cache.clearCacheAndSave(), 3600000);
+		});
+	};
 	/**
 	 * Reads all commands of the provided directory
 	 * @param {string} commandPath The command directory
 	 */
 	public async readCommands(commandPath: string) {
-		const files = readdirSync(join(__dirname, commandPath))
-		for (const file of files) {
-			const stat = lstatSync(join(__dirname, commandPath, file));
-			if (stat.isDirectory()) {
+		for (const file of readdirSync(join(__dirname, commandPath))) {
+			if (lstatSync(join(__dirname, commandPath, file)).isDirectory()) {
 				this.readCommands(join(commandPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
@@ -277,11 +266,11 @@ export default class GalaxyAlpha extends Discord.Client {
 					commandTable.addRow(`${command.name}`, "❌", "Category left!");
 					continue;
 				} else {
-					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases ? cmd.aliases.includes(command.name) : false)){
-						commandTable.addRow(`${command.name}`, "❌", `Name already existing!`);
+					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases?.includes(command.name))){
+						commandTable.addRow(`${command.name}`, "❌", "Name already existing!");
 						continue;
 					};
-					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases ? cmd.aliases.includes(alias) : false)){
+					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases?.includes(alias))){
 						commandTable.addRow(`${command.name}`, "❌", "Alias already existing!");
 						continue;
 					};
@@ -300,10 +289,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} eventPath The event directory 
 	 */
 	public async readEvents(eventPath: string) {
-		const files = readdirSync(join(__dirname, eventPath));
-		for (const file of files) {
-			const stat = lstatSync(join(__dirname, eventPath, file));
-			if (stat.isDirectory()) {
+		for (const file of readdirSync(join(__dirname, eventPath))) {
+			if (lstatSync(join(__dirname, eventPath, file)).isDirectory()) {
 				this.readEvents(join(eventPath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
@@ -331,10 +318,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {string} featurePath The feature directory 
 	 */
 	public async readFeatures(featurePath: string) {
-		const files = readdirSync(join(__dirname, featurePath));
-		for (const file of files) {
-			const stat = lstatSync(join(__dirname, featurePath, file));
-			if (stat.isDirectory()) {
+		for (const file of readdirSync(join(__dirname, featurePath))) {
+			if (lstatSync(join(__dirname, featurePath, file)).isDirectory()) {
 				this.readFeatures(join(featurePath, file));
 			} else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
@@ -353,7 +338,6 @@ export default class GalaxyAlpha extends Discord.Client {
 			};
 		};
 	};
-	//PUBLIC METHODS\\
 	/**
 	 * Formats a duration in a string value
 	 * @param {number} ms The duration in milliseconds

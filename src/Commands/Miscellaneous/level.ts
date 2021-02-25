@@ -30,9 +30,8 @@ export default class LevelCommand extends Command {
             .setUsername(targetUser.username)
             .setDiscriminator(targetUser.discriminator)
             .setBackground("IMAGE", "src/Images/CanvasWallpaper.png");
-        rank.build().then(data => {
-            const attachment = new MessageAttachment(data, "level.png");
-            return message.channel.send("", attachment);
-        });
+        const data = await rank.build();
+        const attachment = new MessageAttachment(data, "level.png");
+        return message.channel.send(attachment);
     };
 };

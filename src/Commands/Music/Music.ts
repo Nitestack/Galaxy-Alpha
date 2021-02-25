@@ -6,7 +6,7 @@ import duration from "humanize-duration";
 
 export default class Music {
     constructor(private client: GalaxyAlpha){ };
-    async play(message: Message, voiceChannel: VoiceChannel, panel: boolean = false) {
+    public async play(message: Message, voiceChannel: VoiceChannel) {
         const videoInfos = this.getQueue(message.guild.id)[0];
         const dispatcher = (await voiceChannel.join()).play(ytdl(videoInfos.url, {
             filter: 'audioonly',
@@ -14,9 +14,31 @@ export default class Music {
             quality: "highestaudio"
         }), {
             seek: 0,
-            volume: this.client.queue.has(message.guild.id) && this.client.queue.get(message.guild.id).dispatcher ? this.client.queue.get(message.guild.id).dispatcher.volume : 0.5,
+            volume: this.client.queue.get(message.guild.id)?.dispatcher ? this.client.queue.get(message.guild.id).dispatcher.volume : 0.5,
             highWaterMark: 1,
-            bitrate: "auto"
+            bitrate: "auto",
+            type: "webm/opus"
+        });
+        dispatcher.on("start", () => {
+            this.client.queue.set(message.guild.id, {
+                ...this.client.queue.get(message.guild.id),
+                beginningToPlay: new Date(),
+                dispatcher: dispatcher,
+                voiceChannel: voiceChannel,
+                nowPlaying: true
+            });
+            if (!this.client.queue.get(message.guild.id).panel) message.channel.send(this.client.createEmbed()
+                .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
+                .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
+                *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
+                
+                **Duration:** ${this.client.util.getDuration(videoInfos.duration.seconds * 1000)} (${duration(videoInfos.duration.seconds * 1000, {
+                    units: ["h", "m", "s"],
+                    round: true
+                })})
+                **Views:** ${videoInfos.views.toLocaleString()} views
+                **Genre:** ${this.client.util.toUpperCaseBeginning(videoInfos.genre)}`)
+                .setImage(videoInfos.image));
         });
         dispatcher.on("finish", () => {
             const serverQueue = this.client.queue.get(message.guild.id);
@@ -51,27 +73,8 @@ export default class Music {
                 this.play(message, serverQueue.voiceChannel);
             };
         });
-        this.client.queue.set(message.guild.id, {
-            ...this.client.queue.get(message.guild.id),
-            beginningToPlay: new Date(),
-            dispatcher: dispatcher,
-            voiceChannel: voiceChannel,
-            nowPlaying: true
-        });
-        if (!panel) message.channel.send(this.client.createEmbed()
-            .setTitle(`🎧 Connected to \`${voiceChannel.name}\`!`)
-            .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
-            *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
-            
-            **Duration:** ${this.client.util.getDuration(videoInfos.duration.seconds * 1000)} (${duration(videoInfos.duration.seconds * 1000, {
-                units: ["h", "m", "s"],
-                round: true
-            })})
-            **Views:** ${videoInfos.views.toLocaleString()} views
-            **Genre:** ${this.client.util.toUpperCaseBeginning(videoInfos.genre)}`)
-            .setImage(videoInfos.image));
     };
-    getQueue(guildID: string) {
+    public getQueue(guildID: string) {
         if (!this.client.queue.has(guildID)) {
             this.client.queue.set(guildID, {
                 guildID: guildID,
@@ -88,20 +91,20 @@ export default class Music {
         };
         return this.client.queue.get(guildID).queue;
     };
-    disconnect(voiceChannel: VoiceChannel): VoiceChannel {
+    public disconnect(voiceChannel: VoiceChannel): VoiceChannel {
         voiceChannel.leave();
         return voiceChannel;
     };
-    stop(dispatcher: StreamDispatcher) {
+    public stop(dispatcher: StreamDispatcher) {
         return dispatcher.pause();
     };
-    resume(dispatcher: StreamDispatcher) {
+    public resume(dispatcher: StreamDispatcher) {
         return dispatcher.resume();
     };
-    volume(dispatcher: StreamDispatcher, volume: number) {
+    public volume(dispatcher: StreamDispatcher, volume: number) {
         return dispatcher.setVolume(volume);
     };
-    shuffle(queue: Array<Queue>): Array<Queue> {
+    public shuffle(queue: Array<Queue>): Array<Queue> {
         const newShuffledQueue = queue;
         let newPos: number;
         let temp: Queue;
@@ -113,7 +116,6 @@ export default class Music {
         };
         return newShuffledQueue;
     };
-    
 };
 
 export async function videoFinder(query: string) {

@@ -30,7 +30,7 @@ export default class ModLogsCommand extends Command {
             YesOrNo.on("collect", async (reaction, user) => {
                 if (reaction.emoji.id == client.yesEmojiID){
                     const webhook = await channel.createWebhook(client.user.username, {
-                        avatar: client.user.avatarURL()
+                        avatar: client.user.displayAvatarURL({ dynamic: false, format: "png" })
                     });
                     await client.cache.updateGuild(message.guild.id, {
                         modLogChannelID: channel.id,

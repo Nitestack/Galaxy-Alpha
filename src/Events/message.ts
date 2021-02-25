@@ -78,7 +78,7 @@ export default class MessageEvent extends Event {
 		//OWNER COMMANDS\\
 		if (command.ownerOnly && message.author.id != client.ownerID) return;
 		//DEVELOPER COMMANDS\\
-		if (command.developerOnly && !client.developers.includes(message.author.id)) return;
+		if ((command.developerOnly || command.category == "developer") && !client.developers.includes(message.author.id)) return;
 		//GUILD COMMANDS\\
 		if (command.guildOnly && message.channel.type == 'dm') return message.author.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle("Channel Manager")
@@ -88,7 +88,7 @@ export default class MessageEvent extends Event {
 			.setTitle("Channel Manager")
 			.setDescription(`You can only use the command \`${command.name}\` inside DM's!`));
 		//NSFW COMMANDS\\
-		if (command.nsfw && message.channel.type != "dm" && !message.channel.nsfw) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
+		if ((command.nsfw || command.category == "nsfw") && message.channel.type != "dm" && !message.channel.nsfw) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle("Channel Manager")
 			.setDescription(`You can only use nsfw commands like \`${command.name}\` in DM's or nsfw channels!`));
 		//NEWS CHANNEL COMMANDS\\
@@ -107,7 +107,7 @@ export default class MessageEvent extends Event {
 		//USER PERMISSIONS\\
 		if (message.channel.type != "dm" && command.userPermissions) {
 			let perms: number = 0;
-			for (const permission of command.userPermissions) if (message.channel.permissionsFor(message.author).has(permission)) perms++;
+			for (const permission of command.userPermissions) if (message.member.hasPermission(permission)) perms++;
 			if (perms == 0) {
 				let userPerms: Array<string> = [];
 				command.userPermissions.forEach(perm => {
@@ -121,7 +121,7 @@ export default class MessageEvent extends Event {
 		//CLIENT PERMISSIONS\\
 		if (message.channel.type != "dm" && command.clientPermissions) {
 			let perms: number = 0;
-			for (const permission of command.clientPermissions) if (message.channel.permissionsFor(client.user).has(permission)) perms++;
+			for (const permission of command.clientPermissions) if (message.guild.me.hasPermission(permission)) perms++;
 			if (perms == 0) {
 				let clientPerms: Array<string> = [];
 				command.clientPermissions.forEach(perm => {
@@ -138,7 +138,7 @@ export default class MessageEvent extends Event {
 			.setDescription(`You are on a cooldown!\nYou have to wait ${client.humanizer(client.cooldowns.get(`${message.author.id}-${command.name}`) - message.createdTimestamp, { units: ["mo", "w", "d", "h", "m", "s"], round: true })}`));
 		//COMMAND RUNNER\\
 		try {
-			await command.run(client, message, args, prefix).catch(err => console.log(err));
+			await command.run(client, message, args, prefix);
 		} catch (error) {
 			if (error && client.developers.includes(message.author.id)) {
 				message.channel.send(client.createRedEmbed()

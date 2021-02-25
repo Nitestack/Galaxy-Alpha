@@ -16,7 +16,9 @@ export type Categories =
 	| "moderation"
 	| "developer"
 	| "private"
-	| "games";
+	| "games" 
+	| "nsfw"
+	| "fun";
 
 interface CommandInfos {
 	name: string;

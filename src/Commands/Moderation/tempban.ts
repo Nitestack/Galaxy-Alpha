@@ -1,6 +1,5 @@
 import Command, { CommandRunner } from "@root/Command";
 import { GuildMember } from "discord.js";
-import { TextChannel, NewsChannel } from "discord.js";
 
 export default class TempBanCommand extends Command {
     constructor() {
@@ -21,9 +20,9 @@ export default class TempBanCommand extends Command {
         if (!member) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🔨 Ban Manager")
             .setDescription("You have to mention an user or provide an user ID!"));
-        if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle("🔨 Ban Manager")
-            .setDescription("You cannot tempban yourself!"));
+        if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🔨 Ban Manager").setDescription("You cannot ban yourself!"));
+        if (member.id == message.guild.ownerID) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🔨 Ban Manager").setDescription("You cannot ban the owner!"));
+        if (member.id == client.user.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`).setTitle("🔨 Ban Manager").setDescription("Cannot ban myself!"));
         let banDuration: number = client.ms(args[1]);
         if (!banDuration) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🔨 Ban Manager")
@@ -40,19 +39,12 @@ export default class TempBanCommand extends Command {
                 if (reaction.emoji.id == client.yesEmojiID) {
                     try {
                         await member.ban({ reason: `${reason} (banned by ${message.author.tag})` });
-                        const webhookSchema = await client.cache.getGuild(message.guild.id)
-                        if (webhookSchema.modLogChannelID && webhookSchema.modLogChannelWebhookID && webhookSchema.modLogChannelWebhookToken) {
-                            const webhookChannel: TextChannel | NewsChannel = (client.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(webhookSchema.modLogChannelID) as TextChannel | NewsChannel);
-                            if (webhookChannel) {
-                                const webhooks = await webhookChannel.fetchWebhooks();
-                                if (webhooks.has(webhookSchema.modLogChannelWebhookID)) {
-                                    const webhookMessageChannel = new client.discordJS.WebhookClient(webhookSchema.modLogChannelWebhookID, webhookSchema.modLogChannelWebhookToken);
-                                    webhookMessageChannel.send(client.createRedEmbed()
-                                        .setTitle("🔨 Ban Manager")
-                                        .setDescription(`🔨 ${member.user} was banned by ${message.author} for **${banDuration}**!\n📝 **Reason:** ${reason}`));
-                                };
-                            };
-                        };
+                        await client.modLogWebhook(message.guild.id, client.createEmbed()
+                            .setTitle("Member temporary banned!")
+                            .setDescription(`**Member:** ${member.user}
+                            **Banned by:** ${message.author}
+                            **Time:** ${args[1]}
+                            **Reason:** *${reason}*`));
                         msg.channel.send(client.createGreenEmbed()
                             .setTitle("🔨 Ban Manager")
                             .setDescription(`🔨 ${member.user} was banned for **${banDuration}**!\n📝 **Reason:** ${reason}`));

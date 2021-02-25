@@ -1,5 +1,4 @@
 import GalaxyAlpha from '@root/Client';
-import { EventEmitter } from 'events';
 
 export interface EventRunner {
 	(client: GalaxyAlpha, ...params: unknown[]): Promise<unknown>;
@@ -7,7 +6,6 @@ export interface EventRunner {
 
 interface EventInfos {
 	name: string;
-	emitter?: EventEmitter
 };
 
 export default class Event {

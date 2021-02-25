@@ -24,3 +24,11 @@ Role Info
 Convert Hangman word ö => oe, ß => ss
 
 Reaction Roles command, not reacting, only using the command
+
+UNO
+
+DAME
+
+DICE
+
+temp channels

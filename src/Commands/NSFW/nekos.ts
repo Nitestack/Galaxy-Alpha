@@ -8,7 +8,7 @@ export default class NekosCommand extends Command {
             description: "sends random pictures of a category",
             usage: "nekos <keyword>",
             nsfw: true,
-            category: "miscellaneous"
+            category: "nsfw"
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
