@@ -42,7 +42,7 @@ export default class MuteCommand extends Command {
             } else {
                 return mute(false);
             };
-            async function mute(timeMute: Boolean) {
+            async function mute(timeMute: boolean) {
                 let reason: string;
                 if (timeMute) {
                     reason = args.slice(2).join(" ") || "No reason provided!";

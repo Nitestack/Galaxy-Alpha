@@ -4,13 +4,13 @@ import { join } from 'path';
 import ms from 'ms';
 import Discord, { MessageEmbed, NewsChannel, TextChannel, WebhookClient } from 'discord.js';
 import { connect, set } from 'mongoose';
-import { VideoMetadataResult } from "yt-search";
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
 import Command, { Categories } from '@root/Command';
 import Feature from '@root/Feature';
 import Event from '@root/Event';
+import Queue from '@commands/Music/Queue';
 //MANAGER\\
 import GiveawayManager from '@commands/Giveaway/Giveaway';
 import TicketManager from '@commands/Utility/Ticket/Ticket';
@@ -47,10 +47,6 @@ interface GalaxyAlphaOptions {
 	supportGuildID?: string;
 	defaultEmbedColor?: string;
 	xpPerMessage?: number;
-};
-
-export interface Queue extends VideoMetadataResult {
-	requesterID: string;
 };
 
 export default class GalaxyAlpha extends Discord.Client {
@@ -112,19 +108,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	public modMails: Discord.Collection<string, Discord.Guild> = new Discord.Collection();
 	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
 	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, {
-		guildID: string,
-		queue: Array<Queue>,
-		nowPlaying: boolean,
-		dispatcher: Discord.StreamDispatcher,
-		voiceChannel: Discord.VoiceChannel,
-		beginningToPlay: Date,
-		stopToPlay: Date,
-		singleLoop: boolean,
-		multipleLoop: boolean,
-		shuffle: boolean,
-		panel?: Discord.Message;
-	}> = new Discord.Collection();
+	public queue: Discord.Collection<string, Queue> = new Discord.Collection();
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
@@ -209,7 +193,7 @@ export default class GalaxyAlpha extends Discord.Client {
 			console.log(clientInfoTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(true);
+			this.DBfilter(false);
 			//ACTIVITY\\
 			const activityArray: Array<string> = [
 				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,

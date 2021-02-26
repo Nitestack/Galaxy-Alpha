@@ -12,13 +12,10 @@ export default class NowPlayingCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const dispatcher = client.queue.get(message.guild.id) ? (client.queue.get(message.guild.id).dispatcher ? client.queue.get(message.guild.id).dispatcher : null) : null;
-        if (!dispatcher) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
+        if (client.music.getServerQueue(message).isEmpty) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
-            .setDescription("There is no voice connection!"));
-        const video = client.queue.get(message.guild.id).queue[0];
-        const duration = (message.createdTimestamp - client.queue.get(message.guild.id).beginningToPlay.getTime());
-        const timeUsed = client.queue.get(message.guild.id).stopToPlay ? client.queue.get(message.guild.id).stopToPlay.getTime() - client.queue.get(message.guild.id).beginningToPlay.getTime() : null;
+            .setDescription("There is no queue in this server!"));
+        const video = client.music.getQueue(message)[0];
         return message.channel.send(client.createEmbed()
             .setTitle("🎧 Music Manager")
             .setDescription(`**<:youtube:786675436733857793> [${video.title}](${video.url})**
@@ -31,6 +28,7 @@ export default class NowPlayingCommand extends Command {
             **Views:** ${video.views.toLocaleString()} views
             **Genre:** ${client.util.toUpperCaseBeginning(video.genre)}
 
-            **Time left: ${client.queue.get(message.guild.id).stopToPlay ? client.util.getDuration(timeUsed) : client.util.getDuration(duration)} / ${client.util.getDuration(video.duration.seconds * 1000)}**`));
+            **Time left:** ${client.util.getDuration(client.music.getServerQueue(message).currentTimestamp)}/${client.util.getDuration(video.duration.seconds * 1000)}`)
+            .setThumbnail(video.thumbnail));
     };
 };

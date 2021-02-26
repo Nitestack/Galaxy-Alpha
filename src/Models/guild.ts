@@ -82,7 +82,6 @@ const guildSchema = new Schema({
 	serverManagerRoleID: SchemaTypes.String,
 	welcomeMessageType: {
 		type: SchemaTypes.String,
-		required: true,
 		default: "message"
 	},
 	welcomeChannelID: SchemaTypes.String,
@@ -98,7 +97,6 @@ const guildSchema = new Schema({
 			messageID: SchemaTypes.String,
 			channelID: SchemaTypes.String
 		}],
-		required: true,
 		default: []
 	}
 });

@@ -21,7 +21,7 @@ export default class MessageEvent extends Event {
 			client.afks.delete(message.author.id);
 		};
 		if (client.afks.first()) client.afks.forEach(afk => {
-			if (client.afks.has(afk.userID)) {
+			if (message.mentions.users.has(afk.userID)) {
 				message.channel.send(client.createRedEmbed()
 					.setTitle("AFK Manager")
 					.setDescription(`🌛 ${message.mentions.users.get(afk.userID)} is AFK since\n${client.util.dateFormatter(afk.afkSince)} (${client.humanizer(message.createdTimestamp - afk.afkSince.getTime(), { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} ago)\n📝 **Reason:** ${afk.reason}`));

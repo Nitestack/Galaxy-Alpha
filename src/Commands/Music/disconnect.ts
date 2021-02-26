@@ -19,7 +19,7 @@ export default class DisconnectCommand extends Command {
             if (message.member.voice.channel.id != botChannel.id) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
                 .setTitle("🎧 Music Manager")
                 .setDescription("You have to be in the same voice channel as me!"));
-            client.music.disconnect(botChannel);
+            client.music.disconnect(message.guild.me.voice.channel);
             client.queue.delete(message.guild.id);
             return message.channel.send(client.createGreenEmbed()
                 .setTitle("🎧 Music Manager")

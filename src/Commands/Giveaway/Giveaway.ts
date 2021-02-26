@@ -1,15 +1,11 @@
 import GalaxyAlpha from '@root/Client';
 import { Guild, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js';
 import giveawaySchema, { GiveawaySchema } from '@models/Giveaways/giveaways';
-import GuildSchema from '@models/guild';
 
 export const giveawayManager: string = "🎉 Giveaway Manager";
 
 export default class Giveaway {
-    private client: GalaxyAlpha;
-    constructor(client: GalaxyAlpha) {
-        this.client = client;
-    };
+    constructor(private client: GalaxyAlpha){  };
     public async start(options: { duration: number, channelID: string, guildID: string, prize: string, winners: number, hostedBy: User }, message: Message, requirements: { roles: Array<string>, messages: number, invites: number, level: number, guildReq: string }) {
         let blackListedRole: Role;
         let byPassRole: Role;

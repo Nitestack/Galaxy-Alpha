@@ -170,4 +170,16 @@ export default class GalaxyAlphaUtil {
         if (typeof date == "number") date = new Date(date);
         return `${this.weekDays[date.getUTCDay()]}, ${this.monthNames[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}, ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} UTC`;
     };
+    /**
+     * Returns true, if the string is an URL
+     * @param {string} url The URL to test
+     */
+    public isURL(string: string) {
+        try { 
+            new URL(string) 
+        } catch { 
+            return false 
+        };
+        return true;
+    };
 };

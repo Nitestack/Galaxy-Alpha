@@ -3,12 +3,12 @@ import dotenv from 'dotenv';
 import GalaxyAlpha from '@root/Client';
 
 dotenv.config();
-const token = process.env.TOKEN;
-const betaToken = process.env.BETA_TOKEN;
-export const Bot = new GalaxyAlpha({
+const token: string = process.env.TOKEN;
+const betaToken: string = process.env.BETA_TOKEN;
+new GalaxyAlpha({
     ownerID: "700277649347575870",
     globalPrefix: process.env.GLOBAL_PREFIX,
-    token: token,
+    token: betaToken,
     commandsDir: "Commands",
     eventsDir: "Events",
     featuresDir: "Features",
@@ -16,5 +16,5 @@ export const Bot = new GalaxyAlpha({
     contributors: ['694162762020159539'],
     supportGuildID: "783440776285651024",
     defaultEmbedColor: "#365b88",
-    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "Constants.ts"]
+    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "Constants.ts", "Queue.ts"]
 });

@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from "@root/Command";
-import { videoFinder, playlistFinder } from "@commands/Music/Music";
 import ytSearch from "yt-search";
 import duration from "humanize-duration";
 
@@ -16,7 +15,7 @@ export default class SearchCommand extends Command {
         if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription("You have to provide a link or keywords of the YouTube video!"));
-        const videoResults = await (await playlistFinder(args.join(" ")) ? playlistFinder(args.join(" ")) : (await videoFinder(args.join(" ")) ? await videoFinder(args.join(" ")) : null));
+        const videoResults = await (await client.music.playlistFinder(args.join(" ")) ? client.music.playlistFinder(args.join(" ")) : (await client.music.videoFinder(args.join(" ")) ? await client.music.videoFinder(args.join(" ")) : null));
         if (!videoResults) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle("🎧 Music Manager")
             .setDescription(`Cannot find any results, that includes \`${args.join(" ")}\`! Please try again!`));

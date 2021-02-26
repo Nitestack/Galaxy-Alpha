@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"baseUrl": "src",
+		"paths": {
+			"@root/*": ["*"],
+			"@models/*": ["Models/*"],
+			"@commands/*": ["Commands/*"],
+			"@features/*": ["Features/*"],
+			"@events/*": ["Events/*"],
+			"@images/*": ["Images/*"],
+			"@dashboard/*": ["Dashboard/*"]
+		},
+		"lib": ["ESNext"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "ESNext",
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"resolveJsonModule": true,
+		"outDir": "Build"
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "**/*.spec.ts"]
+}
