@@ -1,5 +1,6 @@
 import { SchemaTypes, model, Document, Schema } from 'mongoose';
 import { requiredDefaultDate, requiredString } from '@models/ModelBase';
+import { User } from "discord.js";
 
 //TODO: Everytime update the interfaces, when updating the schema
 const giveawaySchema = new Schema({
@@ -28,10 +29,23 @@ const giveawaySchema = new Schema({
 });
 
 //TODO: Everytime update the interfaces, when updating the schema
-export interface GiveawaySchema extends Document {
+interface GiveawaySchema extends Document {
 	guildID: string;
 	channelID: string;
 	hostedBy: string;
+	messageID: string;
+	startsOn: Date;
+	endsOn: Date;
+	winners: number;
+	hasEnded: boolean;
+	duration: number;
+	prize: string;
+};
+
+export interface Giveaway {
+	guildID: string;
+	channelID: string;
+	hostedBy: User;
 	messageID: string;
 	startsOn: Date;
 	endsOn: Date;

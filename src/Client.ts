@@ -2,8 +2,8 @@
 import { readdirSync, lstatSync } from 'fs';
 import { join } from 'path';
 import ms from 'ms';
-import Discord, { MessageEmbed, NewsChannel, TextChannel, WebhookClient } from 'discord.js';
-import { connect, set } from 'mongoose';
+import { Client, Intents, Collection, Message, Guild, MessageEmbed, NewsChannel, TextChannel, WebhookClient, StringResolvable } from 'discord.js';
+import { set, connect } from 'mongoose';
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
@@ -25,7 +25,6 @@ import TicketSchema from '@models/ticket';
 import GuildSchema from '@models/guild';
 import LevelSchema from '@models/level';
 //ANY THING ELSE\\
-import { endGiveaway } from '@commands/Giveaway/Giveaway';
 import { deleteDrop } from '@commands/Giveaway/Drop';
 //TABLES\\
 const commandTable = new ascii("Commands").setHeading("Name", "Status", "Error");
@@ -41,6 +40,7 @@ interface GalaxyAlphaOptions {
 	eventsDir: string;
 	featuresDir: string;
 	mongoDBUrl: string;
+	port?: number;
 	developers?: Array<string>;
 	ignoreFiles?: Array<string>;
 	contributors?: Array<string>;
@@ -49,22 +49,14 @@ interface GalaxyAlphaOptions {
 	xpPerMessage?: number;
 };
 
-export default class GalaxyAlpha extends Discord.Client {
-	public ownerID: string = this.config.ownerID;
-	public globalPrefix: string = this.config.globalPrefix;
-	public developers: Array<string> = this.config.developers || [this.ownerID];
-	public contributors: Array<string> = this.config.contributors || [];
-	public supportGuildID: string = this.config.supportGuildID || null;
-	public defaultColor: string = this.config.defaultEmbedColor || "#808080";
-	public ignoreFiles: Array<string> = this.config.ignoreFiles || [];
-	public xpPerMessage: number = this.config.xpPerMessage || 20;
+export default class GalaxyAlpha extends Client {
 	/**
 	 * @param {GalaxyAlphaOptions} options The options of Galaxy Alpha
 	 */
 	constructor(public config: GalaxyAlphaOptions) {
 		super({
 			ws: {
-				intents: Discord.Intents.ALL  
+				intents: Intents.ALL  
 			},
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
 			disableMentions: "everyone",
@@ -80,35 +72,56 @@ export default class GalaxyAlpha extends Discord.Client {
 		if (!this.config.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
 		this.start();
 	};
+	//CONFIGURATION\\
+	public ownerID: string = this.config.ownerID;
+	public globalPrefix: string = this.config.globalPrefix;
+	public developers: Array<string> = this.config.developers || [this.ownerID];
+	public contributors: Array<string> = this.config.contributors || [];
+	public supportGuildID: string = this.config.supportGuildID || null;
+	public defaultColor: string = this.config.defaultEmbedColor || "#808080";
+	public ignoreFiles: Array<string> = this.config.ignoreFiles || [];
+	public xpPerMessage: number = this.config.xpPerMessage || 20;
 	//MODULES\\
 	public ms = ms;
-	public discordJS = Discord;
+	public humanizer = Humanizer;
 	//INFOS\\
 	public dataSchemaObjectId: string = "5ffb5b87ef40ba40a0842eb5";
-	public inviteLink: string = "https://discord.com/api/oauth2/authorize?client_id=761590139147124810&permissions=8&scope=bot";
-	public supportGuild: Discord.Guild;
+	public inviteLink: string = "";
+	public supportGuild: Guild;
 	//COLLECTIONS\\
-	public commands: Discord.Collection<string, Command> = new Discord.Collection();
-	public disabledCommands: Discord.Collection<string, Command> = new Discord.Collection();
-	public events: Discord.Collection<string, Event> = new Discord.Collection();
-	public aliases: Discord.Collection<string, string> = new Discord.Collection();
-	public cooldowns: Discord.Collection<string, number> = new Discord.Collection();
-	public features: Discord.Collection<string, Feature> = new Discord.Collection();
-	public inGame: Discord.Collection<string, {
-		userID: string,
-		guildID: string,
-		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
-	}> = new Discord.Collection();
-	public snipes: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public afks: Discord.Collection<string, {
+	public commands: Collection<string, Command> = new Collection();
+	public disabledCommands: Collection<string, Command> = new Collection();
+	public events: Collection<string, Event> = new Collection();
+	public aliases: Collection<string, string> = new Collection();
+	public cooldowns: Collection<string, number> = new Collection();
+	public features: Collection<string, Feature> = new Collection();
+	public snipes: Collection<string, Message> = new Collection();
+	public modMails: Collection<string, Guild> = new Collection();
+	public categories: Collection<Categories, Array<Command>> = new Collection();
+	public ghostPings: Collection<string, Message> = new Collection();
+	public queue: Collection<string, Queue> = new Collection();
+	public afks: Collection<string, {
 		userID: string,
 		afkSince: Date,
 		reason: string
-	}> = new Discord.Collection();
-	public modMails: Discord.Collection<string, Discord.Guild> = new Discord.Collection();
-	public categories: Discord.Collection<Categories, Array<Command>> = new Discord.Collection();
-	public ghostPings: Discord.Collection<string, Discord.Message> = new Discord.Collection();
-	public queue: Discord.Collection<string, Queue> = new Discord.Collection();
+	}> = new Collection();
+	public inGame: Collection<string, {
+		userID: string,
+		guildID: string,
+		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
+	}> = new Collection();
+	//MANAGERS\\
+	public giveaways: GiveawayManager = new GiveawayManager(this);
+	public tickets: TicketManager = new TicketManager(this);
+	public drop: DropManager = new DropManager(this);
+	public music: MusicManager = new MusicManager(this);
+	public cache: CacheManager = new CacheManager(this);
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil(this);
+	//VOTE LINKS\\
+	public topGGBot: string = "https://top.gg/bot/761590139147124810/vote";
+	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";
+	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
+	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
 	//EMOJIS\\
 	public warningInfoEmoji: string = "<a:warning_info:786706519071916032>";
 	public developerToolsEmoji: string = "<:tools_dev:786332338207457340>";
@@ -137,29 +150,14 @@ export default class GalaxyAlpha extends Discord.Client {
 	public desktopEmojiID: string = this.getEmojiID(this.desktopEmoji);
 	public galaxyAlphaEmojiID: string = this.getEmojiID(this.galaxyAlphaEmoji);
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
-	//MANAGERS\\
-	public giveaways: GiveawayManager = new GiveawayManager(this);
-	public tickets: TicketManager = new TicketManager(this);
-	public drop: DropManager = new DropManager(this);
-	public music: MusicManager = new MusicManager(this);
-	public cache: CacheManager = new CacheManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
-	//PERMISSIONS\\
-	public permissions: Array<string> = this.util.permissions;
-	public permissionsShowCase: Array<string> = this.util.permissionsShowCase;
-	//VOTE LINKS\\
-	public topGGBot: string = "https://top.gg/bot/761590139147124810/vote";
-	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";
-	public discordBotList: string = "https://discordbotlist.com/bots/galaxy-alpha/upvote";
-	public discordServerList: string = "https://discordbotlist.com/servers/galaxy-alpha/upvote";
 	//METHODS\\
-	public start(){
+	public async start(){
 		//LOGIN\\
 		this.login(this.config.token).catch((error: any) => console.log(error));
 		//READ COMMANDS, EVENTS, FEATURES\\
-		this.readCommands(this.config.commandsDir);
-		this.readEvents(this.config.eventsDir);
-		this.readFeatures(this.config.featuresDir);
+		await this.readCommands(this.config.commandsDir);
+		await this.readEvents(this.config.eventsDir);
+		await this.readFeatures(this.config.featuresDir);
 		//MONGO DB\\
 		connect(this.config.mongoDBUrl, {
 			useFindAndModify: false,
@@ -172,6 +170,8 @@ export default class GalaxyAlpha extends Discord.Client {
 		set('useUnifiedTopology', true);
 		//READY EVENT\\
 		this.once("ready", async () => {
+			await import("@dashboard/server");
+			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&scope=bot`;
 			//GUILD\\
 			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			//CLIENT INFO\\
@@ -196,11 +196,11 @@ export default class GalaxyAlpha extends Discord.Client {
 			this.DBfilter(false);
 			//ACTIVITY\\
 			const activityArray: Array<string> = [
-				`${this.globalPrefix}help | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.users.cache.size.toLocaleString()} users | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.channels.cache.size.toLocaleString()} channels | Support Server: discord.gg/qvbFn6bXQX`,
-				`${this.users.cache.get(this.ownerID).tag} | Support Server: discord.gg/qvbFn6bXQX`
+				`${this.globalPrefix}help | Support Server: gg/qvbFn6bXQX`,
+				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: gg/qvbFn6bXQX`,
+				`${this.users.cache.size.toLocaleString()} users | Support Server: gg/qvbFn6bXQX`,
+				`${this.channels.cache.size.toLocaleString()} channels | Support Server: gg/qvbFn6bXQX`,
+				`${this.users.cache.get(this.ownerID).tag} | Support Server: gg/qvbFn6bXQX`
 			];
 			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
 				"PLAYING",
@@ -231,9 +231,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 */
 	public async readCommands(commandPath: string) {
 		for (const file of readdirSync(join(__dirname, commandPath))) {
-			if (lstatSync(join(__dirname, commandPath, file)).isDirectory()) {
-				this.readCommands(join(commandPath, file));
-			} else if (!this.ignoreFiles.includes(file)) {
+			if (lstatSync(join(__dirname, commandPath, file)).isDirectory()) this.readCommands(join(commandPath, file));
+			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					commandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
@@ -259,9 +258,8 @@ export default class GalaxyAlpha extends Discord.Client {
 						continue;
 					};
 					this.commands.set(command.name, command);
-					const commandsArray: Array<Command> = this.categories.get(command.category) || [];
-					commandsArray.push(command);
-					this.categories.set(command.category, commandsArray);
+					if (!this.categories.has(command.category)) this.categories.set(command.category, []);
+					this.categories.get(command.category).push(command);
 					if (command.aliases) command.aliases.map(alias => this.aliases.set(alias, command.name));
 					commandTable.addRow(`${command.name}`, "✅");
 				};
@@ -274,9 +272,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 */
 	public async readEvents(eventPath: string) {
 		for (const file of readdirSync(join(__dirname, eventPath))) {
-			if (lstatSync(join(__dirname, eventPath, file)).isDirectory()) {
-				this.readEvents(join(eventPath, file));
-			} else if (!this.ignoreFiles.includes(file)) {
+			if (lstatSync(join(__dirname, eventPath, file)).isDirectory()) this.readEvents(join(eventPath, file));
+			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					eventTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
@@ -285,9 +282,6 @@ export default class GalaxyAlpha extends Discord.Client {
 				const event: Event = new Event();
 				if (!event.name) {
 					eventTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
-					continue;
-				} else if (!this.util.validEvents.includes(event.name)) {
-					eventTable.addRow(`${event.name}`, "❌", "Invalid Event!");
 					continue;
 				} else {
 					this.on(event.name, event.run.bind(null, this));
@@ -303,9 +297,8 @@ export default class GalaxyAlpha extends Discord.Client {
 	 */
 	public async readFeatures(featurePath: string) {
 		for (const file of readdirSync(join(__dirname, featurePath))) {
-			if (lstatSync(join(__dirname, featurePath, file)).isDirectory()) {
-				this.readFeatures(join(featurePath, file));
-			} else if (!this.ignoreFiles.includes(file)) {
+			if (lstatSync(join(__dirname, featurePath, file)).isDirectory()) this.readFeatures(join(featurePath, file));
+			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
 					featureTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
@@ -323,20 +316,12 @@ export default class GalaxyAlpha extends Discord.Client {
 		};
 	};
 	/**
-	 * Formats a duration in a string value
-	 * @param {number} ms The duration in milliseconds
-	 * @param {duration.Options} options The options of the time formatter 
-	 */
-	public humanizer(ms: number, options?: Humanizer.Options): string {
-		return Humanizer(ms, options);
-	};
-	/**
 	 * Creates an error and sends it to the channel
 	 * @param {Message} message The created message 
 	 * @param {object} embed The embed object 
 	 * @param {string} usage The command usage
 	 */
-	public async createArgumentError(message: Discord.Message, embed: { title: string, description: string }, usage: string) {
+	public async createArgumentError(message: Message, embed: { title: string, description: string }, usage: string) {
 		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}`)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
@@ -347,7 +332,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {object} embed The embed object 
 	 * @param {string} usage The command usage 
 	 */
-	public async createSuccess(message: Discord.Message, embed: { title: string, description: string }, usage?: string) {
+	public async createSuccess(message: Message, embed: { title: string, description: string }, usage?: string) {
 		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}` : null)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
@@ -358,7 +343,7 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {object} embed The embed object
 	 * @param {Array<object>} commands The sub commands
 	 */
-	public async createEmbedForSubCommands(message: Discord.Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
+	public async createEmbedForSubCommands(message: Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
 		const prefix = (await this.cache.getGuild(message.guild.id)).prefix;
 		const text = commands.map(command => `**${this.util.toUpperCaseBeginning(command.description)}**\n\`${prefix}${command.usage}\``).join("\n");
@@ -370,9 +355,9 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {boolean} usageField If it is true, it adds a usage field 
 	 * @param {string} usage The command usage
 	 */
-	public createEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: this.defaultColor,
 				footer: {
 					text: "Created By HydraNhani",
@@ -385,12 +370,12 @@ export default class GalaxyAlpha extends Discord.Client {
 					},
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
 		} else {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: this.defaultColor,
 				footer: {
 					text: "Created By HydraNhani",
@@ -399,7 +384,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				fields: [
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -410,9 +395,9 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {boolean} usageField If it is true, it adds a usage field 
 	 * @param {string} usage The command usage
 	 */
-	public createGreenEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createGreenEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#2ECC71',
 				footer: {
 					text: "Created By HydraNhani",
@@ -425,12 +410,12 @@ export default class GalaxyAlpha extends Discord.Client {
 					},
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
 		} else {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#2ECC71',
 				footer: {
 					text: "Created By HydraNhani",
@@ -439,7 +424,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				fields: [
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -450,9 +435,9 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {boolean} usageField If it is true, it adds a usage field 
 	 * @param {string} usage The command usage
 	 */
-	public createYellowEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createYellowEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#F1C40F',
 				footer: {
 					text: "Created By HydraNhani",
@@ -465,12 +450,12 @@ export default class GalaxyAlpha extends Discord.Client {
 					},
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				],
 			}).setTimestamp();
 		} else {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#F1C40F',
 				footer: {
 					text: "Created By HydraNhani",
@@ -479,7 +464,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				fields: [
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -490,9 +475,9 @@ export default class GalaxyAlpha extends Discord.Client {
 	 * @param {boolean} usageField If it is true, it adds a usage field 
 	 * @param {string} usage The command usage
 	 */
-	public createRedEmbed(usageField?: boolean, usage?: Discord.StringResolvable): Discord.MessageEmbed {
+	public createRedEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#ff0000',
 				footer: {
 					text: "Created By HydraNhani",
@@ -505,12 +490,12 @@ export default class GalaxyAlpha extends Discord.Client {
 					},
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
 		} else {
-			return new Discord.MessageEmbed({
+			return new MessageEmbed({
 				color: '#ff0000',
 				footer: {
 					text: "Created By HydraNhani",
@@ -519,7 +504,7 @@ export default class GalaxyAlpha extends Discord.Client {
 				fields: [
 					{
 						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://discord.gg/qvbFn6bXQX)`
+						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
 					}
 				]
 			}).setTimestamp();
@@ -542,14 +527,10 @@ export default class GalaxyAlpha extends Discord.Client {
 		if (!enable) return;
 		//GIVEAWAYS\\
 		const giveaways = await GiveawaySchema.find({});
-		giveaways.forEach(giveaway => {
-			endGiveaway(giveaway.messageID);
-		});
+		for (const giveaway of giveaways) this.giveaways.endGiveaway(giveaway.messageID);
 		//DROPS\\
 		const drops = await DropSchema.find({});
-		drops.forEach(drop => {
-			deleteDrop(drop.messageID);
-		});
+		for (const drop of drops) deleteDrop(drop.messageID);
 		//TICKETS\\
 		const tickets = await TicketSchema.find({});
 		tickets.forEach(async ticket => {

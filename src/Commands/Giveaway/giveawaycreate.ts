@@ -2,10 +2,12 @@ import Command, { CommandRunner } from '@root/Command';
 import { NewsChannel, Role, TextChannel } from 'discord.js';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
 
+
+export const giveawayCreate: string = "giveawaycreate";
 export default class GiveawayCreateCommand extends Command {
     constructor() {
         super({
-            name: "giveawaycreate",
+            name: giveawayCreate,
             description: "creates a giveaway with requirements",
             aliases: ["gcreate"],
             category: "giveaway",
@@ -16,7 +18,7 @@ export default class GiveawayCreateCommand extends Command {
         const guildSettings = await client.cache.getGuild(message.guild.id);
         let giveawayManagerRole: Role;
         if (guildSettings.giveawayManagerRoleID && message.guild.roles.cache.has(guildSettings.giveawayManagerRoleID)) giveawayManagerRole = message.guild.roles.cache.get(guildSettings.giveawayManagerRoleID);
-        if (giveawayManagerRole && !message.member.roles.cache.has(giveawayManagerRole.id) && !message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!"}, this.usage);
+        if (giveawayManagerRole && !message.member.roles.cache.has(giveawayManagerRole.id) && !message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!" }, this.usage);
         else if (!message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!" }, this.usage);
         const prompts = [
             'You have to mention a channel or provide a channel ID, where I have the permission to `Manage Messages`!',
@@ -70,10 +72,10 @@ export default class GiveawayCreateCommand extends Command {
             const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, { max: 1, time: 30000 });
             if (msg.size == 0) {
                 cancel = true;
-                return message.channel.send(client.createRedEmbed(true, `${prefix}gcreate`).setTitle(giveawayManager).setDescription("Giveaway creating cancelled!"));
+                return message.channel.send(client.createRedEmbed(true, `${prefix}gcreate`).setTitle(giveawayManager).setDescription("Creating giveaway cancelled!"));
             } else if (msg.first().content.toLowerCase() == 'cancel') {
                 cancel = true;
-                return message.channel.send(client.createRedEmbed(true, `${prefix}gcreate`).setTitle(giveawayManager).setDescription("Giveaway creating cancelled!"));
+                return message.channel.send(client.createRedEmbed(true, `${prefix}gcreate`).setTitle(giveawayManager).setDescription("Creating giveaway cancelled!"));
             };
             if (i == 0) { //THE BEGINNING - CHANNEL
                 let channel: TextChannel | NewsChannel;
@@ -257,7 +259,25 @@ export default class GiveawayCreateCommand extends Command {
                 };
             };
         };
-        return client.giveaways.start({
+        let time: number = 0;
+        if (message.content.toLowerCase().includes("giveawayschedule") || message.content.toLowerCase().includes("gschedule")){
+            for (let i = 0; i == 0; i++){
+                await message.channel.send(client.createEmbed()
+                .setTitle(giveawayManager)
+                .setDescription("When you want to let the giveaway start?")
+                .addField("How to cancel?", "Simply type `cancel` to cancel the entire process!"));
+                const msg = await message.channel.awaitMessages((msg) => msg.author.id == message.author.id, { max: 1, time: 30000 });
+                if (!msg.first()) return client.createArgumentError(message, { title: giveawayManager, description: "Creating giveaway cancelled!" }, this.usage);
+                if (msg.first().content.toLowerCase() == "cancel") return client.createArgumentError(message, { title: giveawayManager, description: "Creating giveaway cancelled!" }, this.usage);
+                if (client.ms(msg.first().content)) time = client.ms(msg.first().content);
+                else i = -1;
+            };
+            client.createSuccess(message, { title: giveawayManager, description: `Starting giveaway in ${client.humanizer(time, {
+                round: true,
+                units: ["y", "mo", "w", "d", "h", "m", "s"]
+            })}!`});
+        };
+        setTimeout(async () => await client.giveaways.start({
             prize: responses.prize,
             channelID: responses.channel.id,
             duration: responses.duration,
@@ -270,6 +290,6 @@ export default class GiveawayCreateCommand extends Command {
             invites: responses.invites,
             level: responses.level,
             guildReq: responses.guildReq
-        });
+        }), time);
     };
 };

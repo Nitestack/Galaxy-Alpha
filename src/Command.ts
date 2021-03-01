@@ -1,8 +1,8 @@
-import Discord from 'discord.js';
+import { PermissionString, Message } from 'discord.js';
 import GalaxyAlpha from '@root/Client';
 
 export interface CommandRunner {
-	(client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown>;
+	(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown>;
 };
 
 export type Categories =
@@ -27,8 +27,8 @@ interface CommandInfos {
 	category: Categories;
 	usage?: string;
 	cooldown?: string;
-	userPermissions?: Array<Discord.PermissionString>;
-	clientPermissions?: Array<Discord.PermissionString>;
+	userPermissions?: Array<PermissionString>;
+	clientPermissions?: Array<PermissionString>;
 	developerOnly?: boolean;
 	ownerOnly?: boolean;
 	guildOnly?: boolean;
@@ -45,8 +45,8 @@ export default class Command {
 	public category: Categories;
 	public usage?: string;
 	public cooldown?: string;
-	public userPermissions?: Array<Discord.PermissionString>;
-	public clientPermissions?: Array<Discord.PermissionString>;
+	public userPermissions?: Array<PermissionString>;
+	public clientPermissions?: Array<PermissionString>;
 	public developerOnly?: boolean;
 	public ownerOnly?: boolean;
 	public guildOnly?: boolean;
@@ -74,7 +74,7 @@ export default class Command {
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
 		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
 	};
-	public run: CommandRunner = async (client: GalaxyAlpha, message: Discord.Message, args: Array<string>, prefix: string): Promise<unknown> => {
+	public run: CommandRunner = async (client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 };

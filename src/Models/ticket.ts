@@ -14,7 +14,7 @@ const ticketSchema = new Schema({
 });
 
 //TODO: Everytime update the interfaces, when updating the schema
-export interface Ticket extends Document {
+export interface Ticket {
     guildID: string;
     channelID: string;
     categoryID: string;
@@ -23,4 +23,6 @@ export interface Ticket extends Document {
     createdAt: Date;
 };
 
-export default model<Ticket>("Ticket", ticketSchema, 'tickets');
+interface TicketDocument extends Ticket, Document { };
+
+export default model<TicketDocument>("Ticket", ticketSchema, 'tickets');

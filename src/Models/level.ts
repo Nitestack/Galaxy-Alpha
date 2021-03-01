@@ -23,13 +23,6 @@ export interface Level {
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
-interface LevelDocument extends Document {
-    userID: string,
-    guildID: string,
-    xp: number,
-    level: number,
-    messages: number,
-    lastUpdated: Date
-};
+interface LevelDocument extends Level, Document { };
 
 export default model<LevelDocument>('Level', levelSchema, 'levels');

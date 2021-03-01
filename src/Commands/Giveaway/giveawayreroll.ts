@@ -1,6 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
 import { giveawayManager } from '@commands/Giveaway/Giveaway';
-import { NewsChannel, TextChannel, Role } from 'discord.js';
+import { Role } from 'discord.js';
 
 export default class GiveawayRerollCommand extends Command {
     constructor() {
@@ -23,10 +23,6 @@ export default class GiveawayRerollCommand extends Command {
         if (!messageID) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)
             .setDescription("You have to provide a message ID!"));
-
-        const reroll = client.giveaways.reroll(messageID, message.channel as TextChannel | NewsChannel, `${prefix}${this.usage}`);
-        if (!reroll) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-            .setTitle(giveawayManager)
-            .setDescription("This giveaway has not ended yet!"));
+        return await client.giveaways.reroll(messageID, message, this.usage);
     };
 };

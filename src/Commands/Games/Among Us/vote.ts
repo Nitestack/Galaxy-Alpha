@@ -3,7 +3,7 @@ import Command, { CommandRunner } from "@root/Command";
 export default class VoteCommand extends Command {
     constructor(){
         super({
-            name: "auvote",
+            name: "au-vote",
             description: "starts a voting session",
             category: "games",
             guildOnly: true,

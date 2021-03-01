@@ -5,11 +5,12 @@ import { Message } from 'discord.js';
 export default class MessageEvent extends Event {
 	constructor() {
 		super({
-			name: 'message'
+			name: "message"
 		});
 	};
 	run: EventRunner = async (client, message: Message) => {
 		if (message.author.bot) return;
+		if (message.channel.type != "dm" && (await client.cache.getGuild(message.guild.id)).ignoreChannels.includes(message.channel.id)) return;
 		if (message.channel.type != "dm" && !message.channel.permissionsFor(client.user).has("SEND_MESSAGES")) return (message.guild.channels.cache
 			.filter(channel => channel.type == "text" && channel.permissionsFor(client.user).has("SEND_MESSAGES"))
 			.get(message.guild.systemChannel ? message.guild.systemChannelID : message.guild.channels.cache.filter(channel => channel.type == "text").first().id) as TextChannel).send(client.createRedEmbed()
@@ -49,7 +50,7 @@ export default class MessageEvent extends Event {
 				.setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
 				.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${(await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level}!** 🎉\nCheck your level card with \`${prefix}level\`!`));
 		};
-		if (message.channel.type != "dm" && client.cache.getClientData().autoPublishChannels.includes(message.channel.id)) message.crosspost();
+		if (message.channel.type != "dm" && (await client.cache.getGuild(message.guild.id)).autoPublishChannels.includes(message.channel.id)) message.crosspost();
 		/*if (!client.developers.includes(message.author.id) && !client.contributors.includes(message.author.id)) {
 			if (message.content.includes('discord.gg/')) {
 				const isOurInvite = await this.isInvite(message.guild, message.content.split('discord.gg/')[1]);
@@ -64,7 +65,7 @@ export default class MessageEvent extends Event {
 				};
 			};
 		};*/
-		if (message.channel.type != "dm" && client.cache.getClientData().autoPollChannels.includes(message.channel.id)) {
+		if (message.channel.type != "dm" && (await client.cache.getGuild(message.guild.id)).autoSuggestionChannel.includes(message.channel.id)) {
 			await message.react("👍");
 			await message.react("👎");
 		};
@@ -110,9 +111,7 @@ export default class MessageEvent extends Event {
 			for (const permission of command.userPermissions) if (message.member.hasPermission(permission)) perms++;
 			if (perms == 0) {
 				let userPerms: Array<string> = [];
-				command.userPermissions.forEach(perm => {
-					userPerms.push(client.permissionsShowCase[client.permissions.indexOf(perm)]);
-				});
+				command.userPermissions.forEach(perm => userPerms.push(client.util.permissionConverted(perm)));
 				return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 					.setTitle("Permission Manager")
 					.setDescription(`You need one of the following permissions to use the command \`${command.name}\`:\n\`${userPerms.join("`, `")}\``));
@@ -124,9 +123,7 @@ export default class MessageEvent extends Event {
 			for (const permission of command.clientPermissions) if (message.guild.me.hasPermission(permission)) perms++;
 			if (perms == 0) {
 				let clientPerms: Array<string> = [];
-				command.clientPermissions.forEach(perm => {
-					clientPerms.push(client.permissionsShowCase[client.permissions.indexOf(perm)]);
-				});
+				command.clientPermissions.forEach(perm => clientPerms.push(client.util.permissionConverted(perm)));
 				return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 					.setTitle("Permission Manager")
 					.setDescription(`I need one of the following permissions to use the command \`${command.name}\`: \n\`${clientPerms.join("`, `")}\``));

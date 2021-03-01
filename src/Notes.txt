@@ -32,3 +32,6 @@ DAME
 DICE
 
 temp channels
+
+LEVEL ROLES
+MESSAGE RANKES

@@ -3,7 +3,7 @@ import Command, { CommandRunner } from "@root/Command";
 export default class StartCommand extends Command {
     constructor(){
         super({
-            name: "austart",
+            name: "au-start",
             description: "starts an Among Us game",
             category: "games",
             guildOnly: true,

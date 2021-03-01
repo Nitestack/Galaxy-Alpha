@@ -4,7 +4,6 @@ import Queue, { Song } from "@commands/Music/Queue";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
 import duration from "humanize-duration";
-
 export default class Music {
     constructor(private client: GalaxyAlpha) { };
     /**
@@ -12,48 +11,53 @@ export default class Music {
      * @param {Message} message The message sent from the guild 
      */
     public async play(message: Message) {
+        const serverQueue = this.getServerQueue(message);
+        if (serverQueue.stream) serverQueue.stream.destroy();
         const videoInfos = this.getQueue(message)[0];
-        const serverQueue = this.client.queue.get(message.guild.id);
-        if (!serverQueue.connection) serverQueue.connection = await serverQueue.message.member.voice.channel.join();
-        serverQueue.stream = ytdl(videoInfos.url, {
-            filter: 'audioonly',
-            highWaterMark: 1,
-            quality: "highestaudio"
-        });
-        serverQueue.dispatcher = serverQueue.connection.play(serverQueue.stream, {
-            seek: this.client.music.getServerQueue(message).beginAt,
-            volume: this.client.music.getServerQueue(message).volume * 100,
-            highWaterMark: 1,
-            bitrate: "auto",
-            type: "webm/opus"
-        }).on("start", () => {
-            serverQueue.beginningToPlay = Date.now();
-            serverQueue.nowPlaying = true;
-            if (!this.client.queue.get(message.guild.id).panel) message.channel.send(this.client.createEmbed()
-                .setTitle(`🎧 Connected to \`${serverQueue.message.guild.me.voice.channel.name}\`!`)
-                .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
-                *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
-                
-                **Duration:** ${this.client.util.getDuration(videoInfos.duration.seconds * 1000)} (${duration(videoInfos.duration.seconds * 1000, {
-                    units: ["h", "m", "s"],
-                    round: true
-                })})
-                **Views:** ${videoInfos.views.toLocaleString()} views
-                **Genre:** ${this.client.util.toUpperCaseBeginning(videoInfos.genre)}`)
-                .setImage(videoInfos.image));
-        }).on("finish", () => {
-            serverQueue.nowPlaying = false;
-            serverQueue.beginningToPlay = null;
-            serverQueue.stopToPlay = null;
-            if (serverQueue.loopMode == 2) serverQueue.songs.push(serverQueue.songs[0]);
-            serverQueue.songs.shift();
-            if (serverQueue.shuffle) serverQueue.songs = this.shuffle(serverQueue.message);
-            if (serverQueue.autoPlay) this.addRelatedVideo(serverQueue.message);
-            if (serverQueue.isEmpty) {
-                this.client.queue.delete(message.guild.id);
-                return this.disconnect(message);
-            } else this.play(message);
-        });
+        try {
+            if (!serverQueue.connection) serverQueue.connection = await serverQueue.message.member.voice.channel.join();
+            serverQueue.stream = ytdl(videoInfos.url, {
+                filter: 'audioonly',
+                highWaterMark: 1,
+                quality: "highestaudio"
+            });
+            serverQueue.dispatcher = serverQueue.connection.play(serverQueue.stream, {
+                seek: serverQueue.beginAt,
+                volume: serverQueue.volume / 100,
+                highWaterMark: 1,
+                bitrate: "auto",
+                type: "webm/opus"
+            }).on("start", () => {
+                serverQueue.beginningToPlay = Date.now();
+                serverQueue.nowPlaying = true;
+                if (!this.getServerQueue(message).panel) message.channel.send(this.client.createEmbed()
+                    .setTitle(`🎧 Connected to \`${serverQueue.message.guild.me.voice.channel.name}\`!`)
+                    .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
+                    *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
+                    
+                    **Duration:** ${this.client.util.getDuration(videoInfos.duration.seconds * 1000)} (${duration(videoInfos.duration.seconds * 1000, {
+                        units: ["h", "m", "s"],
+                        round: true
+                    })})
+                    **Views:** ${videoInfos.views.toLocaleString()} views
+                    **Genre:** ${this.client.util.toUpperCaseBeginning(videoInfos.genre)}`)
+                    .setImage(videoInfos.image));
+            }).on("finish", () => {
+                serverQueue.nowPlaying = false;
+                serverQueue.beginningToPlay = null;
+                serverQueue.stopToPlay = null;
+                if (serverQueue.loopMode == 2) serverQueue.songs.push(serverQueue.songs[0]);
+                serverQueue.songs.shift();
+                if (serverQueue.shuffle) serverQueue.songs = this.shuffle(serverQueue.message);
+                if (serverQueue.autoPlay) this.addRelatedVideo(serverQueue.message);
+                if (serverQueue.isEmpty) {
+                    this.client.queue.delete(message.guild.id);
+                    return this.disconnect(message);
+                } else this.play(message);
+            });
+        } catch (error) {
+            console.log(error);
+        };
     };
     /**
      * Set's the loop mode
@@ -126,11 +130,10 @@ export default class Music {
     /**
      * Set's the seek of the current track
      * @param {Message} message The message sent from the guild 
-     * @param time 
+     * @param {number} time The seek in milliseconds 
      */
     public seek(message: Message, time: number) {
-        let queue = this.getServerQueue(message);
-        queue.beginningToPlay = time;
+        this.getServerQueue(message).beginAt = time;
         return this.play(message);
     };
     /**
@@ -175,13 +178,11 @@ export default class Music {
      * @param {string} videoID The ID of the YouTube video 
      */
     public async addToQueue(message: Message, videoID: string) {
-        const video = await ytSearch({ videoId: videoID });
+        const video = await ytSearch({ videoId: videoID }).catch(err => console.log(err));
         if (!video) return;
-        const queue = this.getQueue(message);
-        queue.push({
+        this.getQueue(message).push({
             ...video,
             user: message.author
         });
-        this.getServerQueue(message).songs = queue;
     };
 };

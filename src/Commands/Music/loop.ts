@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from "@root/Command";
-import e from "express";
 
 export default class LoopCommand extends Command {
     constructor() {

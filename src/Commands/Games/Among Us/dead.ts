@@ -4,7 +4,7 @@ import { GuildMember } from "discord.js";
 export default class DeadCommand extends Command {
     constructor(){
         super({
-            name: "audead",
+            name: "au-dead",
             description: "mutes a member in a voice channel",
             category: "games",
             guildOnly: true,

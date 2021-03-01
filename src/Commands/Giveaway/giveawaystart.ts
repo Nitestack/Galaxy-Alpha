@@ -32,7 +32,7 @@ export default class GiveawayStartCommand extends Command {
         if (!giveawayPrize) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)
             .setDescription("You have to provide a prize for this giveaway!"));
-        return client.giveaways.start({
+        return await client.giveaways.start({
             channelID: message.channel.id,
             duration: client.ms(giveawayDuration),
             guildID: message.guild.id,

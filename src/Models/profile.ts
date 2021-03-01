@@ -1,5 +1,6 @@
 import { SchemaTypes, model, Document, Schema } from 'mongoose';
 import { requiredString, requiredDefaultNumber, requiredDefaultDate } from "@models/ModelBase";
+import { ShopItem } from "@data/Shop";
 
 //TODO: Everytime update the interfaces, when updating the schema
 export interface Profile {
@@ -9,30 +10,13 @@ export interface Profile {
 	messageCount?: number;
 	passive?: boolean;
 	items?: Array<{
-		name: string,
-		aliases?: Array<string>,
-		amount: number,
-		worth: number,
-		category: "Loot" | "Utilty"
+		item: ShopItem
+		amount: number
 	}>,
 	profileCreatedAt?: Date
 };
 
-interface ProfileDocuement extends Document {
-	userID: string;
-	wallet: number;
-	bank: number;
-	messageCount: number;
-	passive: boolean;
-	items: Array<{
-		name: string,
-		aliases?: Array<string>,
-		amount: number,
-		worth: number,
-		category: "Loot" | "Utilty"
-	}>,
-	profileCreatedAt: Date
-};
+interface ProfileDocument extends Profile, Document { };
 
 //TODO: Everytime update the interfaces, when updating the schema
 const profileSchema = new Schema({
@@ -41,20 +25,11 @@ const profileSchema = new Schema({
 	bank: requiredDefaultNumber,
 	messageCount: requiredDefaultNumber,
 	passive: requiredDefaultNumber,
-	items: [{
-		name: SchemaTypes.String,
-		aliases: [SchemaTypes.String],
-		amount: {
-			type: SchemaTypes.Number,
-			default: 0
-		},
-		worth: {
-			type: SchemaTypes.Number,
-			default: 0
-		},
-		category: SchemaTypes.String
-	}],
+	items: {
+		type: SchemaTypes.Array,
+		default: []
+	},
 	profileCreatedAt: requiredDefaultDate
 });
 
-export default model<ProfileDocuement>('profile', profileSchema, 'profiles');
+export default model<ProfileDocument>('profile', profileSchema, 'profiles');

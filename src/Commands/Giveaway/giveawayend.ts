@@ -22,11 +22,6 @@ export default class GiveawayEndCommand extends Command {
         if (!messageID) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
             .setTitle(giveawayManager)
             .setDescription("You have to provide a message ID!"));
-        const ended = client.giveaways.end(messageID);
-        if (!ended) {
-            return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                .setTitle(giveawayManager)
-                .setDescription("This giveaway has already ended!"));
-        };
+        return await client.giveaways.end(messageID);
     };
 };

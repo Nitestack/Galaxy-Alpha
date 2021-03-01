@@ -1,127 +1,15 @@
-import Discord from "discord.js";
+import { PermissionString } from "discord.js";
+import GalaxyAlpha from "@root/Client";
 
 export default class GalaxyAlphaUtil {
-    public permissions: Array<Discord.PermissionString> = [
-        'CREATE_INSTANT_INVITE',
-        'KICK_MEMBERS',
-        'BAN_MEMBERS',
-        'ADMINISTRATOR',
-        'MANAGE_CHANNELS',
-        'MANAGE_GUILD',
-        'ADD_REACTIONS',
-        'VIEW_AUDIT_LOG',
-        'PRIORITY_SPEAKER',
-        'STREAM',
-        'VIEW_CHANNEL',
-        'SEND_MESSAGES',
-        'SEND_TTS_MESSAGES',
-        'MANAGE_MESSAGES',
-        'EMBED_LINKS',
-        'ATTACH_FILES',
-        'READ_MESSAGE_HISTORY',
-        'MENTION_EVERYONE',
-        'USE_EXTERNAL_EMOJIS',
-        'VIEW_GUILD_INSIGHTS',
-        'CONNECT',
-        'SPEAK',
-        'MUTE_MEMBERS',
-        'DEAFEN_MEMBERS',
-        'MOVE_MEMBERS',
-        'USE_VAD',
-        'CHANGE_NICKNAME',
-        'MANAGE_NICKNAMES',
-        'MANAGE_ROLES',
-        'MANAGE_WEBHOOKS',
-        'MANAGE_EMOJIS'
-    ];
-
-    public permissionsShowCase: Array<string> = [
-        "Create Invite",
-        "Kick Members",
-        "Ban Members",
-        "Administrator",
-        "Manage Channels",
-        "Manage Server",
-        "Add Reactions",
-        "View Audit Log",
-        "Priority Speaker",
-        "Video",
-        "View Channels",
-        "Send Messages",
-        "Send Text-to-Speech Messages",
-        "Manage Messages",
-        "Embed Links",
-        "Attach Files",
-        "Read Message History",
-        "Mention @everyone, @here, and All Roles",
-        "Use External Emoji",
-        "View Server Insights",
-        "Connect",
-        "Speak",
-        "Mute Members",
-        "Deafen Members",
-        "Move Members",
-        "Use Voice Activity",
-        "Change Nickname",
-        "Manage Nicknames",
-        "Manage Roles",
-        "Manage Webhooks",
-        "Manage Emojis"
-    ];
-
-    public validEvents = [
-        'channelCreate',
-        'channelDelete',
-        'guildBanRemove',
-        'guildUnavailable',
-        'guildDelete',
-        'emojiCreate',
-        'emojiDelete',
-        'emojiUpdate',
-        'guildIntegrationsUpdate',
-        'guildMemberRemove',
-        'guildMemberUpdate',
-        'guildMemberAvailable',
-        'roleCreate',
-        'roleDelete',
-        'roleUpdate',
-        'guildUpdate',
-        'inviteCreate',
-        'inviteDelete',
-        'message',
-        'messageDelete',
-        'messageDeleteBulk',
-        'messageReactionAdd',
-        'messageReactionRemove',
-        'messageReactionRemoveAll',
-        'messageReactionRemoveEmoji',
-        'presenceUpdate',
-        'typingStart',
-        'userUpdate',
-        'voiceStateUpdate',
-        'webhookUpdate',
-        'warn',
-        'debug',
-        'guildMemberSpeaking',
-        'channelPinsUpdate',
-        'channelUpdate',
-        'guildBanAdd',
-        'guildCreate',
-        'guildMemberAdd',
-        'guildMembersChunk',
-        'messageUpdate',
-        'shardResume',
-        'shardReady',
-        'shardDisconnect',
-        'shardReconnecting',
-        'invalidated',
-        'shardError',
-        'rateLimit',
-        'error',
-        'modMail'
-    ];
+    constructor(private client: GalaxyAlpha) {};
+    public permissionConverted(permission: PermissionString): string {
+        if (permission == "USE_VAD") return "Use Voice Activity";
+        if (permission == "CREATE_INSTANT_INVITE") return "Create Invite";
+        if (permission == "MENTION_EVERYONE") return "Mention @everyone, @here, and All Roles";
+        return permission.toLowerCase().replace(/guild/g, "server").split("_").map(permission => this.client.util.toUpperCaseBeginning(permission)).join(" ");
+    };
     public weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
     public monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     /**
      * Returns a number from the provided minimum to the provided maximum

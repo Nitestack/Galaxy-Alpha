@@ -28,38 +28,14 @@ export interface Guild {
 		roleID: string,
 		messageID: string,
 		channelID: string
-	}>
+	}>,
+	ignoreChannels: Array<string>,
+	autoPublishChannels: Array<string>,
+	autoSuggestionChannel: Array<string>
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
-interface GuildDocument extends Document {
-	guildID: string,
-	prefix: string,
-	modLogChannelID: string,
-	modLogChannelWebhookToken: string,
-	modLogChannelWebhookID: string,
-	muteRoleID: string,
-	memberRoleID: string,
-	ticketCategoryID: string,
-	ticketManagerRoleID: string,
-	giveawayManagerRoleID: string,
-	giveawayBlacklistedRoleID: string,
-	giveawayByPassRoleID: string,
-	serverManagerRoleID: string,
-	welcomeMessage: string,
-	welcomeMessageType: "embed" | "message",
-	welcomeChannelID: string | "dm",
-	modMailManagerRoleID: string,
-	modMailLogChannelID: string,
-	modMailCategoryID: string,
-	DJRoleID: string,
-	reactionRoles: Array<{
-		emojiID: string,
-		roleID: string,
-		messageID: string,
-		channelID: string
-	}>
-};
+interface GuildDocument extends Guild, Document { };
 
 //TODO: Everytime update the interfaces, when updating the schema
 const guildSchema = new Schema({
@@ -98,8 +74,19 @@ const guildSchema = new Schema({
 			channelID: SchemaTypes.String
 		}],
 		default: []
+	},
+	ignoreChannels: {
+		type: SchemaTypes.Array,
+		default: []
+	},
+	autoPublishChannels: {
+		type: SchemaTypes.Array,
+		default: []
+	},
+	autoSuggestionChannel: {
+		type: SchemaTypes.Array,
+		default: []
 	}
 });
-
 
 export default model<GuildDocument>('guild', guildSchema, 'guilds');

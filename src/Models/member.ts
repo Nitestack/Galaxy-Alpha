@@ -1,8 +1,7 @@
 import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
 //TODO: Everytime update the interfaces, when updating the schema
-export interface Member extends Document {
-	_id: Schema.Types.ObjectId;
+export interface Member {
 	guildID: string,
     memberID: string,
     kickCount: number,
@@ -12,9 +11,10 @@ export interface Member extends Document {
     isMuted: Boolean
 };
 
+interface MemberDocument extends Member, Document { };
+
 //TODO: Everytime update the interfaces, when updating the schema
 const memberSchema = new Schema({
-	_id: Schema.Types.ObjectId,
     guildID: SchemaTypes.String,
     memberID: SchemaTypes.String,
     kickCount: SchemaTypes.Number,
@@ -27,4 +27,4 @@ const memberSchema = new Schema({
     }
 });
 
-export default model<Member>('member', memberSchema, 'members');
+export default model<MemberDocument>('member', memberSchema, 'members');

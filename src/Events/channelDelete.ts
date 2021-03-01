@@ -23,6 +23,8 @@ export default class ChannelDeleteEvent extends Event {
 			const ticket = await TicketSchema.findOne({ channelID: channel.id });
 			if (ticket) await TicketSchema.findOneAndDelete({ channelID: channel.id });
 		} else {
+			const giveaway = client.cache.giveaways.find(giveaway => giveaway.channelID == channel.id);
+			if (giveaway) client.cache.giveaways.delete(giveaway.messageID);
 			await CounterSchema.findOne({
 				guildID: channel.guild.id
 			}, {}, {}, async (err, counter) => {

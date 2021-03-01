@@ -8,7 +8,10 @@
 			"@features/*": ["Features/*"],
 			"@events/*": ["Events/*"],
 			"@images/*": ["Images/*"],
-			"@dashboard/*": ["Dashboard/*"]
+			"@dashboard/*": ["Dashboard/*"],
+			"@data/*": ["Data/*"],
+			"@routes/*": ["Dashboard/Routes/*"],
+			"@modules/*": ["Dashboard/Modules/*"]
 		},
 		"lib": ["ESNext"],
 		"module": "commonjs",
@@ -24,5 +27,5 @@
 		"outDir": "Build"
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "**/*.spec.ts", "Dyno Commands"]
+	"exclude": ["node_modules", "**/*.spec.ts"]
 }

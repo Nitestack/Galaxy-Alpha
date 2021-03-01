@@ -9,8 +9,8 @@ export default class VoiceStateUpdateEvent extends Event {
         });
     };
     run: EventRunner = async (client, oldState: VoiceState, newState: VoiceState) => {
-        if (newState && newState.id === client.user.id && !newState.channelID) {
-            let queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id === oldState.channelID);
+        if (newState && newState.id == client.user.id && !newState.channel.id) {
+            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channel.id);
             if (!queue) return;
             try { 
                 newState.channel.leave();
@@ -19,12 +19,10 @@ export default class VoiceStateUpdateEvent extends Event {
             };
         };
         if (oldState && oldState.channel) {
-            let queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id === oldState.channelID);
+            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channel.id);
             if (queue && this._isVoiceChannelEmpty(queue)) {
                 setTimeout(() => {
-                    if (client.queue.has(queue.connection.channel.guild.id) && this._isVoiceChannelEmpty(queue)) {
-                        queue.connection.channel.leave();
-                    };
+                    if (client.queue.has(queue.connection.channel.guild.id) && this._isVoiceChannelEmpty(queue)) queue.connection.channel.leave();
                 }, 60000);
             };
         };

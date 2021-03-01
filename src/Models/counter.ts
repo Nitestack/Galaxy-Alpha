@@ -2,7 +2,7 @@ import { SchemaTypes, model, Document, Schema } from 'mongoose';
 import { undefinedString } from "@models/ModelBase";
 
 //TODO: Everytime update the interfaces, when updating the schema
-export interface Counter extends Document {
+export interface Counter {
     guildID: string;
     allMembers: string;
     members: string;
@@ -42,4 +42,6 @@ const countSchema = new Schema({
     boostLevel: undefinedString
 });
 
-export default model<Counter>("Counter", countSchema, "counters");
+interface CounterDocument extends Counter, Document { };
+
+export default model<CounterDocument>("Counter", countSchema, "counters");

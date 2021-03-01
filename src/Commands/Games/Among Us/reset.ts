@@ -3,7 +3,7 @@ import Command, { CommandRunner } from "@root/Command";
 export default class ResetCommand extends Command {
     constructor(){
         super({
-            name: "aureset",
+            name: "au-reset",
             description: "resets an Among Us round",
             aliases: ["aurevive"],
             category: "games",

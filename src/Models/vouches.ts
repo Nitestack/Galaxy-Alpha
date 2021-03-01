@@ -1,12 +1,14 @@
 import { SchemaTypes, model, Document, Schema } from 'mongoose';
 
 //TODO: Everytime update the interfaces, when updating the schema
-export interface Vouch extends Document {
+export interface Vouch {
 	userID: string;
 	upVotes: number;
 	downVotes: number;
 	lastUpdated: Date;
 };
+
+interface VouchDocument extends Vouch, Document { };
 
 //TODO: Everytime update the interfaces, when updating the schema
 const vouchSchema = new Schema({
@@ -25,4 +27,4 @@ const vouchSchema = new Schema({
 	}
 });
 
-export default model<Vouch>('vouch', vouchSchema, 'vouches');
+export default model<VouchDocument>('vouch', vouchSchema, 'vouches');

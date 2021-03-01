@@ -25,7 +25,7 @@ export default class Queue {
     public autoPlay: boolean = false;
     public panel?: Message = null;
     public get isEmpty() {
-        return this.songs.length == 0 ? true : false;
+        return this.songs.length > 0 ? false : true;
     };
     public get queueDurationTimestamp() {
         return this.songs.reduce((prev, next) => prev + next.duration.seconds * 1000, 0);
@@ -37,7 +37,7 @@ export default class Queue {
         return new Date(this.currentTimestamp);
     };
     public get currentTimestamp() {
-        return this.dispatcher.streamTime + this.beginningToPlay;
+        return this.dispatcher.streamTime + this.beginAt;
     };
     public clearQueue() {
         return this.songs = [];

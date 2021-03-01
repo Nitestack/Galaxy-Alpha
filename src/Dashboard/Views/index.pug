@@ -1,0 +1,15 @@
+doctype
+html(lang='en')
+    head
+        include includes/header.pug
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        include includes/navbar.pug
+        .jumbotron.text-center.bg-transparent
+            h1.display-3 #{client.user.username}
+            p.lead #{client.user.username} is a bot to improve your server!
+            p.lead Better server management and much more utility and fun commands
+            p.lead Ticket system, giveaway and drop management, currency system, moderation commands, 
+            p.lead some game commands and music commands with basic stream quality!
+            a.btn.btn-dark(href='/invite', target="_blank") Invite #{client.user.username}

@@ -1,9 +1,10 @@
-import { Collection } from "discord.js";
+import { Collection, Snowflake } from "discord.js";
 import CurrencySchema, { Profile } from "@models/profile";
 import LevelSchema, { Level } from "@models/level";
 import ClientDataSchema, { ClientData } from "@models/clientData";
 import GuildSchema, { Guild } from "@models/guild";
 import GalaxyAlpha from "@root/Client";
+import GiveawaySchema, { Giveaway } from "@models/Giveaways/giveaways";
 
 export default class GlobalCache {
     constructor(private client: GalaxyAlpha) {
@@ -11,8 +12,6 @@ export default class GlobalCache {
             const results = await ClientDataSchema.findById(this.client.dataSchemaObjectId);
             if (!results) throw new Error("Cannot find the client data schema!");
             this.clientData = {
-                autoPollChannels: results.autoPollChannels,
-                autoPublishChannels: results.autoPublishChannels,
                 blockedUser: results.blockedUser
             };
         });
@@ -22,6 +21,7 @@ export default class GlobalCache {
     public levels: Collection<string, Level> = new Collection();
     public guilds: Collection<string, Guild> = new Collection();
     public clientData: ClientData = {};
+    public giveaways: Collection<string, Giveaway> = new Collection();
     //METHODS\\
     /**
      * Clears the cache and uploads the caches data to the database
@@ -52,32 +52,31 @@ export default class GlobalCache {
                 upsert: true
             });
         });
+        if (this.giveaways.first()) this.giveaways.forEach(async giveaway => {
+            await GiveawaySchema.findOneAndUpdate({ guildID: giveaway.guildID }, {
+                ...giveaway,
+                hostedBy: giveaway.hostedBy.id
+            });
+            if (giveaway.hasEnded) this.giveaways.delete(giveaway.messageID);
+        });
         this.currency.clear();
         this.levels.clear();
         this.guilds.clear();
     };
     /**
      * Gets the level, xp and messages of an user
-     * @param {string} guildID The ID of the guild 
-     * @param {string} userID The ID of the user
+     * @param {Snowflake} guildID The ID of the guild 
+     * @param {Snowflake} userID The ID of the user
      */
-    public async getLevelandMessages(guildID: string, userID: string): Promise<Level> {
+    public async getLevelandMessages(guildID: Snowflake, userID: Snowflake): Promise<Level> {
         const key = `${userID}-${guildID}`;
         const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
-        if (LevelandMessages && !this.levels.has(key)) this.levels.set(key, {
-            userID: LevelandMessages.userID,
-            guildID: LevelandMessages.guildID,
-            level: LevelandMessages.level,
-            xp: LevelandMessages.xp,
-            messages: LevelandMessages.messages,
-            lastUpdated: new Date()
-        });
-        else this.levels.set(key, {
-            userID: userID,
-            guildID: guildID,
-            level: 0,
-            xp: 0,
-            messages: 0,
+        if (!this.levels.has(key)) this.levels.set(key, {
+            userID: LevelandMessages ? LevelandMessages.userID : userID,
+            guildID: LevelandMessages ? LevelandMessages.guildID : guildID,
+            level: LevelandMessages ? LevelandMessages.level : 0,
+            xp: LevelandMessages ? LevelandMessages.xp : 0,
+            messages: LevelandMessages ? LevelandMessages.messages : 0,
             lastUpdated: new Date()
         });
         if (!LevelandMessages) LevelSchema.create(this.levels.get(key));
@@ -85,11 +84,11 @@ export default class GlobalCache {
     };
     /**
      * Updates a user's level stats
-     * @param {string} guildID The ID of the guild 
-     * @param {string} userID The ID of the user
+     * @param {Snowflake} guildID The ID of the guild 
+     * @param {Snowflake} userID The ID of the user
      * @param {string} settings The settings to update
      */
-    public async updateLevel(guildID: string, userID: string, settings: Level) {
+    public async updateLevel(guildID: Snowflake, userID: Snowflake, settings: Level) {
         const key = `${userID}-${guildID}`;
         const usersMessages = await this.getLevelandMessages(guildID, userID);
         return this.levels.set(key, {
@@ -99,36 +98,28 @@ export default class GlobalCache {
     };
     /**
      * Gets a currency profile of an user
-     * @param {string} userID The ID of the user 
+     * @param {Snowflake} userID The ID of the user 
      */
-    public async getCurrency(userID: string): Promise<Profile> {
+    public async getCurrency(userID: Snowflake): Promise<Profile> {
         const profile = this.currency.has(userID) ? this.currency.get(userID) : await CurrencySchema.findOne({ userID: userID });
-        if (profile && !this.currency.has(userID)) this.currency.set(userID, {
-            userID: profile.userID,
-            bank: profile.bank,
-            wallet: profile.wallet,
-            messageCount: profile.messageCount,
-            passive: profile.passive,
-            items: profile.items,
-            profileCreatedAt: profile.profileCreatedAt
+        if (!this.currency.has(userID)) this.currency.set(userID, {
+            userID: profile ? profile.userID : userID,
+            bank: profile ? profile.bank : 0,
+            wallet: profile ? profile.wallet : 0,
+            messageCount: profile ? profile.messageCount : 0,
+            passive: profile ? profile.passive : false,
+            items: profile ? profile.items : [],
+            profileCreatedAt: profile ? profile.profileCreatedAt : new Date()
         });
-        else this.currency.set(userID, {
-            userID: userID,
-            bank: 0,
-            wallet: 0,
-            messageCount: 0,
-            passive: false,
-            items: [],
-            profileCreatedAt: new Date()
-        });
+        if (!profile) CurrencySchema.create(this.currency.get(userID));
         return this.currency.get(userID);
     };
     /**
      * Updates a value of a key
-     * @param {string} userID The ID of the user 
+     * @param {Snowflake} userID The ID of the user 
      * @param {object} settings The settings to update 
      */
-    public async updateCurrency(userID: string, settings: Profile) {
+    public async updateCurrency(userID: Snowflake, settings: Profile) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -137,11 +128,11 @@ export default class GlobalCache {
     };
     /**
      * Increases the user's balance
-     * @param {string} userID The ID of the user 
+     * @param {Snowflake} userID The ID of the user 
      * @param {"bank" | "wallet"} walletOrBalance Increase balance in wallet or bank 
      * @param {number} increaseTo The number to increase to 
      */
-    public async increaseBalance(userID: string, walletOrBalance: "bank" | "wallet", increaseTo: number) {
+    public async increaseBalance(userID: Snowflake, walletOrBalance: "bank" | "wallet", increaseTo: number) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -151,9 +142,9 @@ export default class GlobalCache {
     };
     /**
      * Increases the message count to 1
-     * @param {string} userID The ID of the user 
+     * @param {Snowflake} userID The ID of the user 
      */
-    public async increaseCurrencyMessageCount(userID: string) {
+    public async increaseCurrencyMessageCount(userID: Snowflake) {
         const userProfile = await this.getCurrency(userID);
         return this.currency.set(userID, {
             ...userProfile,
@@ -168,47 +159,80 @@ export default class GlobalCache {
     };
     /**
      * Gets the data of a guild
-     * @param {string} guildID The ID of the guild 
+     * @param {Snowflake} guildID The ID of the guild 
      */
-    public async getGuild(guildID: string): Promise<Guild> {
-        if (!this.guilds.has(guildID)) {
-            const results = await GuildSchema.findOne({ guildID: guildID });
-            this.guilds.set(guildID, {
-                guildID: guildID,
-                prefix: results?.prefix || this.client.globalPrefix,
-                modLogChannelID: results?.modLogChannelID || null,
-                modLogChannelWebhookToken: results?.modLogChannelWebhookToken || null,
-                modLogChannelWebhookID: results?.modLogChannelWebhookID || null,
-                muteRoleID: results?.muteRoleID || null,
-                memberRoleID: results?.memberRoleID || null,
-                ticketCategoryID: results?.ticketCategoryID || null,
-                ticketManagerRoleID: results?.ticketManagerRoleID || null,
-                giveawayManagerRoleID: results?.giveawayManagerRoleID || null,
-                giveawayBlacklistedRoleID: results?.giveawayBlacklistedRoleID || null,
-                giveawayByPassRoleID: results?.giveawayByPassRoleID || null,
-                serverManagerRoleID: results?.serverManagerRoleID || null,
-                welcomeMessageType: results?.welcomeMessageType || null,
-                welcomeMessage: results?.welcomeMessage || null,
-                welcomeChannelID: results?.welcomeChannelID || null,
-                modMailManagerRoleID: results?.modMailManagerRoleID || null,
-                modMailLogChannelID: results?.modMailLogChannelID || null,
-                modMailCategoryID: results?.modMailCategoryID || null,
-                DJRoleID: results?.DJRoleID || null,
-                reactionRoles: results?.reactionRoles || []
-            });
-            if (!results) await GuildSchema.create(this.guilds.get(guildID));
-        };
+    public async getGuild(guildID: Snowflake): Promise<Guild> {
+        const guild = this.guilds.has(guildID) ? this.guilds.get(guildID) : await GuildSchema.findOne({ guildID: guildID });
+        if (!this.guilds.has(guildID)) this.guilds.set(guildID, {
+            guildID: guildID,
+            prefix: guild ? guild.prefix : this.client.globalPrefix,
+            modLogChannelID: guild ? guild.modLogChannelID : null,
+            modLogChannelWebhookToken: guild ? guild.modLogChannelWebhookToken : null,
+            modLogChannelWebhookID: guild ? guild.modLogChannelWebhookID : null,
+            muteRoleID: guild ? guild.muteRoleID : null,
+            memberRoleID: guild ? guild.memberRoleID : null,
+            ticketCategoryID: guild ? guild.ticketCategoryID : null,
+            ticketManagerRoleID: guild ? guild.ticketManagerRoleID : null,
+            giveawayManagerRoleID: guild ? guild.giveawayManagerRoleID : null,
+            giveawayBlacklistedRoleID: guild ? guild.giveawayBlacklistedRoleID : null,
+            giveawayByPassRoleID: guild ? guild.giveawayByPassRoleID : null,
+            serverManagerRoleID: guild ? guild.serverManagerRoleID : null,
+            welcomeMessageType: guild ? guild.welcomeMessageType : null,
+            welcomeMessage: guild ? guild.welcomeMessage : null,
+            welcomeChannelID: guild ? guild.welcomeChannelID : null,
+            modMailManagerRoleID: guild ? guild.modMailManagerRoleID : null,
+            modMailLogChannelID: guild ? guild.modMailLogChannelID : null,
+            modMailCategoryID: guild ? guild.modMailCategoryID : null,
+            DJRoleID: guild ? guild.DJRoleID : null,
+            reactionRoles: guild ? guild.reactionRoles : [],
+            ignoreChannels: guild ? guild.ignoreChannels : [],
+	        autoPublishChannels: guild ? guild.autoPublishChannels : [],
+	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : []
+        });
+        if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);
     };
     /**
      * Updates guild settings
-     * @param {string} guildID The ID of the guild 
+     * @param {Snowflake} guildID The ID of the guild 
      * @param {object} settings The settings 
      */
-    public async updateGuild(guildID: string, settings: Guild) {
+    public async updateGuild(guildID: Snowflake, settings: Guild) {
         const guild = await this.getGuild(guildID);
         return this.guilds.set(guildID, {
             ...guild,
+            ...settings
+        });
+    };
+    /**
+     * Return's a giveaway
+     * @param {Snowflake} messageID 
+     */
+    public async getGiveaway(messageID: Snowflake) {
+        const giveaway = this.giveaways.has(messageID) ? this.giveaways.get(messageID) : await GiveawaySchema.findOne({ messageID: messageID });
+        if (!this.giveaways.has(messageID) && giveaway) this.giveaways.set(messageID, {
+            guildID: giveaway.guildID,
+            channelID: giveaway.channelID,
+            duration: giveaway.duration,
+            endsOn: giveaway.endsOn,
+            hasEnded: giveaway.hasEnded,
+            hostedBy: this.client.guilds.cache.get(giveaway.guildID).members.cache.get(giveaway.hostedBy as string).user,
+            messageID: messageID,
+            prize: giveaway.prize,
+            startsOn: giveaway.startsOn,
+            winners: giveaway.winners
+        });
+        return this.giveaways.get(messageID);
+    };
+    /**
+     * Updates a giveaway
+     * @param {object} settings The settings to update
+     */
+    public async updateGiveaway(messageID: Snowflake, settings: Giveaway) {
+        const giveaway = await this.getGiveaway(messageID);
+        if (!giveaway) return;
+        return this.giveaways.set(messageID, {
+            ...giveaway,
             ...settings
         });
     };
