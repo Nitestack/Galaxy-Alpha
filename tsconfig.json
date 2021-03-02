@@ -10,8 +10,11 @@
 			"@images/*": ["Images/*"],
 			"@dashboard/*": ["Dashboard/*"],
 			"@data/*": ["Data/*"],
+			"@dashboard": ["Dashboard/*"],
 			"@routes/*": ["Dashboard/Routes/*"],
-			"@modules/*": ["Dashboard/Modules/*"]
+			"@modules/*": ["Dashboard/Modules/*"],
+			"@assets/*": ["Dashboard/Assets/*"],
+			"@views/*": ["Dashboard/Views/*"]
 		},
 		"lib": ["ESNext"],
 		"module": "commonjs",

@@ -1,12 +1,9 @@
 import express from 'express';
 import { validateGuild } from '@modules/middleware';
 import client from "@root/index";
-import { subTitle } from "@dashboard/server";
-
 const router = express.Router();
-
 router.get('/dashboard', (req, res) => res.render('Dashboard/index', {
-    subTitle: subTitle,
+    subTitle: "Dashboard",
     client: client
 }));
 router.get('/servers/:id', validateGuild,

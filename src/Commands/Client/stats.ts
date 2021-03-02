@@ -20,7 +20,7 @@ export default class StatsCommand extends Command {
         🟢 **nodeJS-Version:** ${process.version}
         🎛️ **Shards:** ${client.ws.shards.size}
         💾 **Cores:** ${os.cpus().length}
-        🕐 **Uptime:** ${client.humanizer(process.uptime() * 1000, {
+        🕐 **Uptime:** ${client.humanizer(client.uptime, {
             units: ["y", "mo", "w", "d", "h", "m", "s", "ms"],
             round: true
         })}`));

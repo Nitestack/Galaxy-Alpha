@@ -5,8 +5,7 @@ export interface CommandRunner {
 	(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown>;
 };
 
-export type Categories =
-	| "miscellaneous"
+export type Categories = "miscellaneous"
 	| "ticket"
 	| "giveaway"
 	| "currency"

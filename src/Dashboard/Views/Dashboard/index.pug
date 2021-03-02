@@ -1,12 +1,12 @@
 doctype
 html(lang='en')
     head
-        include ../Includes/header.pug
+        include ../Includes/header
 
         script(src='/JS/sidebar.js', defer)
         link(rel='stylesheet', href='/CSS/sidebar.css')
     body
-        include ../Includes/sidebar.pug
+        include ../Includes/sidebar
 
     #sidebarExtension.bg-light
         header.text-center.pt-4
@@ -15,7 +15,7 @@ html(lang='en')
             h4.pt-2 #{user.username}
                 span.text-muted #{'#' + user.discriminator.toString().padStart(4, '0')}
 
-    include ../Includes/navbar.pug
+    include ../Includes/navbar
 
     .container.jumbotron.text-center.bg-transparent
         h1.display-3 Dashboard

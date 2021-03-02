@@ -116,7 +116,7 @@ export default class GalaxyAlpha extends Client {
 	public drop: DropManager = new DropManager(this);
 	public music: MusicManager = new MusicManager(this);
 	public cache: CacheManager = new CacheManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil(this);
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//VOTE LINKS\\
 	public topGGBot: string = "https://top.gg/bot/761590139147124810/vote";
 	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";

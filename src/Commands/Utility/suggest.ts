@@ -18,7 +18,7 @@ export default class SuggestCommand extends Command {
         if (args[0].toLowerCase() == 'command') {
             const usage: string = `${prefix}suggest command <suggestion>`
             const suggestion: string = args.slice(1).join(" ");
-            const suggestionChannel: WebhookClient = new WebhookClient("800659176942207003", "Z71SNSqgBqFoje-mOayfF4ujjV4Tg1T_zf2Zio5kSQqWTAfWVEgRhTdkgauA-GO1MJBe");
+            const suggestionChannel: WebhookClient = new WebhookClient("815967489493041202", "xpl7e2AIxTUI0hPhks5nH8G4Yta__iMCzxJhxCqb3vFO-QPWOyO2LWxVHOqpzLLjPZfK");
             if (!args[1]) return message.channel.send(client.createRedEmbed(true, usage)
                 .setTitle(suggestionManager)
                 .setDescription("You have to provide your suggestion! Please write your suggestion in English!"));

@@ -1,13 +1,11 @@
 import { PermissionString } from "discord.js";
-import GalaxyAlpha from "@root/Client";
 
 export default class GalaxyAlphaUtil {
-    constructor(private client: GalaxyAlpha) {};
     public permissionConverted(permission: PermissionString): string {
         if (permission == "USE_VAD") return "Use Voice Activity";
         if (permission == "CREATE_INSTANT_INVITE") return "Create Invite";
         if (permission == "MENTION_EVERYONE") return "Mention @everyone, @here, and All Roles";
-        return permission.toLowerCase().replace(/guild/g, "server").split("_").map(permission => this.client.util.toUpperCaseBeginning(permission)).join(" ");
+        return permission.toLowerCase().replace(/guild/g, "server").split("_").map(permission => this.toUpperCaseBeginning(permission)).join(" ");
     };
     public weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     public monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

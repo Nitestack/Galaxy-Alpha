@@ -1,4 +1,5 @@
 nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+    img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 32 }))
     a.navbar-brand(href='/') #{client.user.username}
     button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar', aria-controls='navbar', aria-expanded='false', aria-label='Toggle navigation')
         span.navbar-toggler-icon
@@ -8,8 +9,12 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
             i.fas.fa-code
             span.pl-1 Commands
     .navbar-nav 
+        a.nav-link(href="/stats")
+            i.far.fa-chart-bar
+            span.pl-1 Stats
+    .navbar-nav 
         a.nav-link(href="/supportserver", target="_blank")
-            i.fas.fa-question
+            i.fab.fa-discord
             span.pl-1 Join Support Server
     .navbar-nav.ml-auto
         if user

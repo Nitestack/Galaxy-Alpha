@@ -1,9 +1,9 @@
-include Includes/mixins.pug
+include Includes/mixins
 
 doctype
 html(lang='en')
     head
-        include Includes/header.pug
+        include Includes/header
 
         script(src='https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js', defer)
         script(src='/JS/commands.js', defer)
@@ -12,11 +12,28 @@ html(lang='en')
 
         link(rel='stylesheet', href='/CSS/commands.css')
     body
-        include Includes/navbar.pug
+        include Includes/navbar
         .container
             .jumbotron.text-center.bg-transparent
                 h1.display-3 Commands
-                p.lead View the commands for #{client.user.username}.
+                p.lead View the commands for #{client.user.username}
+                p.lead There is a default cooldown of 3s for every command!
+                p
+                p 
+                    code <>
+                    |  Required
+                p 
+                    code []
+                    |  Optional
+                p 
+                    code @User/User ID
+                    |  User mention or the ID of the user (@User, 32839823923)
+                p 
+                    code @Role/Role ID
+                    |  Role mention or the ID of the role (@Role, 89594685496)
+                p 
+                    code #channel/channel ID 
+                    |  Channel mention or the ID of the channel (#test, 42378489234)
                 hr
 
             section#commands
@@ -29,9 +46,22 @@ html(lang='en')
                     .col-sm-3.categories
                         ul.list-group.mb-2
                             each category in categories
-                                +category(category)
+                                +category({
+                                    name: category,
+                                    capitalized: category == "nsfw" ? category.toUpperCase() : client.util.toUpperCaseBeginning(category),
+                                    icon: category == "music" ? "fas fa-music" : 
+                                        (category == "miscellaneous" ? "fas fa-tag" : 
+                                            (category == "currency" ? "fas fa-money-check-alt" : 
+                                                (category == "fun" ? "fas fa-laugh-squint" : 
+                                                    (category == "games" ? "fas fa-gamepad" : 
+                                                        (category == "giveaway" ? "fas fa-gift" : 
+                                                            (category == "moderation" ? "fas fa-gavel" : 
+                                                                (category == "nsfw" ? "fas fa-times-circle" : 
+                                                                    (category == "utility" ? "fab fa-simplybuilt" : 
+                                                                    (category == "management" ? "fas fa-tasks" : 
+                                                                        (category == "ticket" ? "fas fa-ticket-alt" : ""))))))))))
+                                })
                     .col-sm-9.commands
-                        ul.list-group.mb-2
-                            each command in commands
+                        #accordion.accordion
+                            each command of commands
                                 +command(command)
-                                p#commandError

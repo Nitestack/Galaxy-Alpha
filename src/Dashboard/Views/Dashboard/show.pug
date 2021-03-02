@@ -1,13 +1,13 @@
 doctype
 html(lang='en')
     head
-        include ../Includes/header.pug
+        include ../Includes/header
     
         script(src='/JS/sidebar.js', defer)
         script(src='/JS/guild.js', defer)
         link(rel='stylesheet', href='/CSS/sidebar.css')
     body
-    include ../Includes/sidebar.pug
+    include ../Includes/sidebar
 
     #sidebarExtension.bg-light
         header.text-center.pt-4
@@ -24,10 +24,10 @@ html(lang='en')
             a#general.cursor-pointer #[i.fas.fa-star.pr-1.text-muted] General
             a#music.cursor-pointer #[i.fas.fa-music.pr-1.text-muted] Music
 
-    include ../Includes/navbar.pug
+    include ../Includes/navbar
 
-    include Modules/overview.pug
-    include Modules/auto-mod.pug
-    include Modules/economy.pug
-    include Modules/general.pug
-    include Modules/music.pug
+    include Modules/overview
+    include Modules/auto-mod
+    include Modules/economy
+    include Modules/general
+    include Modules/music

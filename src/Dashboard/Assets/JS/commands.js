@@ -30,20 +30,12 @@ $('#search + button').on('click', () => {
         }]
     }).search(query).map(r => r.item);
     blank();
-    for (const command of results) $(`#${command.name}Command`).show();
+    for (const command of results) $(`#${command.name}`).show();
     updateResultsText(results);
 });
 
 function updateResultsText(arr) {
     $('#commandError').text((arr.length <= 0) ? 'Nothing to see here!' : '');
-}
-
-$(".commands li").on("click", setCommand);
-
-function setCommand() {
-    $(".commands li").removeClass("active");
-    const selected = $(this);
-    selected.addClass("active");
 };
 
 setCategory.bind($('.categories li')[0])();

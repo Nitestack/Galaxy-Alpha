@@ -1,0 +1,23 @@
+doctype
+html(lang='en')
+    head
+        include Includes/header
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        - var upTime = client.uptime > client.ms("1m") ? (client.uptime > client.ms("1h") ? (client.uptime > client.ms("1d") ? (client.uptime > client.ms("1w") ? (client.uptime > client.ms("4w") ? (client.uptime > client.ms("1y") ? client.ms("1y") : client.ms("1y")) : client.ms("4w")) : client.ms("1w")) : client.ms("1d")) : client.ms("1h")) : client.ms("1m")
+        - var servers = client.guilds.cache.size
+        - var serverGoal = servers > 10 ? (servers > 75 ? (servers > 100 ? (servers > 500 ? (servers > 1000 ? (servers > 5000 ? (servers > 10000 ? (servers > 50000 ? (servers > 100000 ? (servers > 1000000 ? 10000000 : 1000000) : 100000) : 50000) : 10000) : 5000) : 1000) : 500) : 100) : 75) : 10
+        include Includes/navbar
+        p.lead Server Count: #{servers} / #{serverGoal} servers
+            .progress
+                .progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='100', style="width: " + servers / serverGoal * 100 + "%")
+        p.lead User Count: #{client.users.cache.filter(user => !user.bot).size} / #{userGoal} users
+            .progress
+                .progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='100', style="width: " + client.users.cache.filter(user => !user.bot).size / userGoal * 100 + "%")
+        p.lead Channel Count: #{client.channels.cache.size} / #{channelGoal} channels
+            .progress 
+                .progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='100', style="width: " + client.channels.cache.size / channelGoal * 100 + "%")
+        p.lead Uptime: #{client.humanizer(client.uptime, { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} / #{client.humanizer(upTime, { units: ["y", "mo", "w", "d", "h", "m"], round: true })}
+            .progress 
+                .progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='100', style="width: " + client.uptime / upTime * 100 + "%")
