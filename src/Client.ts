@@ -73,6 +73,7 @@ export default class GalaxyAlpha extends Client {
 		this.start();
 	};
 	//CONFIGURATION\\
+	public secret: string = "";
 	public ownerID: string = this.config.ownerID;
 	public globalPrefix: string = this.config.globalPrefix;
 	public developers: Array<string> = this.config.developers || [this.ownerID];
@@ -170,7 +171,6 @@ export default class GalaxyAlpha extends Client {
 		set('useUnifiedTopology', true);
 		//READY EVENT\\
 		this.once("ready", async () => {
-			await import("@dashboard/server");
 			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&scope=bot`;
 			//GUILD\\
 			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
@@ -193,7 +193,10 @@ export default class GalaxyAlpha extends Client {
 			console.log(clientInfoTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
-			this.DBfilter(false);
+			//DATABASE FILTER\\
+			this.DBfilter(this.user.id == "761590139147124810" ? true : false);
+			this.secret = this.user.id == "761590139147124810" ? process.env.CLIENT_SECRET : process.env.CLIENT_BETA_SECRET;
+			await import("@dashboard/server");
 			//ACTIVITY\\
 			const activityArray: Array<string> = [
 				`${this.globalPrefix}help | Support Server: gg/qvbFn6bXQX`,

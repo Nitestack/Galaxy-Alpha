@@ -2,21 +2,21 @@ section#generalModule.module.container.px-5
     form(action='/servers/' + guild.id + '/general?_method=PUT', method='POST')
         .jumbotron.bg-transparent.pb-0
             h1.display-4.text-center General
-    .form-group.my-5
-        .row
-            .col-4
-                label Prefix
-                input.form-control(type='text', name='prefix', value=savedGuild.prefix,
-                    maxlength='5', required)
-            .col-4
-                label Blacklisted Channels
-                input(name='blacklistedChannelIds', type='hidden', value='')
-                select.form-control(name='blacklistedChannelIds[]', multiple)
-                    each channel of guild.channels.cache.filter(c => c.type === 'text' || c.type == "news").values()
-                        if savedGuild.ignoreChannels.includes(channel.id)
-                            option(value=channel.id, selected) ##{channel.name}
-                        else
-                            option(value=channel.id) ##{channel.name}
-            .col-4
-    .d-flex.justify-content-center
-        button.btn.btn-success #[i.fas.fa-rocket] Save
+        .form-group.my-5
+            .row
+                .col-4
+                    #prefix.form-group.p-3
+                        input.form-control(type='text', name='prefix', value=savedGuild.prefix, required)
+                    button.btn.btn-success #[i.fas.fa-check-circle]
+                .col-4
+                    label Blacklisted Channels
+                    input(name='blacklistedChannelIds', type='hidden', value='')
+                    select.form-control(name='blacklistedChannelIds[]', multiple)
+                        each channel of guild.channels.cache.filter(c => c.type === 'text' || c.type == "news").values()
+                            if savedGuild.ignoreChannels.includes(channel.id)
+                                option(value=channel.id, selected) ##{channel.name}
+                            else
+                                option(value=channel.id) ##{channel.name}
+                .col-4
+        .d-flex.justify-content-center
+            button.btn.btn-success #[i.fas.fa-rocket] Save

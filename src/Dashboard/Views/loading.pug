@@ -1,0 +1,14 @@
+doctype
+html(lang='en')
+    head
+        - var subTitle = "Loading"
+        include Includes/header
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        .jumbotron.text-center.bg-transparent
+            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 256 }))
+            h1.display-3 Loading
+                .d-flex.justify-content-center
+                    .spinner-border(role='status')
+        include Includes/footer

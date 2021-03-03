@@ -15,3 +15,5 @@ $('input').on('input', function () {
 });
 
 setModule('overview');
+
+hljs.initHighlightingOnLoad();

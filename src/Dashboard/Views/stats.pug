@@ -21,3 +21,4 @@ html(lang='en')
         p.lead Uptime: #{client.humanizer(client.uptime, { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} / #{client.humanizer(upTime, { units: ["y", "mo", "w", "d", "h", "m"], round: true })}
             .progress 
                 .progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='100', style="width: " + client.uptime / upTime * 100 + "%")
+        include Includes/footer

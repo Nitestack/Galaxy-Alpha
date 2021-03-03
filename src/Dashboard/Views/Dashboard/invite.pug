@@ -1,0 +1,20 @@
+doctype
+html(lang='en')
+    head
+        - var subTitle = guild.name
+        include ../Includes/header
+
+        script(src='/JS/invite.js', defer)
+        link(rel='stylesheet', href='/CSS/sidebar.css')
+        link(rel='stylesheet', href='/CSS/Dashboard/Modules/general.css')
+    body
+        include ../Includes/navbar
+        include ../Includes/sidebar
+        .jumbotron.text-center.bg-transparent
+            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 256 }))
+            h1.display-4 You need to invite me to #{guild.name} to view the dashboard.
+            a.btn.btn-dark(href='/invite', target="_blank")
+                i.far.fa-envelope
+                span.pl-1 Invite #{client.user.username}
+        include ../Includes/footer
+        

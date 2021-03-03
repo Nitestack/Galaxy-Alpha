@@ -5,23 +5,33 @@ mixin command(command)
     li.list-group-item(id=command.name, class=command.category)
         .accordion-header(id=command.name + "Header")
             .accordion-button(type='button', data-toggle='collapse', data-target="#" + command.name + "Command", data-parent="#accordion")
-                p.lead #{client.globalPrefix}#{command.name.toUpperCase()}
+                span.lead(id="TITLE") #{client.globalPrefix}#{command.name.toUpperCase()}
         .accordion-collapse.collapse(aria-labelledby=command.name + "Header", id=command.name + "Command")
             .accordion-body
-                p.lead #{client.util.toUpperCaseBeginning(command.description)}
-                p 
+                span.lead #{client.util.toUpperCaseBeginning(command.description)}
+                p
                 strong Aliases
                 if command.aliases
                     p
                         code.lead #{command.aliases.join(", ")}
                 else 
-                    p.lead #{command.aliases ? command.aliases.join(", ") : "No aliases!"}
+                    span.lead #{command.aliases ? command.aliases.join(", ") : "No aliases!"}
                 strong Usage 
                 p 
                     code.lead #{client.globalPrefix}#{command.usage}
                 strong Required User Permissions
-                p.lead #{command.userPermissions ? command.userPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No user permissions required!"}
+                p
+                span.lead #{command.userPermissions ? command.userPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No user permissions required!"}
+                p
                 strong Required Bot Permissions
-                p.lead #{command.clientPermissions ? command.clientPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No bot permissions required!"}
+                p
+                span.lead #{command.clientPermissions ? command.clientPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No bot permissions required!"}
+                p
                 strong Cooldown 
-                p.lead #{client.ms(command.cooldown) == 3000 ? "No cooldown!" : client.humanizer(client.ms(command.cooldown))}
+                p
+                span.lead #{client.ms(command.cooldown) == 3000 ? "No cooldown!" : client.humanizer(client.ms(command.cooldown))}
+
+mixin user(user)
+    span(title=user.id)
+        img.user-avatar.round.mr-2(src=user.displayAvatarURL({ dynamic: true }))
+        h5.d-inline #{user.username}

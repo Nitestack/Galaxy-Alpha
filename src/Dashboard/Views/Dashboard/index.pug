@@ -1,23 +1,23 @@
 doctype
 html(lang='en')
     head
-        include ../Includes/header
+        include ../Includes/header.pug
 
-        script(src='/JS/sidebar.js', defer)
+        link(rel='stylesheet', href='/CSS/Dashboard/index.css')
         link(rel='stylesheet', href='/CSS/sidebar.css')
     body
-        include ../Includes/sidebar
+        include ../Includes/navbar.pug
+        include ../Includes/sidebar.pug
 
-    #sidebarExtension.bg-light
-        header.text-center.pt-4
-            .large-icon.bg-white.round
-                img.round(src=user.avatarUrl(128), alt=user.username)
-            h4.pt-2 #{user.username}
-                span.text-muted #{'#' + user.discriminator.toString().padStart(4, '0')}
+        #sidebarExtension
+            header.text-center.pt-4
+                .large-icon.round
+                    img.round(src=user.avatarUrl(128), alt=user.username)
+                h4.pt-2 #{user.username}
+                    span.text-muted #{'#' + user.discriminator.toString().padStart(4, '0')}
 
-    include ../Includes/navbar
-
-    .container.jumbotron.text-center.bg-transparent
-        h1.display-3 Dashboard
-        hr
-        p.lead Manage your servers with the #{client.user.username} dashboard.
+        .container.jumbotron.text-center.bg-transparent
+            h1.display-3 Dashboard
+            hr
+            p.lead Manage your servers with the #{client.user.username} dashboard.
+        include ../Includes/footer

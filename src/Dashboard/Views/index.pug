@@ -5,9 +5,13 @@ html(lang='en')
 
         link(rel='stylesheet', href='/CSS/index.css')
     body
+        #loader-wrapper
+            #loader
+            .loader-section.section-left
+            .loader-section.section-right
         include Includes/navbar
         .jumbotron.text-center.bg-transparent
-            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png" }))
+            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 256 }))
             h1.display-3 #{client.user.username}
             p.lead #{client.user.username} is a bot to improve your server!
             p.lead Better server management and much more utility and fun commands
@@ -20,3 +24,4 @@ html(lang='en')
             a.btn.btn-dark(href="/supportserver", target="_blank") 
                 i.fab.fa-discord
                 span.pl-1 Join Support Server
+        include Includes/footer

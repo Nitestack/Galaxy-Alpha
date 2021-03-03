@@ -1,0 +1,29 @@
+h1 img {
+	height: 64px;
+}
+
+li.list-group-item {
+	background-color: var(--background-secondary);
+	color: var(--heading);
+}
+
+li:nth-of-type(1) {
+	background: linear-gradient(to bottom, #c5b358 0%, #b6a449 100%);
+	color: white;
+}
+li:nth-of-type(2) {
+	background: linear-gradient(to bottom, #c0c0c0 0%, #b1b1b1 100%);
+	color: white;
+}
+li:nth-of-type(3) {
+	background: linear-gradient(to bottom, #cd7f32 0%, #be7023 100%);
+	color: white;
+}
+
+#description {
+	color: white;
+}
+
+#title {
+	color: white;
+}

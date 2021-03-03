@@ -1,18 +1,16 @@
-#sidebar.float-left.bg-light
-    a(href='/dashboard')
+#sidebar.float-left
+    a(href='/dashboard', class="sidebarElement")
         .icon.round.shadow
-            img.round(alt=user.username, src=user.avatarUrl(64))
+            img.round(src=user.avatarUrl(), id="home")
     hr
     each guild in guilds
-        a(href='/servers/' + guild.id)
+        a(href='/servers/' + guild.id, class="sidebarElement")
             .icon.round.shadow.my-2(data-toggle='tooltip', data-placement='right', title=guild.name)
-                if guild.icon
-                    img.round(alt=guild.name, src=guild.iconUrl(64))
-                else
-                    p.text-center.abbr #{guild.nameAcronym}
-    a(href='/invite')
+                if (guild.iconHash)
+                    img.round(alt=guild.name, src=guild.iconUrl())
+                else 
+                    p.text-center.abbr #{guild.name.replace(/'s /g, ' ').replace(/\w+/g, e => e[0]).replace(/\s/g, '')}
+    a(href='/invite', target="_blank", class="sidebarElement")
         .icon
-            p.abbr.text-success.text-center
+            p.abbr.text-success.text-center(id="invite")
                 i.fas.fa-plus
-    .hamburger.px-1
-        i.fas.fa-bars

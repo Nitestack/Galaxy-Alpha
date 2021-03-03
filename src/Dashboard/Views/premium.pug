@@ -1,0 +1,19 @@
+doctype
+html(lang='en')
+    head
+        include Includes/header
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        include Includes/navbar
+        .jumbotron.text-center.bg-transparent
+            h1.display-3 #{client.user.username} Premium
+            p.lead This feature is coming soon!
+            a.btn.btn-dark(href='/invite', target="_blank")
+                i.far.fa-envelope
+                span.pl-1 Invite #{client.user.username}
+            p
+            a.btn.btn-dark(href="/supportserver", target="_blank") 
+                i.fab.fa-discord
+                span.pl-1 Join Support Server
+        include Includes/footer

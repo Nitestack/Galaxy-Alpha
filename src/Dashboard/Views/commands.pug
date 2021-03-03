@@ -19,19 +19,19 @@ html(lang='en')
                 p.lead View the commands for #{client.user.username}
                 p.lead There is a default cooldown of 3s for every command!
                 p
-                p 
+                p.lead 
                     code <>
                     |  Required
-                p 
+                p.lead 
                     code []
                     |  Optional
-                p 
+                p.lead  
                     code @User/User ID
                     |  User mention or the ID of the user (@User, 32839823923)
-                p 
+                p.lead  
                     code @Role/Role ID
                     |  Role mention or the ID of the role (@Role, 89594685496)
-                p 
+                p.lead  
                     code #channel/channel ID 
                     |  Channel mention or the ID of the channel (#test, 42378489234)
                 hr
@@ -65,3 +65,5 @@ html(lang='en')
                         #accordion.accordion
                             each command of commands
                                 +command(command)
+                            p#commandError
+        include Includes/footer
