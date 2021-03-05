@@ -4,6 +4,7 @@ html(lang='en')
         include Includes/header
 
         link(rel='stylesheet', href='/CSS/index.css')
+        link(rel='stylesheet', href='/CSS/footer.css')
     body
         - var upTime = client.uptime > client.ms("1m") ? (client.uptime > client.ms("1h") ? (client.uptime > client.ms("1d") ? (client.uptime > client.ms("1w") ? (client.uptime > client.ms("4w") ? (client.uptime > client.ms("1y") ? client.ms("1y") : client.ms("1y")) : client.ms("4w")) : client.ms("1w")) : client.ms("1d")) : client.ms("1h")) : client.ms("1m")
         - var servers = client.guilds.cache.size

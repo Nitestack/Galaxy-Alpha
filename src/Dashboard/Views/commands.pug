@@ -34,36 +34,31 @@ html(lang='en')
                 p.lead  
                     code #channel/channel ID 
                     |  Channel mention or the ID of the channel (#test, 42378489234)
-                hr
-
-            section#commands
+            section
                 .d-flex.justify-content-center
                     #search.form-group.p-3
                         input.form-control(type='search')
                     button.btn
                         i.fas.fa-search
-                .row
-                    .col-sm-3.categories
-                        ul.list-group.mb-2
-                            each category in categories
-                                +category({
-                                    name: category,
-                                    capitalized: category == "nsfw" ? category.toUpperCase() : client.util.toUpperCaseBeginning(category),
-                                    icon: category == "music" ? "fas fa-music" : 
-                                        (category == "miscellaneous" ? "fas fa-tag" : 
-                                            (category == "currency" ? "fas fa-money-check-alt" : 
-                                                (category == "fun" ? "fas fa-laugh-squint" : 
-                                                    (category == "games" ? "fas fa-gamepad" : 
-                                                        (category == "giveaway" ? "fas fa-gift" : 
-                                                            (category == "moderation" ? "fas fa-gavel" : 
-                                                                (category == "nsfw" ? "fas fa-times-circle" : 
-                                                                    (category == "utility" ? "fab fa-simplybuilt" : 
-                                                                    (category == "management" ? "fas fa-tasks" : 
-                                                                        (category == "ticket" ? "fas fa-ticket-alt" : ""))))))))))
-                                })
-                    .col-sm-9.commands
-                        #accordion.accordion
-                            each command of commands
-                                +command(command)
-                            p#commandError
+                #categories.nav.nav-tabs
+                    each category in categories
+                        +category({
+                            name: category,
+                            capitalized: category == "nsfw" ? category.toUpperCase() : client.util.toUpperCaseBeginning(category),
+                            icon: category == "music" ? "fas fa-music" : 
+                                (category == "miscellaneous" ? "fas fa-tag" : 
+                                    (category == "currency" ? "fas fa-money-check-alt" : 
+                                        (category == "fun" ? "fas fa-laugh-squint" : 
+                                            (category == "games" ? "fas fa-gamepad" : 
+                                                (category == "giveaway" ? "fas fa-gift" : 
+                                                    (category == "moderation" ? "fas fa-gavel" : 
+                                                        (category == "nsfw" ? "fas fa-times-circle" : 
+                                                            (category == "utility" ? "fab fa-simplybuilt" : 
+                                                                (category == "management" ? "fas fa-tasks" : 
+                                                                    (category == "ticket" ? "fas fa-ticket-alt" : ""))))))))))
+                        })
+                #commands.accordion.accordion-flush
+                    each command in commands
+                        +command(command)
+                    p#commandError
         include Includes/footer

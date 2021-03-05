@@ -15,8 +15,7 @@ export type Categories = "miscellaneous"
 	| "moderation"
 	| "developer"
 	| "private"
-	| "games" 
-	| "nsfw"
+	| "games"
 	| "fun";
 
 interface CommandInfos {
@@ -32,7 +31,6 @@ interface CommandInfos {
 	ownerOnly?: boolean;
 	guildOnly?: boolean;
 	dmOnly?: boolean;
-	nsfw?: boolean;
 	newsChannelOnly?: boolean;
 	textChannelOnly?: boolean;
 };
@@ -50,7 +48,6 @@ export default class Command {
 	public ownerOnly?: boolean;
 	public guildOnly?: boolean;
 	public dmOnly?: boolean;
-	public nsfw?: boolean;
 	public newsChannelOnly?: boolean;
 	public textChannelOnly?: boolean;
 	/**
@@ -69,7 +66,6 @@ export default class Command {
 		this.ownerOnly = info.ownerOnly ? info.ownerOnly : false;
 		this.guildOnly = info.guildOnly ? info.guildOnly : false;
 		this.dmOnly = info.dmOnly ? info.dmOnly : false;
-		this.nsfw = info.nsfw ? info.nsfw : false;
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
 		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
 	};

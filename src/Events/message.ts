@@ -28,6 +28,14 @@ export default class MessageEvent extends Event {
 					.setDescription(`🌛 ${message.mentions.users.get(afk.userID)} is AFK since\n${client.util.dateFormatter(afk.afkSince)} (${client.humanizer(message.createdTimestamp - afk.afkSince.getTime(), { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} ago)\n📝 **Reason:** ${afk.reason}`));
 			};
 		});
+		for (const blacklistedWord of ["fuck", "scheiße", "hurensohn"]/*(await client.cache.getGuild(message.guild.id)).blacklistedWords*/) {
+			if (message.content.toLowerCase().includes(blacklistedWord.toLowerCase())) {
+				if (message.guild.me.permissions.has("MANAGE_MESSAGES")) message.delete();
+				return message.channel.send(client.createRedEmbed()
+					.setTitle("Chat Manager")
+					.setDescription(`${message.author}, the word \`${blacklistedWord}\` is forbidden!`))
+			};
+		};
 		//COMMAND OPTIONS\\
 		const prefix: string = message.channel.type != 'dm' && (await client.cache.getGuild(message.guild.id)).prefix ? (await client.cache.getGuild(message.guild.id)).prefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
 		const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
@@ -36,19 +44,18 @@ export default class MessageEvent extends Event {
 			mentionPrefix = true;
 			if (message.mentions.users.has(client.user.id)) message.mentions.users.delete(client.user.id);
 		} else mentionPrefix = false;
-		if (!message.author.bot && message.channel.type != "dm") {
+		if (message.channel.type != "dm") {
 			const authorStats = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
-			const xp = authorStats.xp + client.xpPerMessage;
-			const levelUp = xp >= (authorStats.level + 1) * (authorStats.level + 1) * 100;
-			await client.cache.updateLevel(message.guild.id, message.author.id, {
-				messages: authorStats.messages + 1,
-				xp: xp,
-				level: levelUp ? authorStats.level + 1 : authorStats.level,
-				lastUpdated: message.createdAt
-			});
-			if (levelUp) message.channel.send(client.createEmbed()
-				.setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
-				.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${(await client.cache.getLevelandMessages(message.guild.id, message.author.id)).level}!** 🎉\nCheck your level card with \`${prefix}level\`!`));
+			const levelUp = authorStats.xp + client.xpPerMessage >= (authorStats.level + 1) * (authorStats.level + 1) * 100;
+			authorStats.xp += client.xpPerMessage;
+			authorStats.messages++;
+			authorStats.lastUpdated = message.createdAt;
+			if (levelUp) {
+				authorStats.level++;
+				message.channel.send(client.createEmbed()
+					.setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+					.setDescription(`🎉 **Congratulations, ${message.author}! You have leveled up to Level ${authorStats.level}!** 🎉\nCheck your level card with \`${prefix}level\`!`));
+			};
 		};
 		if (message.channel.type != "dm" && (await client.cache.getGuild(message.guild.id)).autoPublishChannels.includes(message.channel.id)) message.crosspost();
 		/*if (!client.developers.includes(message.author.id) && !client.contributors.includes(message.author.id)) {
@@ -70,7 +77,7 @@ export default class MessageEvent extends Event {
 			await message.react("👎");
 		};
 		const [, matchedPrefix] = mentionPrefix ? message.content.match(prefixRegex) : prefix;
-		if (message.channel.id == "789116457655992350" && !message.content.startsWith(mentionPrefix ? matchedPrefix : prefix + "eval")) message.delete();
+		if (message.channel.id == "817379995102085140" && !message.content.startsWith(mentionPrefix ? matchedPrefix : prefix + "eval")) message.delete();
 		if (!message.content.startsWith(mentionPrefix ? matchedPrefix : prefix)) return;
 		const [cmd, ...args]: Array<string> | string = message.content.slice(mentionPrefix ? matchedPrefix.length : prefix.length).trim().split(/\s+/g); //destructures the command of the message
 		if (cmd.toLowerCase() == "modmail") return client.events.get('modMail').run(client, message);
@@ -88,10 +95,6 @@ export default class MessageEvent extends Event {
 		if (command.dmOnly && message.channel.type != 'dm') return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle("Channel Manager")
 			.setDescription(`You can only use the command \`${command.name}\` inside DM's!`));
-		//NSFW COMMANDS\\
-		if ((command.nsfw || command.category == "nsfw") && message.channel.type != "dm" && !message.channel.nsfw) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle("Channel Manager")
-			.setDescription(`You can only use nsfw commands like \`${command.name}\` in DM's or nsfw channels!`));
 		//NEWS CHANNEL COMMANDS\\
 		if (command.newsChannelOnly && message.channel.type != "news") return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle("Channel Manager")

@@ -1,24 +1,28 @@
 mixin category(name)
-    li.list-group-item(id=name.name) #[i(class=name.icon)] #{name.capitalized}
+    li.nav-item(id=name.name, type="button") 
+        a.nav-link.bg-dark #[i(class=name.icon)] #{name.capitalized}
 
 mixin command(command)
-    li.list-group-item(id=command.name, class=command.category)
-        .accordion-header(id=command.name + "Header")
-            .accordion-button(type='button', data-toggle='collapse', data-target="#" + command.name + "Command", data-parent="#accordion")
-                span.lead(id="TITLE") #{client.globalPrefix}#{command.name.toUpperCase()}
-        .accordion-collapse.collapse(aria-labelledby=command.name + "Header", id=command.name + "Command")
+    li.list-group-item.accordion-item(id=command.name, class=command.category)
+        h2.accordion-header(id=command.name + "Header")
+            .accordion-button.collapsed(type='button', data-bs-toggle='collapse', data-bs-target="#" + command.name + "Command", aria-expanded="false", aria-controls=command.name + "Command")
+                code.lead #{client.globalPrefix}#{command.name.toUpperCase()}
+        .accordion-collapse.collapse(aria-labelledby=command.name + "Header", data-bs-parent="#commands", id=command.name + "Command")
             .accordion-body
                 span.lead #{client.util.toUpperCaseBeginning(command.description)}
                 p
                 strong Aliases
                 if command.aliases
                     p
-                        code.lead #{command.aliases.join(", ")}
-                else 
+                    code.lead #{command.aliases.join(", ")}
+                else
+                    p
                     span.lead #{command.aliases ? command.aliases.join(", ") : "No aliases!"}
+                p
                 strong Usage 
                 p 
-                    code.lead #{client.globalPrefix}#{command.usage}
+                code.lead #{client.globalPrefix}#{command.usage}
+                p
                 strong Required User Permissions
                 p
                 span.lead #{command.userPermissions ? command.userPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No user permissions required!"}
@@ -30,6 +34,7 @@ mixin command(command)
                 strong Cooldown 
                 p
                 span.lead #{client.ms(command.cooldown) == 3000 ? "No cooldown!" : client.humanizer(client.ms(command.cooldown))}
+
 
 mixin user(user)
     span(title=user.id)

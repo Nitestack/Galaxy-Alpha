@@ -15,28 +15,31 @@ html(lang='en')
         link(rel='stylesheet', href='/CSS/sidebar.css')
         link(rel='stylesheet', href='/CSS/charts.css')
         link(rel='stylesheet', href='/CSS/music.css')
+        link(rel='stylesheet', href='/CSS/Dashboard/Modules/general.css')
     body
-        - var guild = client.guilds.cache.get(guild.id)
-        include ../Includes/navbar
+        //- var guild = client.guilds.cache.get(guild.id)
+        //include ../Includes/navbar
         include ../Includes/sidebar
-        #sidebarExtension
+        //#sidebarExtension
             header.text-center.pt-4
-                if guild.icon
-                    .large-icon.round
+                .large-icon.bg-white.round
+                    if guild.icon
                         img.round(src=guild.iconURL({ dynamic: true, size: 128 }), alt=guild.name)
-                else
-                    .large-icon.bg-light.round
-                        p.abbr #{guild.nameAcronym}  
+                    else
+                        p.abbr #{guild.nameAcronym}
                 h4#overview.pt-2 #{guild.name}
             .tabs.navbar-nav
                 .category Modules
+                a#autoMod.cursor-pointer #[i.fas.fa-gavel.pr-1.text-muted] Auto-mod
+                a#economy.cursor-pointer #[i.fas.fa-coins.pr-1.text-muted] Economy
                 a#general.cursor-pointer #[i.fas.fa-star.pr-1.text-muted] General
+                a#music.cursor-pointer #[i.fas.fa-music.pr-1.text-muted] Music
 
                 .category Other
-                a.cursor-pointer(href='/leaderboards/levels/' + guild.id, target="_blank") #[i.fas.fa-trophy.pr-1.text-muted] Leaderboard of Levels 
-                a.cursor-pointer(href='/leaderboards/currency/' + guild.id, target="_blank") #[i.fas.fa-trophy.pr-1.text-muted] Leaderboard of Currency
-        include Modules/overview
-        include Modules/auto-mod
-        include Modules/economy
-        include Modules/general
-        include ../Includes/footer
+                a#auditLog.cursor-pointer #[i.fas.fa-book.pr-1.text-muted] Audit Log
+                a.cursor-pointer(href='/leaderboard/' + guild.id) #[i.fas.fa-trophy.pr-1.text-muted] Leaderboard
+        //include Modules/overview
+        //include Modules/auto-mod
+        //include Modules/economy
+        //include Modules/general
+        

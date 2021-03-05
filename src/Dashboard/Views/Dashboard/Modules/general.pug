@@ -5,9 +5,10 @@ section#generalModule.module.container.px-5
         .form-group.my-5
             .row
                 .col-4
-                    #prefix.form-group.p-3
-                        input.form-control(type='text', name='prefix', value=savedGuild.prefix, required)
-                    button.btn.btn-success #[i.fas.fa-check-circle]
+                    label Prefix
+                        #prefix.form-group.p-3
+                            input.form-control(type='text', name='prefix', value=savedGuild.prefix, required) 
+                        button.btn.btn-success(href="#", type="button", data-toggle="modal", data-target="#saveChanges") #[i.fas.fa-check-circle]
                 .col-4
                     label Blacklisted Channels
                     input(name='blacklistedChannelIds', type='hidden', value='')

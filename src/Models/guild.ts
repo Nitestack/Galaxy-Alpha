@@ -31,7 +31,8 @@ export interface Guild {
 	}>,
 	ignoreChannels: Array<string>,
 	autoPublishChannels: Array<string>,
-	autoSuggestionChannel: Array<string>
+	autoSuggestionChannel: Array<string>,
+	blacklistedWords: Array<string>
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
@@ -84,6 +85,10 @@ const guildSchema = new Schema({
 		default: []
 	},
 	autoSuggestionChannel: {
+		type: SchemaTypes.Array,
+		default: []
+	},
+	blacklistedWords: {
 		type: SchemaTypes.Array,
 		default: []
 	}

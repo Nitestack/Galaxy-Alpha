@@ -70,7 +70,7 @@ export default class GlobalCache {
      */
     public async getLevelandMessages(guildID: Snowflake, userID: Snowflake): Promise<Level> {
         const key = `${userID}-${guildID}`;
-        const LevelandMessages = this.levels.has(key) ? this.levels.get(key) : await LevelSchema.findOne({ guildID: guildID, userID: userID });
+        const LevelandMessages = this.levels.get(key) || await LevelSchema.findOne({ guildID: guildID, userID: userID });
         if (!this.levels.has(key)) this.levels.set(key, {
             userID: LevelandMessages ? LevelandMessages.userID : userID,
             guildID: LevelandMessages ? LevelandMessages.guildID : guildID,
@@ -79,6 +79,7 @@ export default class GlobalCache {
             messages: LevelandMessages ? LevelandMessages.messages : 0,
             lastUpdated: new Date()
         });
+        console.log(this.levels.get(key));
         if (!LevelandMessages) LevelSchema.create(this.levels.get(key));
         return this.levels.get(key);
     };
@@ -187,7 +188,8 @@ export default class GlobalCache {
             reactionRoles: guild ? guild.reactionRoles : [],
             ignoreChannels: guild ? guild.ignoreChannels : [],
 	        autoPublishChannels: guild ? guild.autoPublishChannels : [],
-	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : []
+	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
+            blacklistedWords: guild ? guild.blacklistedWords : []
         });
         if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);

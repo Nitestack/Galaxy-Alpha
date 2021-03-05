@@ -42,10 +42,9 @@ export default class HelpCommand extends Command {
                 if (command.userPermissions) text += `**User ${command.userPermissions.length > 1 ? "Permissions" : "Permission"}:** \`${userPermissions.join("`, `")}\`\n`
                 if (command.clientPermissions) text += `**Bot ${command.clientPermissions.length > 1 ? "Permissions" : "Permission"}**: \`${clientPermissions.join("`, `")}\`\n`;
                 if (command.usage) text += `**Usage:** \`${prefix}${command.usage}\`\n`;
-                if (command.dmOnly || command.guildOnly || command.nsfw || command.newsChannelOnly || command.textChannelOnly) text += `\n📝 **NOTES:**\n`
+                if (command.dmOnly || command.guildOnly || command.newsChannelOnly || command.textChannelOnly) text += `\n📝 **NOTES:**\n`
                 if (command.guildOnly) text += `Works only in servers!\n`;
                 if (command.dmOnly) text += `Works only in DM's\n`;
-                if (command.nsfw) text += `Works only in NSFW channels or in DM's\n`;
                 if (command.newsChannelOnly) text += `Works only in Announcement channels\n`;
                 if (command.textChannelOnly) text += `Works only in Text channels\n`;
                 return message.channel.send(client.createEmbed()

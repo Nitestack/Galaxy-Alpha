@@ -1,48 +1,8 @@
-footer.page-footer.bg-dark 
-    .container 
-        .row.py-4.d-flex.align-items-center 
-            .col-md-12.text-center 
-                a(href="/supportserver", target="_blank")
-                    i.fab.fa-discord
-    .container.text-center.text-md-left.mt-5 
-        .row 
-            .col-md-3.mx-auto.mb-4 
-                h6.text-uppercase.font-weight-bold The Providers 
-                hr.mb-4.mt-0.d-inline-block.mx-auto(style="width: 125px; height: 2px;")
-                p.mt-2 Some footer here
-            .col-md-3.mx-auto.mb-4 
-                h6.text-uppercase.font-weight-bold Products
-                hr.mb-4.mt-0.d-inline-block.mx-auto(style="width: 85px; height: 2px;")
-
-                ul.list-unstyled
-                    li.my-2
-                        a(href="#") HTML 5
-                    li.my-2
-                        a(href="#") CSS 3
-            .col-md-2.mx-auto.mb-4 
-                h6.text-uppercase.font-weight-bold Links
-                hr.mb-4.mt-0.d-inline-block.mx-auto(style="width: 110px; height: 2px;")
-
-                ul.list-unstyled
-                    li.my-2
-                        a(href="/") Home
-                    li.my-2
-                        a(href="/commands") Commands
-                    li.my-2
-                        a(href="/stats") Stats
-                    li.my-2 
-                        a(href="/dashboard") Dashboard 
-                    li.my-2 
-                        a(href="/premium") Premium
-            .col-md-3.mx-auto.mb-4 
-                h6.text-uppercase.font-weight-bold Contact
-                hr.mb-4.mt-0.d-inline-block.mx-auto(style="width: 75px; height: 2px;")
-
-                ul.list-unstyled
-                    li.my-2 
-                        a(href="/supportserver", target="_blank") Support Server
+footer.page-footer.bg-transparent
     .footer-copyright.text-center.py-3 
         if new Date(client.user.createdTimestamp).getUTCFullYear() == new Date().getUTCFullYear()
+            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 64 }))
             p &copy; #{new Date().getUTCFullYear()} #{client.user.username}. All rights reserved.
-        else 
+        else
+            img.img-fluid(src=client.user.displayAvatarURL({ dynamic: true, format: "png", size: 64 }))
             p &copy; #{new Date().getUTCFullYear() + " - " + new Date(client.user.createdTimestamp).getUTCFullYear()} #{client.user.username}. All rights reserved.

@@ -19,7 +19,8 @@ router.get('/auth', async (req, res) => {
         const key = await authClient.getAccess(code);
         res.cookie('key', key);
         res.redirect('/dashboard');
-    } catch {
+    } catch (error) {
+        console.log(error);
         res.render("Errors/401", {
             client: client
         });
