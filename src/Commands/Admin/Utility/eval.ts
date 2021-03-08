@@ -21,18 +21,28 @@ export default class EvalCommand extends Command {
             const difference = process.hrtime(start);
             if (typeof output != 'string') output = inspect(output, { depth: 2 });
             return message.channel.send(client.createEmbed()
+                .addFields([{
+                    name: "Evaluated",
+                    value: `\`\`\`js\n${output}\`\`\``,
+                    inline: false
+                }, {
+                    name: "🕐 Executed in",
+                    value: `${difference[0] > 0 ? `${difference[0]}s` : ""}${difference[1] / 1000000}ms`,
+                    inline: false
+                }, {
+                    name: `**${client.developerToolsEmoji} Type of**`,
+                    value: `\`\`\`js\n${typeof output}\`\`\``,
+                    inline: false
+                }, {
+                    name: `${client.memberEmoji} User`,
+                    value: `${message.author}`,
+                    inline: false
+                }, {
+                    name: "🗓️ Used on",
+                    value: client.util.dateFormatter(message.createdAt),
+                    inline: false
+                }])
                 .setTitle("Eval")
-                .setDescription(`\`\`\`js\n${clean(output)}\`\`\`
-                **Evaluated**
-                \`\`\`js\n${output}\`\`\`
-                **🕐 Executed in**
-                ${difference[0] > 0 ? `${difference[0]}s` : ""}${difference[1] / 1000000}ms
-                **${client.developerToolsEmoji} Type of**
-                \`\`\`js\n${typeof output}\`\`\`
-                ${client.memberEmoji} User
-                ${message.author}
-                **🗓️ Used on**
-                ${client.util.dateFormatter(message.createdAt)}`)
                 .setThumbnail(message.author.displayAvatarURL({ dynamic: true })));
         } catch (error) {
             return client.createArgumentError(message, { title: "ERROR", description: `${error}`}, this.usage);

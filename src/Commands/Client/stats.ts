@@ -10,19 +10,20 @@ export default class StatsCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const dateMonthWeek = new Date(client.user.createdAt);
-        return message.channel.send(client.createEmbed().setTitle(`📊 Statistics of ${client.user.username}`).setDescription(`🗓️ **Created at:** ${client.util.dateFormatter(client.user.createdAt)}
-        <a:protected:786707379470598174> **Servers Cache Count:** ${client.guilds.cache.size}
-        ${client.memberEmoji} **Users Cache Count:** ${client.users.cache.size}
-        📰 **Channels Cache Count:** ${client.channels.cache.size}
-        <:desktop_dev:786332949226323988> **Platform:** ${os.platform()}
-        ${client.workingGearEmoji} **Architecture:** ${os.arch()}
-        🟢 **nodeJS-Version:** ${process.version}
-        🎛️ **Shards:** ${client.ws.shards.size}
-        💾 **Cores:** ${os.cpus().length}
-        🕐 **Uptime:** ${client.humanizer(client.uptime, {
+        return message.channel.send(client.createEmbed()
+        .setTitle(`📊 Statistics of ${client.user.username}`)
+        .addField("🗓️ Created at:", client.util.dateFormatter(client.user.createdAt))
+        .addField(`${client.protectedEmoji} Server Count:`, client.guilds.cache.size)
+        .addField(`${client.memberEmoji} Member Count:`, client.users.cache.size)
+        .addField("📰 Channel Count:", client.channels.cache.size)
+        .addField(`${client.workingGearEmoji} Platform:`, os.platform())
+        .addField(`📚 Library:`, "discord.js")
+        .addField("🟢 nodeJS Version:", process.version)
+        .addField("🎛️ Shards:", client.ws.shards.size)
+        .addField("🕐 Cores:", os.cpus().length)
+        .addField("🕐 Uptime:", client.humanizer(client.uptime, {
             units: ["y", "mo", "w", "d", "h", "m", "s", "ms"],
             round: true
-        })}`));
+        })));
     };
 };

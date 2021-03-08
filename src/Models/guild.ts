@@ -16,6 +16,7 @@ export interface Guild {
 	giveawayBlacklistedRoleID?: string,
 	giveawayByPassRoleID?: string,
 	serverManagerRoleID?: string,
+	suggestionChannelID?: string,
 	welcomeMessage?: string,
 	welcomeMessageType?: "embed" | "message",
 	welcomeChannelID?: string | "dm",
@@ -29,10 +30,10 @@ export interface Guild {
 		messageID: string,
 		channelID: string
 	}>,
-	ignoreChannels: Array<string>,
-	autoPublishChannels: Array<string>,
-	autoSuggestionChannel: Array<string>,
-	blacklistedWords: Array<string>
+	ignoreChannels?: Array<string>,
+	autoPublishChannels?: Array<string>,
+	autoSuggestionChannel?: Array<string>,
+	blacklistedWords?: Array<string>
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
@@ -67,6 +68,7 @@ const guildSchema = new Schema({
 	modMailLogChannelID: SchemaTypes.String,
 	modMailCategoryID: SchemaTypes.String,
 	DJRoleID: SchemaTypes.String,
+	suggestionChannelID: SchemaTypes.String,
 	reactionRoles: {
 		type: [{
 			emojiID: SchemaTypes.String,

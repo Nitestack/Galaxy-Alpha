@@ -40,7 +40,6 @@ interface GalaxyAlphaOptions {
 	eventsDir: string;
 	featuresDir: string;
 	mongoDBUrl: string;
-	port?: number;
 	developers?: Array<string>;
 	ignoreFiles?: Array<string>;
 	contributors?: Array<string>;
@@ -56,7 +55,7 @@ export default class GalaxyAlpha extends Client {
 	constructor(public config: GalaxyAlphaOptions) {
 		super({
 			ws: {
-				intents: Intents.ALL  
+				intents: Intents.ALL
 			},
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
 			disableMentions: "everyone",
@@ -72,6 +71,13 @@ export default class GalaxyAlpha extends Client {
 		if (!this.config.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
 		this.start();
 	};
+	//MANAGERS\\
+	public giveaways: GiveawayManager = new GiveawayManager(this);
+	public tickets: TicketManager = new TicketManager(this);
+	public drop: DropManager = new DropManager(this);
+	public music: MusicManager = new MusicManager(this);
+	public cache: CacheManager = new CacheManager(this);
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//CONFIGURATION\\
 	public secret: string = "";
 	public ownerID: string = this.config.ownerID;
@@ -79,7 +85,7 @@ export default class GalaxyAlpha extends Client {
 	public developers: Array<string> = this.config.developers || [this.ownerID];
 	public contributors: Array<string> = this.config.contributors || [];
 	public supportGuildID: string = this.config.supportGuildID || null;
-	public defaultColor: string = this.config.defaultEmbedColor || "#808080";
+	public defaultColor: string = this.config.defaultEmbedColor || this.util.embedColorHex;
 	public ignoreFiles: Array<string> = this.config.ignoreFiles || [];
 	public xpPerMessage: number = this.config.xpPerMessage || 20;
 	//MODULES\\
@@ -111,13 +117,6 @@ export default class GalaxyAlpha extends Client {
 		guildID: string,
 		game: "Tic Tac Toe" | "Chess" | "Hangman" | "Connect 4"
 	}> = new Collection();
-	//MANAGERS\\
-	public giveaways: GiveawayManager = new GiveawayManager(this);
-	public tickets: TicketManager = new TicketManager(this);
-	public drop: DropManager = new DropManager(this);
-	public music: MusicManager = new MusicManager(this);
-	public cache: CacheManager = new CacheManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
 	//VOTE LINKS\\
 	public topGGBot: string = "https://top.gg/bot/761590139147124810/vote";
 	public topGGServer: string = "https://top.gg/servers/783440776285651024/vote";
@@ -152,7 +151,7 @@ export default class GalaxyAlpha extends Client {
 	public galaxyAlphaEmojiID: string = this.getEmojiID(this.galaxyAlphaEmoji);
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
 	//METHODS\\
-	public async start(){
+	public async start() {
 		//LOGIN\\
 		this.login(this.config.token).catch((error: any) => console.log(error));
 		//READ COMMANDS, EVENTS, FEATURES\\
@@ -252,11 +251,11 @@ export default class GalaxyAlpha extends Client {
 					commandTable.addRow(`${command.name}`, "❌", "Category left!");
 					continue;
 				} else {
-					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases?.includes(command.name))){
+					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases?.includes(command.name))) {
 						commandTable.addRow(`${command.name}`, "❌", "Name already existing!");
 						continue;
 					};
-					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases?.includes(alias))){
+					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases?.includes(alias))) {
 						commandTable.addRow(`${command.name}`, "❌", "Alias already existing!");
 						continue;
 					};
@@ -349,8 +348,8 @@ export default class GalaxyAlpha extends Client {
 	public async createEmbedForSubCommands(message: Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
 		const prefix = (await this.cache.getGuild(message.guild.id)).prefix;
-		const text = commands.map(command => `**${this.util.toUpperCaseBeginning(command.description)}**\n\`${prefix}${command.usage}\``).join("\n");
-		if (embed.description) EMBED.setDescription(embed.description + `\n\n${text}`);
+		for (const command of commands) EMBED.addField(this.util.toUpperCaseBeginning(command.description), `\`${prefix}${command.usage}\``);
+		if (embed.description) EMBED.setDescription(embed.description);
 		return message.channel.send(EMBED);
 	};
 	/**
@@ -366,16 +365,10 @@ export default class GalaxyAlpha extends Client {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
-				fields: [
-					{
-						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				],
+				fields: [{
+					name: '🤔 Usage:',
+					value: `${this.arrowEmoji} \`${usage}\``
+				}],
 			}).setTimestamp();
 		} else {
 			return new MessageEmbed({
@@ -383,13 +376,7 @@ export default class GalaxyAlpha extends Client {
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
-				},
-				fields: [
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -401,35 +388,23 @@ export default class GalaxyAlpha extends Client {
 	public createGreenEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
 			return new MessageEmbed({
-				color: '#2ECC71',
+				color: this.util.greenColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
-				fields: [
-					{
-						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				],
+				fields: [{
+					name: '🤔 Usage:',
+					value: `${this.arrowEmoji} \`${usage}\``
+				}],
 			}).setTimestamp();
 		} else {
 			return new MessageEmbed({
-				color: '#2ECC71',
+				color: this.util.greenColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
-				},
-				fields: [
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -441,35 +416,23 @@ export default class GalaxyAlpha extends Client {
 	public createYellowEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
 			return new MessageEmbed({
-				color: '#F1C40F',
+				color: this.util.yellowColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
-				fields: [
-					{
-						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				],
+				fields: [{
+					name: '🤔 Usage:',
+					value: `${this.arrowEmoji} \`${usage}\``
+				}],
 			}).setTimestamp();
 		} else {
 			return new MessageEmbed({
-				color: '#F1C40F',
+				color: this.util.yellowColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
-				},
-				fields: [
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};
@@ -481,35 +444,23 @@ export default class GalaxyAlpha extends Client {
 	public createRedEmbed(usageField?: boolean, usage?: StringResolvable): MessageEmbed {
 		if (usageField) {
 			return new MessageEmbed({
-				color: '#ff0000',
+				color: this.util.redColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true }),
 				},
-				fields: [
-					{
-						name: '🤔 Usage:',
-						value: `${this.arrowEmoji} \`${usage}\``
-					},
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				]
+				fields: [{
+					name: '🤔 Usage:',
+					value: `${this.arrowEmoji} \`${usage}\``
+				}]
 			}).setTimestamp();
 		} else {
 			return new MessageEmbed({
-				color: '#ff0000',
+				color: this.util.redColorHex,
 				footer: {
 					text: "Created By HydraNhani",
 					iconURL: this.user.displayAvatarURL({ dynamic: true })
-				},
-				fields: [
-					{
-						name: `${this.profileEmoji} ${this.user.username}`,
-						value: `[Invite me](${this.inviteLink}) • [Join Support Server](https://gg/qvbFn6bXQX)`
-					}
-				]
+				}
 			}).setTimestamp();
 		};
 	};

@@ -9,6 +9,10 @@ export default class GalaxyAlphaUtil {
     };
     public weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     public monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    public embedColorHex = "#2f3136";
+    public greenColorHex = "#2ecc71";
+    public yellowColorHex = "#f1c40f";
+    public redColorHex = "#ff0000";
     /**
      * Returns a number from the provided minimum to the provided maximum
      * @param {number} min The minimum number
@@ -67,5 +71,11 @@ export default class GalaxyAlphaUtil {
             return false 
         };
         return true;
+    };
+    /**
+     * 
+     */
+    public embedDescriptionLimiter(description: string) {
+        return description.length > 2048 ? description.split("").splice(0, 2045).join("") + "..." : description;
     };
 };

@@ -8,7 +8,7 @@ export default class HelpCommand extends Command {
             description: "shows a list of all commands or shows infos about one command",
             category: "miscellaneous",
             aliases: ["info", "invite"],
-            usage: "help or help <command name or alias>"
+            usage: "help [command name/command category]"
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -24,7 +24,7 @@ export default class HelpCommand extends Command {
                     .setDescription(`In order to more infos about every single command,\nuse the command \`${prefix}help <command name>\`\n\n\`${commands.join("` `")}\``));
             } else {
                 const command = client.commands.get(args[0].toLowerCase()) || client.commands.get(client.aliases.get(args[0].toLowerCase()));
-                if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return client.createArgumentError(message, { title: "Command Manager", description: `Cannot find the command \`${args[0].toLowerCase()}\` in the commands list!`}, this.usage);
+                if (!command || (command.developerOnly && !client.developers.includes(message.author.id)) || (command.ownerOnly && client.ownerID != message.author.id) || command.category == "private") return client.commands.get(this.name).run(client, message, [], prefix);
                 let text: string = "";
                 let userPermissions: Array<string> = [];
                 let clientPermissions: Array<string> = [];
@@ -35,7 +35,7 @@ export default class HelpCommand extends Command {
                     clientPermissions.push(client.util.permissionConverted(permission));
                 });
                 if (command.name) text += `**Name:** ${command.name}\n`;
-                if (command.category) text += `**Category:** ${command.category[0].toUpperCase() + command.category.slice(1).toLowerCase()}\n`
+                if (command.category) text += `**Category:** ${client.util.toUpperCaseBeginning(command.category)}\n`
                 if (command.description) text += `**Description:** ${command.description}\n`;
                 if (command.aliases) text += `**Aliases:** ${command.aliases.join(", ")}\n`;
                 if (command.cooldown) text += `**Cooldown:** ${client.humanizer(client.ms(command.cooldown))}\n`;
@@ -62,9 +62,7 @@ export default class HelpCommand extends Command {
                 Better server management and much more utility and fun commands!
                 Ticket system, giveaway and drop management, currency system, moderation commands, some game commands and music commands with basic stream quality!
                 
-                In order to use any commands of this bot, use the global prefix \`${client.globalPrefix}\`
-
-                The current server prefix is ${client.globalPrefix == prefix ? "the same as the global prefix" : `${prefix}`}
+                In order to use any commands of this bot send the prefix (\`${prefix}\`) + the command name or alias in a message! 
 
                 You can also suggest commands by doing \`${prefix}suggest command <description>\`
 
@@ -72,14 +70,14 @@ export default class HelpCommand extends Command {
 
                 Some stats about ${client.user.username}? Use \`${prefix}stats\`
                 
-                **Categories**
-                \`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``)
-                .setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`, client.user.displayAvatarURL({ dynamic: true }));
+                DASHBOARD IS COMING SOON!`)
+                .setFooter(`Page 1/${pages} • <> = REQUIRED | [] = OPTIONAL`, client.user.displayAvatarURL({ dynamic: true }))
+                .addField("Categories", `\`${arrayOfCategories.map(category => `${client.util.toUpperCaseBeginning(category)}`).join("` `")}\``);
             embedArray.push(helpEmbed);
             for (let i = 0; i < arrayOfCategories.length; i++) {
                 const embed = client.createEmbed().setTitle(client.util.toUpperCaseBeginning(arrayOfCategories[i])).setFooter(`Page ${i + 2}/${pages} • <> = REQUIRED | [] = OPTIONAL`);
                 const commands = client.commands.filter(command => command.category == arrayOfCategories[i]).keyArray();
-                embed.setDescription(`In order to more infos about every single command,\nuse the command \`${prefix}help <command name>\`\n\n\`${commands.join("` `")}\``);
+                embed.setDescription(`In order to get more infos about a single command,\nuse the command \`${prefix}help <command name>\`\n\n\`${commands.join("` `")}\``);
                 embedArray.push(embed);
             };
             let page: number = 0;

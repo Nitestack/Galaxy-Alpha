@@ -29,7 +29,7 @@ export default class DMCommand extends Command {
         };
         for (let i = 2; i < prompts.length; i++) {
             if (i <= 1) client.createArgumentError(message, { title: "DM Manager", description: prompts[i] }, this.usage);
-            if (i >= 2) message.channel.send(client.createEmbed().setTitle("DM Manager").setDescription(`${prompts[i]}\n\n**How to cancel?**\nSimply type \`cancel\` to cancel the process!`));
+            if (i >= 2) message.channel.send(client.createEmbed().setTitle("DM Manager").setDescription(`${prompts[i]}\n\n**How to cancel?**\nSimply type \`cancel\` to cancel the process!`).addField("How to cancel?", "Simply type `cancel` to cancel the process!"));
             const response = await message.channel.awaitMessages(m => m.author.id === message.author.id, { max: 1 });
             const { content } = response.first();
             if (content.toLowerCase() == 'cancel') return client.createArgumentError(message, { title: "DM Manager", description: "DM cancelled!" }, this.usage);

@@ -79,7 +79,6 @@ export default class GlobalCache {
             messages: LevelandMessages ? LevelandMessages.messages : 0,
             lastUpdated: new Date()
         });
-        console.log(this.levels.get(key));
         if (!LevelandMessages) LevelSchema.create(this.levels.get(key));
         return this.levels.get(key);
     };
@@ -189,7 +188,8 @@ export default class GlobalCache {
             ignoreChannels: guild ? guild.ignoreChannels : [],
 	        autoPublishChannels: guild ? guild.autoPublishChannels : [],
 	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
-            blacklistedWords: guild ? guild.blacklistedWords : []
+            blacklistedWords: guild ? guild.blacklistedWords : [],
+            suggestionChannelID: guild ? guild.suggestionChannelID : null
         });
         if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);

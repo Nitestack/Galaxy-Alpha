@@ -1,6 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import Guild from '@models/guild';
-import { Role } from 'discord.js';
 
 export default class MuteRoleCommand extends Command {
     constructor(){
