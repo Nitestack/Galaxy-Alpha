@@ -8,6 +8,7 @@ export default class DropEndCommand extends Command {
             description: "ends a drop",
             category: "giveaway",
             aliases: ["dend"],
+            requiredRoles: ["giveawayManagerRoleID"],
             userPermissions: ["MANAGE_GUILD"],
             usage: "dropend <Message ID>",
             guildOnly: true

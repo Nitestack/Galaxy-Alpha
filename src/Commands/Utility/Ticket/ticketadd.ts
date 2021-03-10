@@ -12,7 +12,8 @@ export default class AddUserToTicketCommand extends Command {
             aliases: ["tadd"],
             category: "ticket",
             usage: "ticketadd <@User/User ID>",
-            clientPermissions: ["MANAGE_CHANNELS"]
+            clientPermissions: ["MANAGE_CHANNELS"],
+            userPermissions: ["MANAGE_MESSAGES"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

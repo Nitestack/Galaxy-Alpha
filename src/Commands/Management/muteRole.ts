@@ -8,7 +8,8 @@ export default class MuteRoleCommand extends Command {
             category: "management",
             guildOnly: true,
             usage: "muterole create <mute role name> or muterole set <@Role/Role ID> or muterole remove",
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

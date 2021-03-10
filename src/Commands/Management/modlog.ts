@@ -10,6 +10,7 @@ export default class ModLogsCommand extends Command {
             category: "management",
             guildOnly: true,
             userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"],
             clientPermissions: ["MANAGE_WEBHOOKS"]
         });
     };

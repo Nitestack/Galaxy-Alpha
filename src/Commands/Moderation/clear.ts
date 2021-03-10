@@ -1,5 +1,6 @@
+import GalaxyAlpha from '@root/Client';
 import Command, { CommandRunner } from '@root/Command';
-import { NewsChannel, TextChannel } from 'discord.js';
+import { Message, NewsChannel, TextChannel } from 'discord.js';
 
 export default class ClearCommand extends Command {
     constructor() {
@@ -9,25 +10,48 @@ export default class ClearCommand extends Command {
             aliases: ["purge", "delete", "clean"],
             category: "moderation",
             userPermissions: ["MANAGE_MESSAGES"],
+            clientPermissions: ["MANAGE_MESSAGES"],
             usage: "clear <amount of messages> [@User/User ID] or clear content <content>",
             guildOnly: true
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const contentUsage = `${prefix}clear content <content>`;
         const clearManager = "🧹 Clear Manager";
-        if (args[0]?.toLowerCase() == 'content') {
-            if (!args[1]) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription("You have to provide an content!"));
-            const messages = await message.channel.messages.fetch();
-            if (messages.filter(m => m.content.toLowerCase().includes(args[1].toLowerCase())).size == 0) return message.channel.send(client.createRedEmbed(true, contentUsage).setTitle(clearManager).setDescription(`Cannot find any messages, that includes \`${args[1]}\``));
-            const result = messages.filter(m => !m.pinned && m.content.toLowerCase().includes(args[1].toLowerCase()));
-            (message.channel as TextChannel | NewsChannel).bulkDelete(result);
-            if (result.size == 0) return message.channel.send(client.createRedEmbed(true, clearManager)
-                .setTitle(clearManager)
-                .setDescription(`This channel has only pinned messages and I'm not allowed to delete pinned messages!`));
-            (message.channel as TextChannel | NewsChannel).bulkDelete(args[2] && !isNaN((args[2] as unknown as number)) ? parseInt(args[2]) + 1 : result);
-        } else if (!isNaN((args[0] as unknown as number))) {
-            
-        };
+        if (isNaN(args[0] as unknown as number) && message.mentions.users.size == 0) {
+            const number = args[1] ? parseInt(args[1]) : 100;
+            const messages = (await message.channel.messages.fetch()).filter(msg => msg.id != message.id && message.deletable);
+            if (messages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot find any messages in this channel!" }, this.usage);
+            const filterPinnedMessages = messages.filter(message => !message.pinned);
+            if (filterPinnedMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot delete pinned messages!" }, this.usage);
+            const filterContentMessages = filterPinnedMessages.filter(message => message.content.toLowerCase().includes(args[0].toLowerCase()));
+            if (filterContentMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: client.util.embedFormatter.embedDescriptionLimiter(`Cannot find any messages, that includes \`${args[0]}\`!`) }, this.usage);
+            (message.channel as TextChannel | NewsChannel).bulkDelete(filterContentMessages.first(number));
+            return await message.delete();
+        } else if (message.mentions.users.first() || (args[0] && client.users.cache.has(args[0]))) {
+            const user = message.mentions.users.first() ? message.mentions.users.first() : client.users.cache.get(args[0]);
+            const number = args[1] ? parseInt(args[1]) : 100;
+            const messages = (await message.channel.messages.fetch()).filter(msg => msg.id != message.id && message.deletable);
+            if (messages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot find any messages in this channel!" }, this.usage);
+            const filterPinnedMessages = messages.filter(message => !message.pinned);
+            if (filterPinnedMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot delete pinned messages!" }, this.usage);
+            const userMessages = filterPinnedMessages.filter(msg => msg.author.id == user.id);
+            if (userMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: `Cannot find any messages written by ${user}!` }, this.usage);
+            (message.channel as TextChannel | NewsChannel).bulkDelete(userMessages.first(number));
+            return await message.delete();
+        } else if (!isNaN(args[0] as unknown as number)) {
+            let numberOfMessages = parseInt(args[0]);
+            const messages = (await message.channel.messages.fetch()).filter(msg => msg.id != message.id && message.deletable);
+            if (messages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot find any messages in this channel!" }, this.usage);
+            const filterPinnedMessages = messages.filter(message => !message.pinned);
+            if (filterPinnedMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot delete pinned messages!" }, this.usage);
+            for (let i = Math.ceil(parseInt(args[0]) / 100); i > 0; i-- ) {
+                await (message.channel as TextChannel | NewsChannel).bulkDelete(filterPinnedMessages.first(i * 100));
+                console.log(i);
+            };
+            return await message.delete();
+        } else return client.createEmbedForSubCommands(message, {
+            title: "🧹 Clear",
+            description: "Use this commands to clear messages with options!"
+        }, []);
     };
 };

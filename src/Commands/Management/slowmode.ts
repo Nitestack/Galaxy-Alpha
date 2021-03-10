@@ -9,6 +9,7 @@ export default class SlowmodeCommand extends Command {
             usage: "slowmode <duration/off>",
             category: "management",
             userPermissions: ["MANAGE_MESSAGES", "MANAGE_CHANNELS"],
+            requiredRoles: ["serverManagerRoleID"],
             guildOnly: true
         });
     };

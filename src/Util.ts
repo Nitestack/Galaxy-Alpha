@@ -1,6 +1,8 @@
-import { PermissionString } from "discord.js";
+import { CollectorFilter, Message, MessageReaction, PermissionString, User } from "discord.js";
+import GalaxyAlpha from "@root/Client";
 
 export default class GalaxyAlphaUtil {
+    constructor(private client: GalaxyAlpha){ };
     public permissionConverted(permission: PermissionString): string {
         if (permission == "USE_VAD") return "Use Voice Activity";
         if (permission == "CREATE_INSTANT_INVITE") return "Create Invite";
@@ -13,6 +15,7 @@ export default class GalaxyAlphaUtil {
     public greenColorHex = "#2ecc71";
     public yellowColorHex = "#f1c40f";
     public redColorHex = "#ff0000";
+    public embedFormatter: EmbedFormatter = new EmbedFormatter();
     /**
      * Returns a number from the provided minimum to the provided maximum
      * @param {number} min The minimum number
@@ -65,17 +68,41 @@ export default class GalaxyAlphaUtil {
      * @param {string} url The URL to test
      */
     public isURL(string: string) {
-        try { 
-            new URL(string) 
-        } catch { 
-            return false 
+        try {
+            new URL(string)
+        } catch {
+            return false
         };
         return true;
     };
+    public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number): Promise<void> {
+        if (!filter) filter = (reaction, reactionAuthor) => reactionAuthor.id == user.id && (reaction.emoji.id == this.client.yesEmojiID || reaction.emoji.id == this.client.noEmojiID);
+        await message.react(this.client.yesEmojiID);
+        await message.react(this.client.noEmojiID);
+        const collector = message.createReactionCollector((reaction, user) => filter(reaction, user), { max: 1, time: timeout ? timeout : 30000 });
+        collector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.id == this.client.yesEmojiID) return await yesFunction(reaction, user);
+            else return this.client.createArgumentError(message, { title: embed.title, description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+        });
+        collector.on("end", (collected, reason) => {
+            if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+        });
+    };
+};
+
+class EmbedFormatter {
     /**
-     * 
+     * Returns a 2048-letter string
+     * @param {string} description The description to format
      */
-    public embedDescriptionLimiter(description: string) {
+     public embedDescriptionLimiter(description: string) {
         return description.length > 2048 ? description.split("").splice(0, 2045).join("") + "..." : description;
+    };
+    /**
+     * Returns a 1024-letter string
+     * @param {string} description The description to format
+     */
+    public embedFieldValueLimiter(description: string) {
+        return description.length > 1024 ? description.split("").splice(0, 1021).join("") + "..." : description;
     };
 };

@@ -9,22 +9,18 @@ export default class PrefixCommand extends Command {
             category: "management",
             guildOnly: true,
             usage: "prefix <new prefix>",
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send(client.createRedEmbed(true, `${prefix}prefix <new prefix>`)
-            .setTitle("🎉 Giveaway Role Manager")
-            .setDescription("You need the permission `Manage Server` to use this command!"));
-        const settings = await Guild.findOne({
-            guildID: message.guild.id,
-        });
+        const settings = await client.cache.getGuild(message.guild.id);
         if (!args[0]) {
             return message.channel.send(client.createRedEmbed(true, `${prefix}prefix <new prefix>`)
                 .setTitle(`${client.workingGearEmoji} Prefix Manager`)
-                .setDescription(`You must specify a prefix to set for this server!\nYour current server prefix is \`${settings.guildPrefix}\`.`));
+                .setDescription(`You must specify a prefix to set for this server!\nYour current server prefix is \`${prefix}\`.`));
         };
-        if (settings.guildPrefix == args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}prefix <new prefix>`).setTitle(`${client.workingGearEmoji} Prefix Manager`).setDescription("This prefix is already the server prefix!"));
+        if (settings.prefix == args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}prefix <new prefix>`).setTitle(`${client.workingGearEmoji} Prefix Manager`).setDescription("This prefix is already the server prefix!"));
         return message.channel.send(client.createEmbed(true, `${prefix}prefix <new prefix>`).setTitle(`${client.workingGearEmoji} Prefix Manager`)
             .setDescription(`Do you really want to update the server prefix to \`${args.slice().join(" ")}\`?\n\nYou have 30s to react!`)).then(async msg => {
                 await msg.react(client.yesEmojiID);

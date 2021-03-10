@@ -17,5 +17,6 @@ export default new GalaxyAlpha({
     mongoDBUrl: process.env.MONGOPATH,
     contributors: ['694162762020159539'],
     supportGuildID: "783440776285651024",
-    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "Constants.ts", "Queue.ts"]
+    ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "Constants.ts", "Queue.ts"],
+    slashCommandsDir: "SlashCommands"
 });

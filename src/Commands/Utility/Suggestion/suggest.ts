@@ -38,10 +38,10 @@ export default class SuggestCommand extends Command {
             return message.channel.send(successEmbed);
         } else if (args[0]) {
             const channel = message.guild.channels.cache.get(guildSettings.suggestionChannelID) as TextChannel | NewsChannel;
-            const msg = await channel.send(client.createYellowEmbed()
+            const msg = await channel.send(`${message.author}`, { embed: client.createYellowEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
-                .setDescription(client.util.embedDescriptionLimiter(args.join(" ")))
-                .addField("🚦 Status", `${client.warningInfoEmoji} Waiting for community feedback`));
+                .setDescription(client.util.embedFormatter.embedDescriptionLimiter(args.join(" ")))
+                .addField("🚦 Status", `${client.warningInfoEmoji} Waiting for community feedback`)});
             await msg.react(client.yesEmojiID);
             await msg.react(client.noEmojiID);
             return client.createSuccess(message, { title: "Suggestion Manager", description: "Your suggestion was successfully submitted!" }, this.usage);

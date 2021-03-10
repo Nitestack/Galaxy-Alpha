@@ -8,6 +8,7 @@ export default class SuggestionChannelCommand extends Command {
             description: "suggestion channel commands",
             category: "management",
             userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"],
             guildOnly: true,
             usage: "suggestionchannel set <#channel/channel ID> or suggestionchannel remove"
         });

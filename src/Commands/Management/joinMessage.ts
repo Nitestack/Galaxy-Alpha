@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import { NewsChannel, TextChannel } from 'discord.js';
 
 export default class JoinMessageCommand extends Command {
     constructor() {
@@ -9,7 +8,8 @@ export default class JoinMessageCommand extends Command {
             category: "management",
             usage: "joinmessage set <#channel/channel ID/dm> [embed] <text> or joinmessage remove",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

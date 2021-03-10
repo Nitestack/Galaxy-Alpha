@@ -10,6 +10,7 @@ export default class DropListCommand extends Command {
             category: "giveaway",
             usage: "droplist",
             aliases: ["dlist"],
+            requiredRoles: ["giveawayManagerRoleID"],
             userPermissions: ["MANAGE_GUILD"],
             guildOnly: true
         });

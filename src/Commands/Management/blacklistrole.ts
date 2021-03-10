@@ -9,7 +9,8 @@ export default class BlackListRoleCommand extends Command {
             guildOnly: true,
             category: "management",
             usage: "blacklistrole set <@Role/Role ID> or blacklistrole remove",
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -20,22 +21,17 @@ export default class BlackListRoleCommand extends Command {
             if (message.mentions.roles.first() && message.guild.roles.cache.has(message.mentions.roles.first().id)) role = message.mentions.roles.first();
             if (args[1] && message.guild.roles.cache.has(args[1])) role = message.guild.roles.cache.get(args[1]);
             if (!role) return client.createArgumentError(message, { title: blackListManager, description: "You have to mention a role or provide a role ID!" }, this.usage);
-            const msg = await message.channel.send(client.createEmbed()
+            client.util.YesOrNoCollector(message.author, await message.channel.send(client.createEmbed()
                 .setTitle(blackListManager)
-                .setDescription(`Do you really want to change the current giveaway blacklist role to ${role}?\n\nYou have 30s to react!`));
-            await msg.react(client.yesEmojiID);
-            await msg.react(client.noEmojiID);
-            const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
-            YesOrNo.on("collect", async (reaction, user) => {
-                if (reaction.emoji.id == client.yesEmojiID) {
-                    await client.cache.updateGuild(message.guild.id, {
-                        giveawayBlacklistedRoleID: role.id
-                    });
-                    return client.createSuccess(message, { title: blackListManager, description: `Set the new giveaway blacklist role to ${role}` });
-                } else return client.createArgumentError(message, { title: blackListManager, description: "Setting giveaway blacklist role cancelled!" }, this.usage);
-            });
-            YesOrNo.on("end", (collected, reason) => {
-                if (collected.size == 0) return client.createArgumentError(message, { title: blackListManager, description: "Setting giveaway blacklist role cancelled!" }, this.usage);
+                .setDescription(`Do you really want to change the current giveaway blacklist role to ${role}?\n\nYou have 30s to react!`)), {
+                title: blackListManager,
+                activity: "setting",
+                toHandle: "giveaway blacklist role"
+            }, this.usage, async (reaction, user) => {
+                await client.cache.updateGuild(message.guild.id, {
+                    giveawayBlacklistedRoleID: role.id
+                });
+                return client.createSuccess(message, { title: blackListManager, description: `Set the new giveaway blacklist role to ${role}` });
             });
         } else if (args[0]?.toLowerCase() == "remove") {
             if (!guildSettings.giveawayBlacklistedRoleID) return client.createArgumentError(message, { title: blackListManager, description: "There is no giveaway blacklist role to remove!" }, this.usage);
@@ -45,16 +41,17 @@ export default class BlackListRoleCommand extends Command {
             await msg.react(client.yesEmojiID);
             await msg.react(client.noEmojiID);
             const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { max: 1, time: 30000 });
-            YesOrNo.on("collect", async (reaction, user) => {
-                if (reaction.emoji.id == client.yesEmojiID) {
-                    await client.cache.updateGuild(message.guild.id, {
-                        giveawayBlacklistedRoleID: null
-                    });
-                    return client.createSuccess(message, { title: blackListManager, description: `Removed the current giveaway blacklist role!` });
-                } else return client.createArgumentError(message, { title: blackListManager, description: "Removing giveaway blacklist role cancelled!" }, this.usage);
-            });
-            YesOrNo.on("end", (collected, reason) => {
-                if (collected.size == 0) return client.createArgumentError(message, { title: blackListManager, description: "Removing giveaway blacklist role cancelled!" }, this.usage);
+            client.util.YesOrNoCollector(message.author, await message.channel.send(client.createEmbed()
+                .setTitle(blackListManager)
+                .setDescription(`Do you really want to remove the current giveaway blacklist role?\n\nYou have 30s to react!`)), {
+                title: blackListManager,
+                activity: "removing",
+                toHandle: "giveaway blacklist role"
+            }, this.usage, async (reaction, user) => {
+                await client.cache.updateGuild(message.guild.id, {
+                    giveawayBlacklistedRoleID: null
+                });
+                return client.createSuccess(message, { title: blackListManager, description: `Removed the current giveaway blacklist role!` });
             });
         } else {
             return client.createEmbedForSubCommands(message, {

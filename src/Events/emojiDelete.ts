@@ -13,10 +13,5 @@ export default class EmojiDeleteEvent extends Event {
             .setDescription(`**Name:** *${emoji.name}*
             **Created At:** *${client.util.dateFormatter(emoji.createdAt)}*
             **Emoji:** ${emoji.animated ? `<a:${emoji.name}:${emoji.id}>` : `<:${emoji.name}:${emoji.id}>`}`));
-        const guildSettings = await client.cache.getGuild(emoji.guild.id);
-        for (const reactionRole of guildSettings.reactionRoles){
-            if (Object.values(reactionRole).includes(emoji.createdTimestamp ? reactionRole.emojiID : emoji.name.toString())){
-            };
-        };
     };
 };

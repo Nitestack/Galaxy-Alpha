@@ -3,7 +3,7 @@ import canvacord from "canvacord";
 import { MessageAttachment, User } from "discord.js";
 
 export default class BeautifulCommand extends Command {
-    constructor(){
+    constructor() {
         super({
             name: "beautiful",
             description: "makes an image looking beautiful",

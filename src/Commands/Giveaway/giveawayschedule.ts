@@ -8,7 +8,9 @@ export default class GiveawayScheduleCommand extends Command {
             description: "schedules a giveaway",
             category: "giveaway",
             guildOnly: true,
-            aliases: ["gschedule"]
+            aliases: ["gschedule"],
+            requiredRoles: ["giveawayManagerRoleID"],
+            userPermissions: ["MANAGE_GUILD"],
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

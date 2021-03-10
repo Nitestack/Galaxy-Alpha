@@ -125,7 +125,6 @@ export default class ReactionRolesCommand extends Command {
             reactionRoles.push({
                 roleID: responses.roleIDs[i],
                 emojiID: responses.emojiIDs[i],
-                channelID: responses.channelID,
                 messageID: responses.messageID
             });
         };

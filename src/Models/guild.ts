@@ -27,13 +27,22 @@ export interface Guild {
 	reactionRoles?: Array<{
 		emojiID: string,
 		roleID: string,
-		messageID: string,
-		channelID: string
+		messageID: string
 	}>,
 	ignoreChannels?: Array<string>,
 	autoPublishChannels?: Array<string>,
 	autoSuggestionChannel?: Array<string>,
-	blacklistedWords?: Array<string>
+	blacklistedWords?: Array<string>,
+	autoMod: {
+		blacklistedWords: Array<string>,
+		deletingLinks: boolean,
+		deletingImages: boolean,
+		spam: {
+			cooldown: number,
+			messageLimit: number,
+			timer: number
+		}
+	}
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
@@ -73,8 +82,7 @@ const guildSchema = new Schema({
 		type: [{
 			emojiID: SchemaTypes.String,
 			roleID: SchemaTypes.String,
-			messageID: SchemaTypes.String,
-			channelID: SchemaTypes.String
+			messageID: SchemaTypes.String
 		}],
 		default: []
 	},
@@ -93,6 +101,28 @@ const guildSchema = new Schema({
 	blacklistedWords: {
 		type: SchemaTypes.Array,
 		default: []
+	},
+	autoMod: {
+		type: {
+			blacklistedWords: SchemaTypes.Array,
+			deletingLinks: SchemaTypes.Boolean,
+			deletingImages: SchemaTypes.Boolean,
+			spam: {
+				cooldown: SchemaTypes.Number,
+				messageLimit: SchemaTypes.Number,
+				timer: SchemaTypes.Number
+			}
+		},
+		default: {
+			blacklistedWords: [],
+			deletingLinks: false,
+			deletingImages: false,
+			spam: {
+				cooldown: 0,
+				messageLimit: 0,
+				timer: 0
+			}
+		}
 	}
 });
 

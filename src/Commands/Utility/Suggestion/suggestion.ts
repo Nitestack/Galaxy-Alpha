@@ -47,8 +47,12 @@ export default class SuggestCommand extends Command {
             const reason = args.slice(2).join(" ") || "No reason provided!";
             await suggestionMessage.edit(suggestionMessage.embeds[0].spliceFields(0, 1, {
                 name: "🚦 Status",
-                value: `${client.yesEmoji} Accepted!\n📝 ${reason}`
+                value: client.util.embedFormatter.embedFieldValueLimiter(`${client.yesEmoji} Accepted!\n📝 ${reason}`)
             }).setColor(client.util.greenColorHex));
+            if (suggestionMessage.mentions.users.first() && message.guild.members.cache.has(suggestionMessage.mentions.users.first().id)) suggestionMessage.mentions.users.first().send(client.createGreenEmbed()
+                .setTitle("Suggestion Manager")
+                .setDescription(`[Your suggestion](${suggestionMessage.url}) was accepted by ${message.author}!`)
+                .addField("📝 Reason", client.util.embedFormatter.embedFieldValueLimiter(reason)));
             return client.createSuccess(message, { title: "Suggestion Manager", description: "Suggestion accepted!" });
         } else if (args[0]?.toLowerCase() == "decline") {
             if (!args[1]) return client.createArgumentError(message, { title: "Suggestion Manager", description: "You have to provide a message ID!" }, this.usage);
@@ -61,8 +65,12 @@ export default class SuggestCommand extends Command {
             const reason = args.slice(2).join(" ") || "No reason provided!";
             await suggestionMessage.edit(suggestionMessage.embeds[0].spliceFields(0, 1, {
                 name: "🚦 Status",
-                value: `${client.noEmoji} Declined!\n📝 ${reason}`
-            }).setColor(client.util.greenColorHex));
+                value: client.util.embedFormatter.embedFieldValueLimiter(`${client.noEmoji} Declined!\n📝 ${reason}`)
+            }).setColor(client.util.redColorHex));
+            if (suggestionMessage.mentions.users.first() && message.guild.members.cache.has(suggestionMessage.mentions.users.first().id)) suggestionMessage.mentions.users.first().send(client.createRedEmbed()
+                .setTitle("Suggestion Manager")
+                .setDescription(`[Your suggestion](${suggestionMessage.url}) was declined by ${message.author}!`)
+                .addField("📝 Reason", client.util.embedFormatter.embedFieldValueLimiter(reason)));
             return client.createSuccess(message, { title: "Suggestion Manager", description: "Suggestion declined!" });
         } else return client.createEmbedForSubCommands(message, { title: "Suggestion Management", description: "Use this commands to handle suggestions!" }, [{
             description: "Accepts a suggestion",

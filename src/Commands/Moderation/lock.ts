@@ -22,7 +22,7 @@ export default class LockdownCommand extends Command {
         if (enableOrDisable == "enable") {
             await channel.updateOverwrite(role, {
                 SEND_MESSAGES: true
-            })
+            });
             return client.createSuccess(message, { title: "Lock Manager", description: `${channel} was unlocked!`});
         } else {
             await channel.updateOverwrite(role, {

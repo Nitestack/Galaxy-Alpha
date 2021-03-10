@@ -11,15 +11,12 @@ export default class GiveawayCreateCommand extends Command {
             description: "creates a giveaway with requirements",
             aliases: ["gcreate"],
             category: "giveaway",
-            guildOnly: true
+            guildOnly: true,
+            requiredRoles: ["giveawayManagerRoleID"],
+            userPermissions: ["MANAGE_GUILD"],
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const guildSettings = await client.cache.getGuild(message.guild.id);
-        let giveawayManagerRole: Role;
-        if (guildSettings.giveawayManagerRoleID && message.guild.roles.cache.has(guildSettings.giveawayManagerRoleID)) giveawayManagerRole = message.guild.roles.cache.get(guildSettings.giveawayManagerRoleID);
-        if (giveawayManagerRole && !message.member.roles.cache.has(giveawayManagerRole.id) && !message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!" }, this.usage);
-        else if (!message.member.hasPermission("MANAGE_GUILD")) return client.createArgumentError(message, { title: giveawayManager, description: "You need the permission `Manage Server` or the giveaway creator role for this server!" }, this.usage);
         const prompts = [
             'You have to mention a channel or provide a channel ID, where I have the permission to `Manage Messages`!',
             'You have to specify a valid duration!\nThe duration has to be over a minute.\nYou can also provide the duration in milliseconds!\nYou can use seconds (s), minutes (m), hours (h), days (d), weeks (w) and years (y)!',

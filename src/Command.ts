@@ -1,5 +1,6 @@
 import { PermissionString, Message } from 'discord.js';
 import GalaxyAlpha from '@root/Client';
+import { Guild } from '@models/guild';
 
 export interface CommandRunner {
 	(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown>;
@@ -27,6 +28,7 @@ interface CommandInfos {
 	cooldown?: string;
 	userPermissions?: Array<PermissionString>;
 	clientPermissions?: Array<PermissionString>;
+	requiredRoles?: Array<keyof Guild>
 	developerOnly?: boolean;
 	ownerOnly?: boolean;
 	guildOnly?: boolean;
@@ -50,6 +52,7 @@ export default class Command {
 	public dmOnly?: boolean;
 	public newsChannelOnly?: boolean;
 	public textChannelOnly?: boolean;
+	public requiredRoles?: Array<keyof Guild>;
 	/**
 	 * @param {CommandInfo} info The command informations
 	 */
@@ -68,6 +71,7 @@ export default class Command {
 		this.dmOnly = info.dmOnly ? info.dmOnly : false;
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
 		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
+		this.requiredRoles = info.requiredRoles ? info.requiredRoles : null;
 	};
 	public run: CommandRunner = async (client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);

@@ -19,7 +19,7 @@ export default class WikipediaCommand extends Command {
             return message.channel.send(client.createEmbed()
                 .setTitle(page.title)
                 .setURL(page.fullurl)
-                .setDescription(client.util.embedDescriptionLimiter(intro))
+                .setDescription(client.util.embedFormatter.embedDescriptionLimiter(intro))
                 .setThumbnail((await page.images())[0].url));
         } catch (error) {
             return client.createArgumentError(message, { title: "Wikipedia Manager", description: `Cannot find any results, that includes\n\`${args.join(" ")}\`` }, this.usage);

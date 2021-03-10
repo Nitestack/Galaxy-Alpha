@@ -17,7 +17,8 @@ export default class MuteCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const usage = `${prefix}mute <@User/User ID> [time] [reason]`;
+        message.channel.send("This feature is coming soon!");
+        /*const usage = `${prefix}mute <@User/User ID> [time] [reason]`;
         let muteRole: Role;
         let memberRole: Role;
         await GuildSchema.findOne({
@@ -95,6 +96,6 @@ export default class MuteCommand extends Command {
                         });
                     }).catch(err => console.log(err));
             };
-        });
+        });*/
     };
 };

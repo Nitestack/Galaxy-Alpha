@@ -9,6 +9,7 @@ export default class DropStartCommand extends Command {
             category: "giveaway",
             usage: "dropstart <prize>",
             aliases: ["dstart"],
+            requiredRoles: ["giveawayManagerRoleID"],
             userPermissions: ["MANAGE_GUILD"],
             guildOnly: true,
             clientPermissions: ["MANAGE_MESSAGES"]

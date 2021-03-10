@@ -1,5 +1,5 @@
 import Event, { EventRunner } from '@root/Event';
-import { Guild, TextChannel } from 'discord.js';
+import { Guild, Role, TextChannel } from 'discord.js';
 import { Message } from 'discord.js';
 
 export default class MessageEvent extends Event {
@@ -28,21 +28,13 @@ export default class MessageEvent extends Event {
 					.setDescription(`🌛 ${message.mentions.users.get(afk.userID)} is AFK since\n${client.util.dateFormatter(afk.afkSince)} (${client.humanizer(message.createdTimestamp - afk.afkSince.getTime(), { units: ["y", "mo", "w", "d", "h", "m", "s"], round: true })} ago)\n📝 **Reason:** ${afk.reason}`));
 			};
 		});
-		for (const blacklistedWord of ["fuck", "scheiße", "hurensohn"]/*(await client.cache.getGuild(message.guild.id)).blacklistedWords*/) {
-			if (message.content.toLowerCase().includes(blacklistedWord.toLowerCase())) {
-				if (message.guild.me.permissions.has("MANAGE_MESSAGES")) message.delete();
-				return message.channel.send(client.createRedEmbed()
-					.setTitle("Chat Manager")
-					.setDescription(`${message.author}, the word \`${blacklistedWord}\` is forbidden!`))
-			};
-		};
 		//COMMAND OPTIONS\\
 		const prefix: string = message.channel.type != 'dm' && (await client.cache.getGuild(message.guild.id)).prefix ? (await client.cache.getGuild(message.guild.id)).prefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
 		const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
 		let mentionPrefix: boolean;
 		if (prefixRegex.test(message.content)) {
 			mentionPrefix = true;
-			if (message.mentions.users.has(client.user.id)) message.mentions.users.delete(client.user.id);
+			message.mentions.users.delete(client.user.id);
 		} else mentionPrefix = false;
 		if (message.channel.type != "dm") {
 			const authorStats = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
@@ -108,6 +100,25 @@ export default class MessageEvent extends Event {
 			.setDescription(`You are blacklisted from using any commands of ${client.user.username}!
 			If you want to be whitelisted, please [join this link](https://discord.gg/X6YYfZMQeX) to get whitelisted!
 			Any questions about the process etc. will be answered there!`));
+		//REQUIRED ROLES\\
+		if (message.channel.type != "dm" && command.requiredRoles) {
+			const guildSettings = await client.cache.getGuild(message.guild.id);
+			const roles: Array<Role> = [];
+			for (const requiredRole of command.requiredRoles) {
+				const roleID = guildSettings[requiredRole];
+				if (roleID) {
+					const role = message.guild.roles.cache.get(roleID as string);
+					if (role) roles.push(role);
+				};
+			};
+			if (roles.length > 0) {
+				let perms: number = 0;
+				for (const role of roles) if (message.member.roles.cache.has(role.id)) perms++;
+				if (perms == 0) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
+					.setTitle("Role Manager")
+					.setDescription(`You need one of the following roles to use the command \`${command.name}\`:\n${roles.join(", ")}`));
+			};
+		};
 		//USER PERMISSIONS\\
 		if (message.channel.type != "dm" && command.userPermissions) {
 			let perms: number = 0;

@@ -7,7 +7,8 @@ export default class AvatarCommand extends Command {
             name: "avatar",
             category: "miscellaneous",
             description: "sends the avatar image of the user",
-            usage: "avatar [@User/User ID]"
+            usage: "avatar [@User/User ID]",
+            aliases: ["av"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

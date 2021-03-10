@@ -10,6 +10,7 @@ import ascii from "ascii-table";
 import Command, { Categories } from '@root/Command';
 import Feature from '@root/Feature';
 import Event from '@root/Event';
+import SlashCommand from '@root/SlashCommand';
 import Queue from '@commands/Music/Queue';
 //MANAGER\\
 import GiveawayManager from '@commands/Giveaway/Giveaway';
@@ -30,6 +31,7 @@ import { deleteDrop } from '@commands/Giveaway/Drop';
 const commandTable = new ascii("Commands").setHeading("Name", "Status", "Error");
 const eventTable = new ascii("Events").setHeading("Name", "Status", "Error");
 const featureTable = new ascii("Features").setHeading("Name", "Status", "Error");
+const slashCommandTable = new ascii("Slash Commands").setHeading("Name", "Status", "Error");
 const clientInfoTable = new ascii("Client Info");
 
 interface GalaxyAlphaOptions {
@@ -39,6 +41,7 @@ interface GalaxyAlphaOptions {
 	commandsDir: string;
 	eventsDir: string;
 	featuresDir: string;
+	slashCommandsDir: string;
 	mongoDBUrl: string;
 	developers?: Array<string>;
 	ignoreFiles?: Array<string>;
@@ -77,7 +80,7 @@ export default class GalaxyAlpha extends Client {
 	public drop: DropManager = new DropManager(this);
 	public music: MusicManager = new MusicManager(this);
 	public cache: CacheManager = new CacheManager(this);
-	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil();
+	public util: GalaxyAlphaUtil = new GalaxyAlphaUtil(this);
 	//CONFIGURATION\\
 	public secret: string = "";
 	public ownerID: string = this.config.ownerID;
@@ -98,6 +101,7 @@ export default class GalaxyAlpha extends Client {
 	//COLLECTIONS\\
 	public commands: Collection<string, Command> = new Collection();
 	public disabledCommands: Collection<string, Command> = new Collection();
+	public slashCommands: Collection<string, SlashCommand> = new Collection();
 	public events: Collection<string, Event> = new Collection();
 	public aliases: Collection<string, string> = new Collection();
 	public cooldowns: Collection<string, number> = new Collection();
@@ -158,6 +162,7 @@ export default class GalaxyAlpha extends Client {
 		await this.readCommands(this.config.commandsDir);
 		await this.readEvents(this.config.eventsDir);
 		await this.readFeatures(this.config.featuresDir);
+		await this.readSlashCommands(this.config.slashCommandsDir);
 		//MONGO DB\\
 		connect(this.config.mongoDBUrl, {
 			useFindAndModify: false,
@@ -173,6 +178,18 @@ export default class GalaxyAlpha extends Client {
 			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&scope=bot`;
 			//GUILD\\
 			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
+			//SLASH COMMANDS\\
+			const commands = await this.getApp("783440776285651024").commands.get();
+			this.slashCommands.forEach(async slashCommand => {
+				await this.getApp("783440776285651024").commands.post({
+					data: {
+						name: slashCommand.name,
+						description: slashCommand.description,
+						options: slashCommand.options
+					}
+				});
+			});
+			console.log(commands);
 			//CLIENT INFO\\
 			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
 			clientInfoTable.addRow('Presence Status', this.user.presence.status);
@@ -190,6 +207,7 @@ export default class GalaxyAlpha extends Client {
 			console.log(eventTable.toString());
 			console.log(featureTable.toString());
 			console.log(clientInfoTable.toString());
+			console.log(slashCommandTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
 			//DATABASE FILTER\\
@@ -314,6 +332,25 @@ export default class GalaxyAlpha extends Client {
 					this.features.set(feature.name, feature);
 					featureTable.addRow(`${feature.name}`, "✅");
 				};
+			};
+		};
+	};
+	/**
+	 * Reads all slash commands of the provided directory
+	 * @param {string} slashCommandPath The slash command directory
+	 */
+	public async readSlashCommands(slashCommandPath: string) {
+		for (const file of readdirSync(join(__dirname, slashCommandPath))) {
+			if (lstatSync(join(__dirname, slashCommandPath, file)).isDirectory()) this.readSlashCommands(join(slashCommandPath, file));
+			else if (!this.ignoreFiles.includes(file)) {
+				if (!file.endsWith(".ts")) {
+					slashCommandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
+					continue;
+				};
+				const { default: SlashCommand } = await import(join(__dirname, slashCommandPath, file));
+				const slashCommand: SlashCommand = new SlashCommand();
+				this.slashCommands.set(slashCommand.name, slashCommand);
+				slashCommandTable.addRow(`${slashCommand.name}`, "✅");
 			};
 		};
 	};
@@ -534,5 +571,10 @@ export default class GalaxyAlpha extends Client {
 				};
 			};
 		};
+	};
+	private getApp(guildID?: string) {
+		const app = this.api.applications(this.user.id);
+		if (guildID) app.guilds(guildID);
+		return app;
 	};
 };

@@ -24,42 +24,27 @@ export default class BanCommand extends Command {
         if (member) {
             if (member.bannable) {
                 const reason = args.slice(1).join(" ") || "No reason provided!";
-                const msg = await message.channel.send(client.createEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription(`Do you really want to ban ${member.user}?\n📝 **Reason:** ${reason}\n\nYou have 10s to react!`));
-                await msg.react(client.yesEmojiID);
-                await msg.react(client.noEmojiID);
-                const YesOrNo = msg.createReactionCollector((reaction, user) => (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID) && user.id == message.author.id, { time: 10000, max: 1 });
-                YesOrNo.on('collect', async (reaction, user) => {
-                    if (reaction.emoji.id == client.yesEmojiID) {
-                        try {
-                            await member.ban({ reason: `${reason} (banned by ${message.author.tag})` });
-                            await client.modLogWebhook(message.guild.id, client.createRedEmbed()
-                                .setTitle("Member Banned!")
-                                .setDescription(`**Member:** ${member.user}
-                                **Banned by:** ${message.author}
-                                **Reason:** *${reason}*`));
-                            msg.channel.send(client.createGreenEmbed()
-                                .setTitle("🔨 Ban Manager")
-                                .setDescription(`🔨 ${member.user} was banned!\n📝 **Reason:** ${reason}`));
-                            return member.send(client.createEmbed()
-                                .setTitle("🔨 Ban Manager")
-                                .setDescription(`You were banned from **${message.guild.name}**!
-                                ${client.memberEmoji} **Banned By:** ${message.author}
-                                📝 **Reason:** ${reason}`));
-                        } catch (error) {
-                            return console.log(error);
-                        };
-                    } else {
-                        return msg.channel.send(client.createRedEmbed().setTitle("🔨 Ban Manager").setDescription("Ban cancelled!"));
-                    };
+                client.util.YesOrNoCollector(message.author, await message.channel.send(client.createEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription(`Do you really want to ban ${member.user}?\n📝 **Reason:** ${reason}\n\nYou have 10s to react!`)), {
+                    title: "🔨 Ban Manager",
+                    toHandle: `${member}`,
+                    activity: "banning"
+                }, this.usage, async (reaction, user) => {
+                    await member.ban({ reason: `${reason} (banned by ${message.author.tag})` });
+                    await client.modLogWebhook(message.guild.id, client.createRedEmbed()
+                        .setTitle("Member Banned!")
+                        .setDescription(`**Member:** ${member.user}
+                        **Banned by:** ${message.author}
+                        **Reason:** *${reason}*`));
+                    message.channel.send(client.createGreenEmbed()
+                        .setTitle("🔨 Ban Manager")
+                        .setDescription(`🔨 ${member.user} was banned!\n📝 **Reason:** ${reason}`));
+                    return member.send(client.createEmbed()
+                        .setTitle("🔨 Ban Manager")
+                        .setDescription(`You were banned from **${message.guild.name}**!
+                        ${client.memberEmoji} **Banned By:** ${message.author}
+                        📝 **Reason:** ${reason}`));
                 });
-                YesOrNo.on('end', collected => {
-                    if (collected.size == 0) {
-                        return msg.channel.send(client.createRedEmbed().setTitle("🔨 Ban Manager").setDescription("Ban cancelled!"));
-                    };
-                });
-            } else {
-                return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("I don't have the permission to ban members!"));
-            };
+            } else return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription("I don't have the permission to ban members!"));
         } else {
             return message.channel.send(client.createRedEmbed(true, usage).setTitle("🔨 Ban Manager").setDescription(`Cannot find the user ${args[0]}!`));
         };

@@ -9,7 +9,8 @@ export default class GiveawayManagerRoleCommand extends Command {
             category: "management",
             usage: "giveawaymanager set <@Role/Role ID> or giveawaymanager remove",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };  
     run: CommandRunner = async (client, message, args, prefix) => {

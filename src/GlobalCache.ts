@@ -5,6 +5,7 @@ import ClientDataSchema, { ClientData } from "@models/clientData";
 import GuildSchema, { Guild } from "@models/guild";
 import GalaxyAlpha from "@root/Client";
 import GiveawaySchema, { Giveaway } from "@models/Giveaways/giveaways";
+import TicketSchema, { Ticket } from "./Models/ticket";
 
 export default class GlobalCache {
     constructor(private client: GalaxyAlpha) {
@@ -22,6 +23,7 @@ export default class GlobalCache {
     public guilds: Collection<string, Guild> = new Collection();
     public clientData: ClientData = {};
     public giveaways: Collection<string, Giveaway> = new Collection();
+    public tickets: Collection<string, Ticket> = new Collection();
     //METHODS\\
     /**
      * Clears the cache and uploads the caches data to the database
@@ -189,7 +191,17 @@ export default class GlobalCache {
 	        autoPublishChannels: guild ? guild.autoPublishChannels : [],
 	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
             blacklistedWords: guild ? guild.blacklistedWords : [],
-            suggestionChannelID: guild ? guild.suggestionChannelID : null
+            suggestionChannelID: guild ? guild.suggestionChannelID : null,
+            autoMod: guild ? guild.autoMod : {
+                blacklistedWords: [],
+                deletingLinks: false,
+                deletingImages: false,
+                spam: {
+                    cooldown: 0,
+                    messageLimit: 0,
+                    timer: 0
+                }
+            }
         });
         if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);

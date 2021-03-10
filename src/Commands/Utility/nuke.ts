@@ -13,26 +13,22 @@ export default class NukeCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const msg = await message.channel.send(client.createEmbed()
+        let channel: TextChannel | NewsChannel = message.channel as TextChannel | NewsChannel;
+        if (message.mentions.channels.first() && message.guild.channels.cache.has(message.mentions.channels.first().id)) channel = message.mentions.channels.first();
+        if (args[0] && message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(args[0])) channel = message.guild.channels.cache.get(args[0]) as TextChannel | NewsChannel;
+        client.util.YesOrNoCollector(message.author, await message.channel.send(client.createEmbed()
             .setTitle("💥 Nuke Manager")
-            .setDescription("Do you really want to nuke this channel?\n\nYou have 30s to react!"));
-        await msg.react(client.yesEmojiID);
-        await msg.react(client.noEmojiID);    
-        const YesOrNo = msg.createReactionCollector((reaction, user) => user.id == message.author.id && (reaction.emoji.id == client.yesEmojiID || reaction.emoji.id == client.noEmojiID), { time: 30000, max: 1 });
-        YesOrNo.on("collect", async (reaction, user) => {
-            if (reaction.emoji.id == client.yesEmojiID) {
-                const newChannel = await(message.channel as TextChannel | NewsChannel).clone();
-                newChannel.setPosition((message.channel as TextChannel | NewsChannel).position);
-                await message.channel.delete();
+            .setDescription("Do you really want to nuke this channel?\n\nYou have 30s to react!")), {
+                title: "💥 Nuke Manager",
+                toHandle: "channel",
+                activity: "nuking"
+            }, this.usage, async (reaction, user) => {
+                const newChannel = await channel.clone();
+                newChannel.setPosition(channel.position);
+                await channel.delete();
                 return newChannel.send(client.createEmbed()
                     .setTitle("💥 Nuke")
                     .setDescription("This channel has been nuked!"));
-            } else {
-                return client.createArgumentError(message, { title: "💥 Nuke Manager", description: "Nuking channel cancelled!" }, this.usage);
-            };
-        });
-        YesOrNo.on("end", (collected, reason) => {
-            if (collected.size == 0) return client.createArgumentError(message, { title: "💥 Nuke Manager", description: "Nuking channel cancelled!" }, this.usage);
-        });
+            });
     };
 };

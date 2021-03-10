@@ -9,7 +9,8 @@ export default class MemberRoleCommand extends Command {
             usage: "memberrole set <@Role/Role ID> or memberrole remove",
             category: "management",
             guildOnly: true,
-            userPermissions: ["MANAGE_GUILD"]
+            userPermissions: ["MANAGE_GUILD"],
+            requiredRoles: ["serverManagerRoleID"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
