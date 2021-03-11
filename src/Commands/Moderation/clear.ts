@@ -24,7 +24,7 @@ export default class ClearCommand extends Command {
             const filterPinnedMessages = messages.filter(message => !message.pinned);
             if (filterPinnedMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: "Cannot delete pinned messages!" }, this.usage);
             const filterContentMessages = filterPinnedMessages.filter(message => message.content.toLowerCase().includes(args[0].toLowerCase()));
-            if (filterContentMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: client.util.embedFormatter.embedDescriptionLimiter(`Cannot find any messages, that includes \`${args[0]}\`!`) }, this.usage);
+            if (filterContentMessages.size == 0) return client.createArgumentError(message, { title: clearManager, description: client.util.embedFormatter.description(`Cannot find any messages, that includes \`${args[0]}\`!`) }, this.usage);
             (message.channel as TextChannel | NewsChannel).bulkDelete(filterContentMessages.first(number));
             return await message.delete();
         } else if (message.mentions.users.first() || (args[0] && client.users.cache.has(args[0]))) {

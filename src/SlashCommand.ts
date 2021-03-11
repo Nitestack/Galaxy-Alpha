@@ -1,6 +1,7 @@
-import { Guild, GuildMember, MessageEmbed, MessageFlags, NewsChannel, TextChannel } from "discord.js";
+import { GuildMember, MessageEmbed, MessageFlags, NewsChannel, TextChannel, User, PermissionString } from "discord.js";
 import GalaxyAlpha from "@root/Client";
 import client from "@root/index";
+import { Guild } from "@models/guild";
 
 interface SlashCommandInfos {
     name: string;
@@ -8,7 +9,20 @@ interface SlashCommandInfos {
     type: "message" | "deferredResponse";
     data?: InteractionApplicationCommandCallbackData;
     options?: Array<ApplicationCommandOption>;
+    cooldown?: string;
+    userPermissions?: Array<PermissionString>;
+	clientPermissions?: Array<PermissionString>;
+	requiredRoles?: Array<keyof Guild>;
 };
+
+interface lol {
+	developerOnly?: boolean;
+	ownerOnly?: boolean;
+	guildOnly?: boolean;
+	dmOnly?: boolean;
+	newsChannelOnly?: boolean;
+	textChannelOnly?: boolean;
+}
 
 interface ApplicationCommandOption {
     /**
@@ -26,16 +40,18 @@ interface ApplicationCommandOption {
 };
 
 export interface SlashCommandRunner {
-    (client: GalaxyAlpha, interaction, args: {}, infos: { member: GuildMember, guild: Guild, channel: TextChannel | NewsChannel }): Promise<unknown>;
+    (client: GalaxyAlpha, interaction, args: {}, infos: { member?: GuildMember, guild?, user?: User, channel: TextChannel | NewsChannel }): Promise<unknown>;
 };
 
 export default class SlashCommand {
     public client: GalaxyAlpha = client;
+    public id: string;
     public name: string;
     public description: string;
     public type: "message" | "deferredResponse";
     public data?: InteractionApplicationCommandCallbackData;
     public options?: Array<ApplicationCommandOption>;
+    public cooldown?: string;
     constructor(infos: SlashCommandInfos) { 
         this.name = infos.name;
         this.description = infos.description;
@@ -49,8 +65,10 @@ export default class SlashCommand {
             ...infos.data
         };
         this.options = infos.options;
+        this.cooldown = infos.cooldown ? infos.cooldown : "3s";
     };
-    public interactionResponse(interaction, slashCommand: SlashCommand) {
+    public static createInteractionResponse(interaction, slashCommand: SlashCommand) {
+        //@ts-ignore
         return this.client.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: slashCommand.type == "message" ? 4 : 5,
@@ -61,9 +79,30 @@ export default class SlashCommand {
             }
         });
     };
-    public run: SlashCommandRunner = async (client: GalaxyAlpha, interaction, args: {}, infos: { member: GuildMember, guild: Guild, channel: TextChannel | NewsChannel }): Promise<unknown> => {
+    public run: SlashCommandRunner = async (client: GalaxyAlpha, interaction, args: {}, infos: { member?: GuildMember, user?: User, guild?, channel: TextChannel | NewsChannel }): Promise<unknown> => {
         throw new Error(`${this.constructor.name} doesn't have a run() method.`);
     };
+    public static async createSlashCommand(slashCommand: SlashCommand, guildID?: string) {
+		return await client.getApp(guildID).commands.post({
+			data: {
+				name: slashCommand.name,
+				description: slashCommand.description,
+				options: slashCommand.options
+			}
+		});
+	};
+	public static async deleteSlashCommand(slashCommandID: string, guildID?: string) {
+		return await client.getApp(guildID).commands(slashCommandID).delete();
+	};
+	public static async editSlashCommand(slashCommandID: string, slashCommand: SlashCommand, guildID?: string) {
+		return await client.getApp(guildID).commands(slashCommandID).patch({
+			data: {
+				name: slashCommand.name,
+				description: slashCommand.description,
+				options: slashCommand.options
+			}
+		});
+	};
 };
 
 interface InteractionApplicationCommandCallbackData {

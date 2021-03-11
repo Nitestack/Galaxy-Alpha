@@ -40,7 +40,7 @@ export default class SuggestCommand extends Command {
             const channel = message.guild.channels.cache.get(guildSettings.suggestionChannelID) as TextChannel | NewsChannel;
             const msg = await channel.send(`${message.author}`, { embed: client.createYellowEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
-                .setDescription(client.util.embedFormatter.embedDescriptionLimiter(args.join(" ")))
+                .setDescription(client.util.embedFormatter.description(args.join(" ")))
                 .addField("🚦 Status", `${client.warningInfoEmoji} Waiting for community feedback`)});
             await msg.react(client.yesEmojiID);
             await msg.react(client.noEmojiID);

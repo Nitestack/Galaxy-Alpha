@@ -3,7 +3,7 @@ import { readdirSync, lstatSync } from 'fs';
 import { join } from 'path';
 import ms from 'ms';
 import { Client, Intents, Collection, Message, Guild, MessageEmbed, NewsChannel, TextChannel, WebhookClient, StringResolvable } from 'discord.js';
-import { set, connect } from 'mongoose';
+import { set, connect, ConnectOptions, connection } from 'mongoose';
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
@@ -43,6 +43,7 @@ interface GalaxyAlphaOptions {
 	featuresDir: string;
 	slashCommandsDir: string;
 	mongoDBUrl: string;
+	mongoDBConnectionOptions?: ConnectOptions;
 	developers?: Array<string>;
 	ignoreFiles?: Array<string>;
 	contributors?: Array<string>;
@@ -164,32 +165,19 @@ export default class GalaxyAlpha extends Client {
 		await this.readFeatures(this.config.featuresDir);
 		await this.readSlashCommands(this.config.slashCommandsDir);
 		//MONGO DB\\
-		connect(this.config.mongoDBUrl, {
-			useFindAndModify: false,
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useCreateIndex: true
-		}).then(() => clientInfoTable.addRow("MongoDB", "✅ Connected!")).catch(err => console.log(err));
-		set('useNewUrlParser', true);
-		set('useFindAndModify', false);
-		set('useUnifiedTopology', true);
+		await this.connectToMongoDB(this.config.mongoDBUrl, this.config.mongoDBConnectionOptions);
 		//READY EVENT\\
 		this.once("ready", async () => {
-			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&scope=bot`;
+			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth&scope=applications.commands%20bot`;
 			//GUILD\\
 			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
 			//SLASH COMMANDS\\
-			const commands = await this.getApp("783440776285651024").commands.get();
+			const commands: Array<any> = await this.getApp("783440776285651024").commands.get();
 			this.slashCommands.forEach(async slashCommand => {
-				await this.getApp("783440776285651024").commands.post({
-					data: {
-						name: slashCommand.name,
-						description: slashCommand.description,
-						options: slashCommand.options
-					}
-				});
+				const command = commands.find(command => command.name.toLowerCase() == slashCommand.name.toLowerCase());
+				if (command) await SlashCommand.editSlashCommand(command.id, slashCommand, "783440776285651024");
+				else await SlashCommand.createSlashCommand(slashCommand, "783440776285651024");
 			});
-			console.log(commands);
 			//CLIENT INFO\\
 			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
 			clientInfoTable.addRow('Presence Status', this.user.presence.status);
@@ -206,8 +194,8 @@ export default class GalaxyAlpha extends Client {
 			console.log(commandTable.toString());
 			console.log(eventTable.toString());
 			console.log(featureTable.toString());
-			console.log(clientInfoTable.toString());
 			console.log(slashCommandTable.toString());
+			console.log(clientInfoTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
 			//DATABASE FILTER\\
@@ -242,7 +230,9 @@ export default class GalaxyAlpha extends Client {
 				index++;
 				typeIndex++;
 			}, 10000);
-			setInterval(() => this.cache.clearCacheAndSave(), 3600000);
+			setInterval(() => {
+				this.cache.clearCacheAndSave();
+			}, 3600000);
 		});
 	};
 	/**
@@ -524,23 +514,23 @@ export default class GalaxyAlpha extends Client {
 		for (const drop of drops) deleteDrop(drop.messageID);
 		//TICKETS\\
 		const tickets = await TicketSchema.find({});
-		tickets.forEach(async ticket => {
+		for (const ticket of tickets) {
 			const check = this.channels.cache.filter(channel => channel.type == 'news' || channel.type == 'text').get(ticket.channelID);
 			if (!check) await TicketSchema.findOneAndDelete({
 				channelID: ticket.channelID
 			});
-		});
+		};
 		//GUILDS\\
 		const guilds = await GuildSchema.find({});
-		guilds.forEach(async guild => {
+		for (const guild of guilds) {
 			const check = this.guilds.cache.get(guild.guildID);
 			if (!check) await GuildSchema.findOneAndDelete({
 				guildID: guild.guildID
 			});
-		});
+		};
 		//MESSAGES AND LEVEL\\
 		const levels = await LevelSchema.find({});
-		levels.forEach(async level => {
+		for (const level of levels) {
 			const guildCheck = this.guilds.cache.get(level.guildID);
 			if (guildCheck) {
 				const memberCheck = guildCheck.members.cache.get(level.userID);
@@ -548,12 +538,10 @@ export default class GalaxyAlpha extends Client {
 					guildID: level.guildID,
 					userID: level.userID
 				});
-			} else {
-				await GuildSchema.findOneAndDelete({
-					guildID: level.guildID
-				});
-			};
-		});
+			} else await GuildSchema.findOneAndDelete({
+				guildID: level.guildID
+			});
+		};
 	};
 	public async modLogWebhook(guildID: string, embed: MessageEmbed) {
 		const guildSettings = await this.cache.getGuild(guildID);
@@ -572,9 +560,23 @@ export default class GalaxyAlpha extends Client {
 			};
 		};
 	};
-	private getApp(guildID?: string) {
+	public getApp(guildID?: string) {
+		//@ts-ignore
 		const app = this.api.applications(this.user.id);
 		if (guildID) app.guilds(guildID);
 		return app;
+	};
+	private async connectToMongoDB(url: string, options?: ConnectOptions) {
+		await connect(this.config.mongoDBUrl, {
+			useFindAndModify: false,
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+			useCreateIndex: true,
+			...options
+		});
+		set('useNewUrlParser', true);
+		set('useFindAndModify', false);
+		set('useUnifiedTopology', true);
+		return connection;
 	};
 };

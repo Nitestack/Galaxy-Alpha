@@ -14,6 +14,7 @@ export default class AutoModFeature extends Feature {
             messageCount: number
         }> = new Collection();
         client.on("message", async message => {
+            if (message.author.bot || message.channel.type == "dm") return;
             const autoModerator = "🛠️ Automoderator";
             const guildSettings = await client.cache.getGuild(message.guild.id);
             const DIFF = guildSettings.autoMod.spam.cooldown;

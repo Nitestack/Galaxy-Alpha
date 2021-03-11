@@ -6,7 +6,8 @@ export default class UrbanCommand extends Command {
         super({
             name: "urban",
             description: "searches a query in the urban dictionary",
-            category: "miscellaneous"
+            category: "miscellaneous",
+            aliases: ["ud"]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
@@ -17,7 +18,7 @@ export default class UrbanCommand extends Command {
         return message.channel.send(client.createEmbed()
             .setTitle(result.word)
             .setURL(result.permalink)
-            .setDescription(client.util.embedDescriptionLimiter(result.definition))
+            .setDescription(client.util.embedFormatter.description(result.definition))
             .setTimestamp(result.written_on)
             .setFooter(`👍 ${result.thumbs_up} | 👎 ${result.thumbs_down}`)
             .addField("Example:", result.example));

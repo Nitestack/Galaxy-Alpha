@@ -1,5 +1,5 @@
 import Event, { EventRunner } from '@root/Event';
-import { Guild, Role, TextChannel } from 'discord.js';
+import { Guild, NewsChannel, Role, TextChannel } from 'discord.js';
 import { Message } from 'discord.js';
 
 export default class MessageEvent extends Event {
@@ -75,6 +75,7 @@ export default class MessageEvent extends Event {
 		if (cmd.toLowerCase() == "modmail") return client.events.get('modMail').run(client, message);
 		const command = client.commands.get(cmd.toLowerCase()) || client.commands.get(client.aliases.get(cmd.toLowerCase()));
 		if (!command || (client.disabledCommands.has(command.name) && !client.developers.includes(message.author.id))) return;
+		(client.supportGuild.channels.cache.get("819285259974737960") as TextChannel | NewsChannel).send(`**${message.author.tag}** used command **${command.name}** in **${message.guild.name}**!`);
 		//OWNER COMMANDS\\
 		if (command.ownerOnly && message.author.id != client.ownerID) return;
 		//DEVELOPER COMMANDS\\
@@ -120,29 +121,9 @@ export default class MessageEvent extends Event {
 			};
 		};
 		//USER PERMISSIONS\\
-		if (message.channel.type != "dm" && command.userPermissions) {
-			let perms: number = 0;
-			for (const permission of command.userPermissions) if (message.member.hasPermission(permission)) perms++;
-			if (perms == 0) {
-				let userPerms: Array<string> = [];
-				command.userPermissions.forEach(perm => userPerms.push(client.util.permissionConverted(perm)));
-				return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-					.setTitle("Permission Manager")
-					.setDescription(`You need one of the following permissions to use the command \`${command.name}\`:\n\`${userPerms.join("`, `")}\``));
-			};
-		};
+		if (message.channel.type != "dm" && command.userPermissions) await client.util.permissionChecker(message.channel as TextChannel | NewsChannel, message.member, command.userPermissions, command, prefix);
 		//CLIENT PERMISSIONS\\
-		if (message.channel.type != "dm" && command.clientPermissions) {
-			let perms: number = 0;
-			for (const permission of command.clientPermissions) if (message.guild.me.hasPermission(permission)) perms++;
-			if (perms == 0) {
-				let clientPerms: Array<string> = [];
-				command.clientPermissions.forEach(perm => clientPerms.push(client.util.permissionConverted(perm)));
-				return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-					.setTitle("Permission Manager")
-					.setDescription(`I need one of the following permissions to use the command \`${command.name}\`: \n\`${clientPerms.join("`, `")}\``));
-			};
-		};
+		if (message.channel.type != "dm" && command.clientPermissions) await client.util.permissionChecker(message.channel as TextChannel | NewsChannel, message.guild.me, command.userPermissions, command, prefix);
 		//COOLDOWN CHECKER\\
 		if (client.cooldowns.has(`${message.author.id}-${command.name}`)) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
 			.setTitle('🕐 Cooldown Manager')

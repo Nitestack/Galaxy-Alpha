@@ -1,5 +1,7 @@
-import { CollectorFilter, Message, MessageReaction, PermissionString, User } from "discord.js";
+import { Message, MessageReaction, NewsChannel, PermissionString, TextChannel, User, GuildMember } from "discord.js";
 import GalaxyAlpha from "@root/Client";
+import Command from "@root/Command";
+import { URL } from "url";
 
 export default class GalaxyAlphaUtil {
     constructor(private client: GalaxyAlpha){ };
@@ -69,12 +71,22 @@ export default class GalaxyAlphaUtil {
      */
     public isURL(string: string) {
         try {
-            new URL(string)
+            new URL(string);
         } catch {
             return false
         };
         return true;
     };
+    /**
+     * Creates a Yes or No question
+     * @param {User} user The user the filter matches to 
+     * @param {Message} message The message that was created 
+     * @param {object} embed The embed object
+     * @param {string} commandUsage The command usage
+     * @param {Function} yesFunction The function, if the answer is yes 
+     * @param {Function} filter The filter to passthrough  
+     * @param {number} timeout The time to wait until it auto cancelled 
+     */
     public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number): Promise<void> {
         if (!filter) filter = (reaction, reactionAuthor) => reactionAuthor.id == user.id && (reaction.emoji.id == this.client.yesEmojiID || reaction.emoji.id == this.client.noEmojiID);
         await message.react(this.client.yesEmojiID);
@@ -88,6 +100,21 @@ export default class GalaxyAlphaUtil {
             if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
         });
     };
+    /**
+     * Checks if a member has the required command permissions
+     * @param {TextChannel | NewsChannel} channel The channel to respond to 
+     * @param {GuildMember} member The member to check for permissions 
+     * @param {Array<PermissionString>} permissions The permissions 
+     * @param {Command} command The command used
+     * @param {string} prefix The prefix of the guild
+     */
+    public permissionChecker(channel: TextChannel | NewsChannel, member: GuildMember, permissions: Array<PermissionString>, command: Command, prefix: string) {
+        let perms: number = 0;
+        for (const permission of permissions) if (member.permissions.has(permission)) perms++;
+        if (perms == 0) return channel.send(this.client.createRedEmbed(true, `${prefix}${command.usage}`)
+            .setTitle("Permission Manager")
+            .setDescription(`${member.id == this.client.user.id ? "I" : "You"} need one of the following permissions to use the command \`${command.name}\`:\n\`${permissions.map(perm => this.client.util.permissionConverted(perm)).join("`, `")}\``));
+    };
 };
 
 class EmbedFormatter {
@@ -95,14 +122,14 @@ class EmbedFormatter {
      * Returns a 2048-letter string
      * @param {string} description The description to format
      */
-     public embedDescriptionLimiter(description: string) {
+    public description(description: string) {
         return description.length > 2048 ? description.split("").splice(0, 2045).join("") + "..." : description;
     };
     /**
      * Returns a 1024-letter string
-     * @param {string} description The description to format
+     * @param {string} description The field value to format
      */
-    public embedFieldValueLimiter(description: string) {
+    public fieldValue(description: string) {
         return description.length > 1024 ? description.split("").splice(0, 1021).join("") + "..." : description;
     };
 };

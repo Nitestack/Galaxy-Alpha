@@ -20,6 +20,6 @@ export default class EmbedSlashCommand extends SlashCommand {
         });
     };
     run: SlashCommandRunner = async (client, interaction, args, infos) => {
-        this.data.embeds = client.createEmbed().setTitle(args.title).setDescription(args.description);
+        this.data.embeds = client.createEmbed().setTitle(args.title).setDescription(args.description).setAuthor(infos.member.user.tag, infos.member.user.displayAvatarURL({ dynamic: true }));
     };
 };
