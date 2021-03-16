@@ -19,7 +19,7 @@ export default class EvalCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const evalChannel = '789116457655992350';
+        const evalChannel = '817379995102085140';
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
         try {
             let output = eval(args[0]);

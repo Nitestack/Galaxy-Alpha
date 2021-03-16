@@ -1,3 +1,0 @@
-GET https://discord.com/api/v8/channels/783454092072452097/messages/810999550327914567
-Content-Type: application/json
-Authorization: Bot NzYxNTkwMTM5MTQ3MTI0ODEw.X3c0Fg.iCXl-m52KcN_XVxXjI4CC1F0P10

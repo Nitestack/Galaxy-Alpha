@@ -31,12 +31,14 @@ export default class MessageEvent extends Event {
 			};
 		});
 		//COMMAND OPTIONS\\
-		const prefix: string = message.channel.type != 'dm' && (await client.cache.getGuild(message.guild.id)).prefix ? (await client.cache.getGuild(message.guild.id)).prefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
+		let prefix: string = message.channel.type != 'dm' && (await client.cache.getGuild(message.guild.id)).prefix ? (await client.cache.getGuild(message.guild.id)).prefix : client.globalPrefix; //if any datas of the guild exist, the prefix will be the custom prefix
 		const prefixRegex: RegExp = new RegExp(`^(<@!?${client.user.id}>|${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\s*`); //Regular Expression to check if their is a bot mention
 		let mentionPrefix: boolean;
 		if (prefixRegex.test(message.content)) {
 			mentionPrefix = true;
-			message.mentions.users.delete(client.user.id);
+			const [, matchedPrefix] = message.content.match(prefixRegex);
+			prefix = matchedPrefix;
+			if (message.mentions.users.first().id == client.user.id) message.mentions.users.delete(message.mentions.users.first().id);
 		} else mentionPrefix = false;
 		if (message.channel.type != "dm") {
 			const authorStats = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
@@ -70,10 +72,9 @@ export default class MessageEvent extends Event {
 			await message.react("👍");
 			await message.react("👎");
 		};
-		const [, matchedPrefix] = mentionPrefix ? message.content.match(prefixRegex) : prefix;
-		if (message.channel.id == "817379995102085140" && !message.content.startsWith(mentionPrefix ? matchedPrefix : prefix + "eval")) message.delete();
-		if (!message.content.startsWith(mentionPrefix ? matchedPrefix : prefix)) return;
-		const [cmd, ...args] = message.content.slice(mentionPrefix ? matchedPrefix.length : prefix.length).trim().split(/\s+/g); //destructures the command of the message
+		if (message.channel.id == "817379995102085140" && !message.content.startsWith(prefix + "eval")) message.delete();
+		if (!message.content.startsWith(prefix)) return;
+		const [cmd, ...args] = message.content.slice(prefix.length).trim().split(/\s+/g); //destructures the command of the message
 		if (cmd.toLowerCase() == "modmail") return;
 		const command = client.commands.get(cmd.toLowerCase()) || client.commands.get(client.aliases.get(cmd.toLowerCase()));
 		if (!command || (client.disabledCommands.has(command ? command.name : cmd.toLowerCase()) && !client.developers.includes(message.author.id))) {

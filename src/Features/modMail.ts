@@ -24,7 +24,12 @@ export default class ModMailFeature extends Feature {
             if (client.modMails.has(message.author.id)) return message.author.send(client.createRedEmbed()
                 .setTitle(modMailManager)
                 .setDescription(`You're already in a modmail conversation!`));
-            const servers = client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).array().sort();
+            const serversUnsorted: Array<Guild> = [];
+            for (const guild of client.guilds.cache.filter(guild => guild.members.cache.has(message.author.id)).values()) {
+                const guildSettings = await client.cache.getGuild(guild.id);
+                if (guildSettings && guildSettings.modMailCategoryID && guildSettings.modMailManagerRoleID) serversUnsorted.push(guild);
+            };
+            const servers = serversUnsorted.sort();
             const embeds = this.generateModMailEmbeds(client, servers);
             const msg = await message.channel.send(embeds[0].setFooter(`Page 1/${embeds.length}`, client.user.displayAvatarURL({ dynamic: true })));
             const reactions = {
@@ -242,7 +247,7 @@ export default class ModMailFeature extends Feature {
             const current = servers.slice(i, itemsPerEmbed);
             itemsPerEmbed += itemsPerPage;
             let j = 1;
-            const embed = client.createEmbed().setTitle("✉️ ModMail").setDescription("Please react with one of the numbers to choose a server!");
+            const embed = client.createEmbed().setTitle("✉️ ModMail").setDescription("Please react with one of the numbers to choose a server!\nIf you can't find the server, where you want to get support from, contact the server staff to run the setup command `modmail-setup`!");
             for (const server of current) embed.addField(server.name, `**ID**: ${server.id}\n**Reaction Emoji:** ${reactions[j++]}`, true);
             embeds.push(embed);
         };

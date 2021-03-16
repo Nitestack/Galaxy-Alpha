@@ -30,6 +30,7 @@ export default class AutoDBClearFeature extends Feature {
 
             };
             const counter = await CounterSchema.findOne({ guildID: channel.guild.id });
+            if (!counter) return;
             if (Object.values(counter).includes(channel.guild.id)) {
 
             };
