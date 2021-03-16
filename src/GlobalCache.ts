@@ -55,15 +55,17 @@ export default class GlobalCache {
             });
         });
         if (this.giveaways.first()) this.giveaways.forEach(async giveaway => {
-            await GiveawaySchema.findOneAndUpdate({ guildID: giveaway.guildID }, {
+            if (giveaway.hasEnded) this.giveaways.delete(giveaway.messageID);
+            else await GiveawaySchema.findOneAndUpdate({ guildID: giveaway.guildID }, {
                 ...giveaway,
                 hostedBy: giveaway.hostedBy.id
             });
-            if (giveaway.hasEnded) this.giveaways.delete(giveaway.messageID);
         });
-        this.currency.clear();
-        this.levels.clear();
-        this.guilds.clear();
+        if (this.tickets.first()) this.tickets.forEach(async ticket => {
+            await TicketSchema.findOneAndUpdate({ channelID: ticket.channelID }, ticket, {
+                upsert: true
+            });
+        });
     };
     /**
      * Gets the level, xp and messages of an user
@@ -188,8 +190,8 @@ export default class GlobalCache {
             DJRoleID: guild ? guild.DJRoleID : null,
             reactionRoles: guild ? guild.reactionRoles : [],
             ignoreChannels: guild ? guild.ignoreChannels : [],
-	        autoPublishChannels: guild ? guild.autoPublishChannels : [],
-	        autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
+            autoPublishChannels: guild ? guild.autoPublishChannels : [],
+            autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
             blacklistedWords: guild ? guild.blacklistedWords : [],
             suggestionChannelID: guild ? guild.suggestionChannelID : null,
             autoMod: guild ? guild.autoMod : {
@@ -249,5 +251,19 @@ export default class GlobalCache {
             ...giveaway,
             ...settings
         });
+    };
+    public async getTicket(channelID: string, optionalData?: {
+        categoryID: string,
+        userID: string
+    }) {
+        const ticket = this.tickets.has(channelID) ? this.tickets.get(channelID) : await TicketSchema.findOne({ channelID: channelID });
+        if (!this.tickets.has(channelID)) this.tickets.set(channelID, {
+            categoryID: ticket ? ticket.categoryID : optionalData ? optionalData.categoryID : null,
+            channelID: channelID,
+            userID: ticket ? ticket.userID : optionalData ? optionalData.userID: null,
+            createdAt: ticket ? ticket.createdAt : new Date()
+        });
+        const newTicket = this.tickets.get(channelID);
+        return newTicket.categoryID && newTicket.userID ? newTicket : null;
     };
 };

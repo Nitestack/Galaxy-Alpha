@@ -8,15 +8,21 @@ export default class EvalCommand extends Command {
             description: "evaluates JavaScript code",
             developerOnly: true,
             usage: "eval <to eval>",
-            category: "developer"
+            category: "developer",
+            args: [{
+                type: "text",
+                index: 1,
+                errorTitle: "Eval Manager",
+                errorMessage: "You have to provide valid JavaScript code, that I can evaluate!",
+                required: true
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return client.createArgumentError(message, { title: "Eval Manager", description: 'You have to provide valid JavaScript code, that I can evaluate!'}, this.usage);
         const evalChannel = '789116457655992350';
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
         try {
-            let output = eval(args.join(' '));
+            let output = eval(args[0]);
             const start = process.hrtime();
             const difference = process.hrtime(start);
             if (typeof output != 'string') output = inspect(output, { depth: 2 });

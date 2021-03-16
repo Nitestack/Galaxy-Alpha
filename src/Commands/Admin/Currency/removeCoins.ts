@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import { User } from 'discord.js';
 import { Profile } from "@models/profile";
 
 export default class RemoveCoinsCommand extends Command {
@@ -9,21 +8,36 @@ export default class RemoveCoinsCommand extends Command {
             description: "remove coins from the target user's wallet or bank",
             category: "developer",
             ownerOnly: true,
-            usage: "removecoins <@User/User ID> <wallet/bank> <amount of coins (limit: 1.000.000.000$)>"
+            usage: "removecoins <@User/User ID> <wallet/bank> <amount of coins (limit: 1.000.000.000$)>",
+            args: [{
+                type: "realUser",
+                index: 1,
+                required: true,
+                errorTitle: "💰 Currency Manager",
+                errorMessage: "You need to mention an user or provide an user ID!",
+                default: (message) => message.author
+            }, {
+                type: "certainString",
+                index: 2,
+                certainStrings: ["bank", "wallet"],
+                required: true,
+                errorTitle: "💰 Currency Manager",
+                errorMessage: "You have to specify, if you want to add coins to the bank or to the wallet!"
+            }, {
+                index: 3,
+                required: true,
+                errorTitle: "💰 Currency Manager",
+                errorMessage: "You have to provide an amount of coins to remove!\nTo remove all coins simply type `all`",
+                filter: (message, arg) => isNaN(arg) ? arg.toLowerCase() == "all" || arg.toLowerCase() == "max" : arg > 0
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let user: User;
-        if (!args[0]) return client.createArgumentError(message, { title: "Currency Manager", description: "You have to mention an user or provide an user ID!"}, this.usage);
-        if (args[1].toLowerCase() != 'bank' && args[1].toLowerCase() != 'wallet') return client.createArgumentError(message, { title: "Currency Manager", description: "You have to specify, if you want to remove coins from the bank or from the wallet!"}, this.usage);
-        if (!args[2] || (isNaN((args[2] as unknown as number)) && args[2].toLowerCase() != 'all' && args[2].toLowerCase() != 'max')) return client.createArgumentError(message, { title: "Currency Manager", description: "You have to provide" }, this.usage);
-        if (parseInt(args[2]) <= 0) return client.createArgumentError(message, { title: "Currency Manager", description: "You have to remove atleast `1`$!" }, this.usage);
-        if (message.mentions.users.first()) user = message.mentions.users.first();
-        if (args[0] && client.users.cache.filter(user => !user.bot).get(args[0])) user = client.users.cache.filter(user => !user.bot).get(args[0]);
+        const user = args[0];
         const oldProfile = await client.cache.getCurrency(user.id);
         let balance: boolean = false;
         if (args[1].toLowerCase() == 'bank') balance = true;
-        const coins = args[2].toLowerCase() == "all" || args[2].toLowerCase() == "max" ? (balance ? oldProfile.bank : oldProfile.wallet) : parseInt(args[2]);
+        const coins = isNaN(args[2]) && (args[2].toLowerCase() == "all" || args[2].toLowerCase() == "max") ? (balance ? oldProfile.bank : oldProfile.wallet) : args[2];
         if (balance ? coins > oldProfile.bank : coins > oldProfile.wallet) return client.createArgumentError(message, { title: "Currency Manager", description: `The ${balance ? "bank" : "wallet"} is smaller then the amount of coins you want to remove!` }, this.usage);
         client.createSuccess(message, { 
             title: "Currency Manager",

@@ -1,6 +1,8 @@
+import GalaxyAlpha from '@root/Client';
+import Command, { SubCommand } from '@root/Command';
 import Event, { EventRunner } from '@root/Event';
-import { Guild, NewsChannel, Role, TextChannel } from 'discord.js';
-import { Message } from 'discord.js';
+import { Guild, GuildMember, NewsChannel, PermissionString, Role, TextChannel, Message } from 'discord.js';
+import leven from 'leven';
 
 export default class MessageEvent extends Event {
 	constructor() {
@@ -71,66 +73,68 @@ export default class MessageEvent extends Event {
 		const [, matchedPrefix] = mentionPrefix ? message.content.match(prefixRegex) : prefix;
 		if (message.channel.id == "817379995102085140" && !message.content.startsWith(mentionPrefix ? matchedPrefix : prefix + "eval")) message.delete();
 		if (!message.content.startsWith(mentionPrefix ? matchedPrefix : prefix)) return;
-		const [cmd, ...args]: Array<string> | string = message.content.slice(mentionPrefix ? matchedPrefix.length : prefix.length).trim().split(/\s+/g); //destructures the command of the message
-		if (cmd.toLowerCase() == "modmail") return client.events.get('modMail').run(client, message);
+		const [cmd, ...args] = message.content.slice(mentionPrefix ? matchedPrefix.length : prefix.length).trim().split(/\s+/g); //destructures the command of the message
+		if (cmd.toLowerCase() == "modmail") return;
 		const command = client.commands.get(cmd.toLowerCase()) || client.commands.get(client.aliases.get(cmd.toLowerCase()));
-		if (!command || (client.disabledCommands.has(command.name) && !client.developers.includes(message.author.id))) return;
-		(client.supportGuild.channels.cache.get("819285259974737960") as TextChannel | NewsChannel).send(`**${message.author.tag}** used command **${command.name}** in **${message.guild.name}**!`);
-		//OWNER COMMANDS\\
-		if (command.ownerOnly && message.author.id != client.ownerID) return;
-		//DEVELOPER COMMANDS\\
-		if ((command.developerOnly || command.category == "developer") && !client.developers.includes(message.author.id)) return;
-		//GUILD COMMANDS\\
-		if (command.guildOnly && message.channel.type == 'dm') return message.author.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle("Channel Manager")
-			.setDescription(`You can only use the command \`${command.name}\` inside a server!`));
-		//DM COMMANDS\\
-		if (command.dmOnly && message.channel.type != 'dm') return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle("Channel Manager")
-			.setDescription(`You can only use the command \`${command.name}\` inside DM's!`));
-		//NEWS CHANNEL COMMANDS\\
-		if (command.newsChannelOnly && message.channel.type != "news") return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle("Channel Manager")
-			.setDescription(`You can only use commands like \`${command.name}\` in announcement channels!`));
-		if (command.textChannelOnly && message.channel.type != "text") return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle("Channel Manager")
-			.setDescription(`You can only use commands like \`${command.name}\` in text channels!`));
+		if (!command || (client.disabledCommands.has(command ? command.name : cmd.toLowerCase()) && !client.developers.includes(message.author.id))) {
+			const best = [...client.commands.filter(c => !c.developerOnly && c.category != "developer" && c.category != "private" && !client.disabledCommands.has(c.name)).map(cmd => cmd.name), ...client.aliases.filter(alias => {
+				const c = client.commands.get(alias);
+				if (!c) return false;
+				return !c.developerOnly && c.category != "developer" && c.category != "private" && !client.disabledCommands.has(c.name);
+			}).map(alias => `${alias}`)].filter((c, index, array) => array.indexOf(c) == index && leven(cmd.toLowerCase(), c.toLowerCase()) < c.length * 0.4);
+			const dym = best.length == 0 ? "" : best.length == 1 ? `Did you mean **${best[0]}** ?` : `Did you mean\n${best.map(value => `**${value}**`).join("\n")}\n?`;
+			return message.channel.send(client.createRedEmbed()
+				.setTitle("📟 Command Manager")
+				.setDescription(`Cannot find the command \`${cmd}\`!\n${dym}\nPlease try again!`));
+		};
 		//BLOCKED USERS\\
 		if (client.cache.getClientData().blockedUser.includes(message.author.id)) return message.channel.send(client.createEmbed()
 			.setTitle('Client Manager')
 			.setDescription(`You are blacklisted from using any commands of ${client.user.username}!
 			If you want to be whitelisted, please [join this link](https://discord.gg/X6YYfZMQeX) to get whitelisted!
 			Any questions about the process etc. will be answered there!`));
-		//REQUIRED ROLES\\
-		if (message.channel.type != "dm" && command.requiredRoles) {
-			const guildSettings = await client.cache.getGuild(message.guild.id);
-			const roles: Array<Role> = [];
-			for (const requiredRole of command.requiredRoles) {
-				const roleID = guildSettings[requiredRole];
-				if (roleID) {
-					const role = message.guild.roles.cache.get(roleID as string);
-					if (role) roles.push(role);
-				};
+		if (command) await (client.supportGuild.channels.cache.get("819285259974737960") as TextChannel | NewsChannel).send(`**${message.author.tag}** used command **${command.name}** in **${message.guild ? message.guild.name : "DM's"}**!`);
+		if (command.subCommands) {
+			for (const subCommand of command.subCommands) {
+				const commandHandler = await this.handleCommand(client, message, subCommand, prefix, command.usage);
+				if (!commandHandler) return;
 			};
-			if (roles.length > 0) {
-				let perms: number = 0;
-				for (const role of roles) if (message.member.roles.cache.has(role.id)) perms++;
-				if (perms == 0) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-					.setTitle("Role Manager")
-					.setDescription(`You need one of the following roles to use the command \`${command.name}\`:\n${roles.join(", ")}`));
+		} else {
+			const commandHandler = await this.handleCommand(client, message, command, prefix);
+			if (!commandHandler) return;
+		};
+		let argsValues: Array<any> = [];
+		if (command.args) {
+			for (const arg of command.args) {
+				let argument: any = arg.default ? await arg.default(message) : null;
+				const { type: argType, index } = arg;
+				const argIndex = index - 1;
+				if (!args[argIndex] && arg.required) return client.createArgumentError(message, {
+					title: arg.errorTitle ? arg.errorTitle : "Syntax Error",
+					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${index}.\` argument!`
+				}, command.usage);
+				if (argType == "messageChannel") argument = message.mentions.channels.first() && message.guild.channels.cache.has(message.mentions.channels.first().id) ? message.mentions.channels.first() : (message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(args[argIndex]) ? message.guild.channels.cache.get(args[argIndex]) as TextChannel | NewsChannel : null);
+				else if (argType == "member") argument = message.mentions.members.first()?.id != message.author.id ? message.mentions.members.first() : (message.guild.members.cache.filter(member => member.id != message.author.id).has(args[argIndex]) ? message.guild.members.cache.get(arg[argIndex]) : null);
+				else if (argType == "realMember") argument = message.mentions.members.first() && message.guild.members.cache.filter(member => !member.user.bot && member.id != message.author.id).has(message.mentions.members.first().id) ? message.mentions.members.first() : (message.guild.members.cache.filter(member => !member.user.bot && member.id != message.author.id).has(args[argIndex]) ? message.guild.members.cache.get(args[argIndex]) : null);
+				else if (argType == "user") argument = message.mentions.users.first()?.id != message.author.id ? message.mentions.users.first() : (client.users.cache.filter(user => user.id != message.author.id).has(args[argIndex]) ? client.users.cache.get(args[argIndex]) : null);
+				else if (argType == "realUser") argument = message.mentions.users.first() && client.users.cache.filter(user => !user.bot && user.id != message.author.id).has(message.mentions.users.first().id) ? message.mentions.users.first() : (client.users.cache.filter(user => !user.bot && user.id != message.author.id).has(args[argIndex]) ? client.users.cache.get(args[argIndex]) : null);
+				else if (argType == "string") argument = typeof args[argIndex] == "string" ? args[argIndex] : null;
+				else if (argType == "text") argument = typeof args.slice(argIndex).join(" ") == "string" ? args.slice(argIndex).join(" ") : null;
+				else if (argType == "number") argument = !isNaN(args[argIndex] as unknown as number) ? parseInt(args[argIndex]) : null;
+				else if (argType == "certainString") argument = arg.certainStrings.includes(args[argIndex].toLowerCase()) ? args[argIndex] : null;
+				else if (argType == "guild") argument = client.guilds.cache.has(args[argIndex]) ? client.guilds.cache.get(args[argIndex]) : null;
+				else if (argType == "custom") argument = arg.filter ? (arg.filter(message, args[argIndex]) ? args[argIndex] : null) : null;
+				if (argument) argsValues[argIndex] = argument;
+				if (arg.filter && arg.filter(message, args[argIndex]) && (!argument || !argsValues[argIndex])) argsValues[argIndex] = args[argIndex];
+				if (arg.required && !argsValues[argIndex]) return client.createArgumentError(message, {
+					title: arg.errorTitle ? arg.errorTitle : "Syntax Error",
+					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${index}.\` argument!`
+				}, command.usage);
 			};
 		};
-		//USER PERMISSIONS\\
-		if (message.channel.type != "dm" && command.userPermissions) await client.util.permissionChecker(message.channel as TextChannel | NewsChannel, message.member, command.userPermissions, command, prefix);
-		//CLIENT PERMISSIONS\\
-		if (message.channel.type != "dm" && command.clientPermissions) await client.util.permissionChecker(message.channel as TextChannel | NewsChannel, message.guild.me, command.userPermissions, command, prefix);
-		//COOLDOWN CHECKER\\
-		if (client.cooldowns.has(`${message.author.id}-${command.name}`)) return message.channel.send(client.createRedEmbed(true, `${prefix}${command.usage}`)
-			.setTitle('🕐 Cooldown Manager')
-			.setDescription(`You are on a cooldown!\nYou have to wait ${client.humanizer(client.cooldowns.get(`${message.author.id}-${command.name}`) - message.createdTimestamp, { units: ["mo", "w", "d", "h", "m", "s"], round: true })}`));
 		//COMMAND RUNNER\\
 		try {
-			await command.run(client, message, args, prefix);
+			await command.run(client, message, command.args ? argsValues : args, prefix);
 		} catch (error) {
 			if (error && client.developers.includes(message.author.id)) {
 				message.channel.send(client.createRedEmbed()
@@ -155,5 +159,100 @@ export default class MessageEvent extends Event {
 				resolve(false);
 			});
 		});
+	};
+	/**
+	 * Checks if a member has the required command permissions
+	 * @param {TextChannel | NewsChannel} channel The channel to respond to 
+	 * @param {GuildMember} member The member to check for permissions 
+	 * @param {Array<PermissionString>} permissions The permissions 
+	 * @param {Command} command The command used
+	 * @param {string} prefix The prefix of the guild
+	 */
+	private permissionChecker(client: GalaxyAlpha, channel: TextChannel | NewsChannel, member: GuildMember, permissions: Array<PermissionString>, prefix: string, usage: string): boolean {
+		let perms: number = 0;
+		for (const permission of permissions) if (member.permissions.has(permission)) perms++;
+		if (perms == 0) {
+			channel.send(client.createRedEmbed(true, `${prefix}${usage}`)
+				.setTitle("Permission Manager")
+				.setDescription(`${member.id == client.user.id ? "I" : "You"} need one of the following permissions to use this command:\n\`${permissions.map(perm => client.util.permissionConverted(perm)).join("`, `")}\``));
+			return false;
+		};
+		return true;
+	};
+	private async handleCommand(client: GalaxyAlpha, message: Message, command: Command | SubCommand, prefix: string, commandUsage?: string): Promise<boolean> {
+		const usage = commandUsage ? `${commandUsage} ${command.usage}` : command.usage;
+		//OWNER COMMANDS\\
+		if (command.ownerOnly && message.author.id != client.ownerID) return false;
+		//DEVELOPER COMMANDS\\
+		else if ((command.developerOnly || ((command as Command).category ? (command as Command).category == "developer" : false)) && !client.developers.includes(message.author.id)) return false;
+		//GUILD COMMANDS\\
+		if (command.guildOnly && message.channel.type == 'dm') {
+			client.createArgumentError(message, {
+				title: "Channel Manager",
+				description: `You can only use this command inside a server!`
+			}, usage);
+			return false;
+		} else if (command.dmOnly && message.channel.type != 'dm') {
+			client.createArgumentError(message, {
+				title: "Channel Manager",
+				description: `You can only use this command inside DM's!`
+			}, usage);
+			return false;
+		};
+		//NEWS CHANNEL COMMANDS\\
+		if (command.newsChannelOnly && message.channel.type != "news") {
+			client.createArgumentError(message, {
+				title: "Channel Manager",
+				description: `You can only use this command in announcement channels!`
+			}, usage);
+			return false;
+		} else if (command.textChannelOnly && message.channel.type != "text") {
+			client.createArgumentError(message, {
+				title: "Channel Manager",
+				description: `You can only use this command in text channels!`
+			}, usage);
+			return false;
+		};
+		//REQUIRED ROLES\\
+		if (message.channel.type != "dm" && command.requiredRoles) {
+			const guildSettings = await client.cache.getGuild(message.guild.id);
+			const roles: Array<Role> = [];
+			for (const requiredRole of command.requiredRoles) {
+				const roleID = guildSettings[requiredRole];
+				if (roleID) {
+					const role = message.guild.roles.cache.get(roleID as string);
+					if (role) roles.push(role);
+				};
+			};
+			if (roles.length > 0) {
+				let perms: number = 0;
+				for (const role of roles) if (message.member.roles.cache.has(role.id)) perms++;
+				if (perms == 0 && command.userPermissions ? this.howManyPermissions(message.member, command.userPermissions) : true) {
+					client.createArgumentError(message, { title: "Role Manager", description: `You need one of the following roles to use this command:\n${roles.join(", ")}` }, usage);
+					return false;
+				};
+			};
+		};
+		//USER PERMISSIONS\\
+		if (message.channel.type != "dm" && command.userPermissions) {
+			const permissions = this.permissionChecker(client, message.channel as TextChannel | NewsChannel, message.member, command.userPermissions, prefix, usage);
+			if (!permissions) return false;
+		}
+		//CLIENT PERMISSIONS\\
+		if (message.channel.type != "dm" && command.clientPermissions) {
+			const permissions = this.permissionChecker(client, message.channel as TextChannel | NewsChannel, message.guild.me, command.clientPermissions, prefix, usage);
+			if (!permissions) return false;
+		};
+		//COOLDOWN CHECKER\\
+		if (!commandUsage && client.cooldowns.has(`${message.author.id}-${command.name}`)) {
+			client.createArgumentError(message, { title: "🕐 Cooldown Manager", description: `You are on a cooldown!\nYou have to wait ${client.humanizer(client.cooldowns.get(`${message.author.id}-${command.name}`) - message.createdTimestamp, { units: ["mo", "w", "d", "h", "m", "s"], round: true })}` }, usage);
+			return false;
+		};
+		return true;
+	};
+	private howManyPermissions(member: GuildMember, permissions: Array<PermissionString>): number {
+		let perms: number = 0;
+		for (const permission of permissions) if (member.permissions.has(permission)) perms++;
+		return perms;
 	};
 };

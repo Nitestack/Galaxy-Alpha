@@ -6,18 +6,26 @@ export default class RepeatCommand extends Command {
             name: "repeat",
             description: "repeats a text",
             category: "utility",
-            usage: "repeat [embed] <text>"
+            usage: "repeat <text> [embed]",
+            args: [{
+                type: "text",
+                index: 1,
+                required: true,
+                errorTitle: "Repeat Manager",
+                errorMessage: "You have to provide a text to repeat!"
+            }, {
+                type: "certainString",
+                index: 2,
+                default: (message) => null
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`));
-        if (args[0].toLowerCase() === 'embed') {
+        if (args[1].toLowerCase() == 'embed') {
             const embed = client.createEmbed()
-                .setDescription(`${args.slice(1).join(' ')}`)
+                .setDescription(`${args[0]}`)
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }));
             return message.channel.send(embed);
-        } else {
-            return message.channel.send(args.join(' '));
-        };
+        } else return message.channel.send(args[0]);
     };
 };

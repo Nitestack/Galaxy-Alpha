@@ -103,8 +103,8 @@ export default class Connect4Command extends Command {
                                 break;
                             };
                         };
-                        reaction.users.remove(user.id).then(() => {
-                            if (placedY == 0) gameEmbed.reactions.cache.get(reaction.emoji.name).remove();
+                        reaction.users.remove(user.id).then(async () => {
+                            if (placedY == 0) await gameEmbed.reactions.cache.get(reaction.emoji.name).remove();
                             if (hasWon(placedX, placedY)) gameOver(getChipFromTurn());
                             else if (isBoardFull()) gameOver("tie");
                             else step();

@@ -33,7 +33,7 @@ export interface Guild {
 	autoPublishChannels?: Array<string>,
 	autoSuggestionChannel?: Array<string>,
 	blacklistedWords?: Array<string>,
-	autoMod: {
+	autoMod?: {
 		blacklistedWords: Array<string>,
 		deletingLinks: boolean,
 		deletingImages: boolean,

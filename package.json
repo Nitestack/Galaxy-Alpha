@@ -49,6 +49,7 @@
     "ffmpeg-static": "^4.2.7",
     "figlet": "^1.5.0",
     "humanize-duration": "^3.25.1",
+    "leven": "^3.1.0",
     "method-override": "^3.0.0",
     "mongoose": "^5.11.19",
     "ms": "^2.1.3",

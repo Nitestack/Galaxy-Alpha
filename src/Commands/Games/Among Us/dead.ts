@@ -9,7 +9,10 @@ export default class DeadCommand extends Command {
             category: "games",
             guildOnly: true,
             userPermissions: ["MUTE_MEMBERS"],
-            clientPermissions: ["MUTE_MEMBERS"]
+            clientPermissions: ["MUTE_MEMBERS"],
+            args: [{
+                type: "realUser"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args) => {

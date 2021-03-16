@@ -1,6 +1,5 @@
-import { Message, MessageReaction, NewsChannel, PermissionString, TextChannel, User, GuildMember } from "discord.js";
+import { Message, MessageReaction, PermissionString, User, Collection } from "discord.js";
 import GalaxyAlpha from "@root/Client";
-import Command from "@root/Command";
 import { URL } from "url";
 
 export default class GalaxyAlphaUtil {
@@ -87,7 +86,7 @@ export default class GalaxyAlphaUtil {
      * @param {Function} filter The filter to passthrough  
      * @param {number} timeout The time to wait until it auto cancelled 
      */
-    public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number): Promise<void> {
+    public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking" | "closing", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number, noFunction?: (collected: Collection<string, MessageReaction>, reason: string) => unknown | Promise<unknown> ): Promise<void> {
         if (!filter) filter = (reaction, reactionAuthor) => reactionAuthor.id == user.id && (reaction.emoji.id == this.client.yesEmojiID || reaction.emoji.id == this.client.noEmojiID);
         await message.react(this.client.yesEmojiID);
         await message.react(this.client.noEmojiID);
@@ -97,23 +96,11 @@ export default class GalaxyAlphaUtil {
             else return this.client.createArgumentError(message, { title: embed.title, description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
         });
         collector.on("end", (collected, reason) => {
-            if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+            if (noFunction) return noFunction(collected, reason);
+            else {
+                if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+            };
         });
-    };
-    /**
-     * Checks if a member has the required command permissions
-     * @param {TextChannel | NewsChannel} channel The channel to respond to 
-     * @param {GuildMember} member The member to check for permissions 
-     * @param {Array<PermissionString>} permissions The permissions 
-     * @param {Command} command The command used
-     * @param {string} prefix The prefix of the guild
-     */
-    public permissionChecker(channel: TextChannel | NewsChannel, member: GuildMember, permissions: Array<PermissionString>, command: Command, prefix: string) {
-        let perms: number = 0;
-        for (const permission of permissions) if (member.permissions.has(permission)) perms++;
-        if (perms == 0) return channel.send(this.client.createRedEmbed(true, `${prefix}${command.usage}`)
-            .setTitle("Permission Manager")
-            .setDescription(`${member.id == this.client.user.id ? "I" : "You"} need one of the following permissions to use the command \`${command.name}\`:\n\`${permissions.map(perm => this.client.util.permissionConverted(perm)).join("`, `")}\``));
     };
 };
 

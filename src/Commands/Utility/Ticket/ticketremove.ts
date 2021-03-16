@@ -1,7 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
-import TicketSchema from '@models/ticket';
-import { GuildMember } from 'discord.js';
 
 export default class RemoveUserFromTicketCommand extends Command {
     constructor() {
@@ -12,30 +10,22 @@ export default class RemoveUserFromTicketCommand extends Command {
             category: "ticket",
             guildOnly: true,
             usage: "ticketremove <@User/User ID>",
-            clientPermissions: ["MANAGE_CHANNELS"]
+            clientPermissions: ["MANAGE_CHANNELS"],
+            requiredRoles: ["ticketManagerRoleID"],
+            args: [{
+                type: "realUser",
+                index: 1,
+                required: true,
+                errorTitle: ticketsManager,
+                errorMessage: "You have to mention an user or provide an user ID!"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let member: GuildMember;
-        if (message.mentions.users.first() && message.guild.members.cache.filter(member => !member.user.bot).has(message.mentions.users.first().id)) member = message.guild.members.cache.filter(member => !member.user.bot).get(message.mentions.users.first().id);
-        if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).has(args[0])) member = message.guild.members.cache.filter(member => !member.user.bot).get(args[0]);
-        if (!member) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketremove <@User/User ID>`)
-            .setTitle(ticketsManager)
-            .setDescription("You have to mention an user or provide an user ID"));
-        if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
-            .setTitle(ticketsManager)
-            .setDescription("You cannot remove yourself from the ticket!"));
-        await TicketSchema.findOne({
-            channelID: message.channel.id
-        }, {}, {}, (err, ticket) => {
-            if (err) return console.log(err);
-            if (!ticket) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketremove <@User/User ID>`)
-                .setTitle(ticketsManager)
-                .setDescription("This is not a ticket channel!"));
-            if (ticket.userID == member.id) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketremove <@User/user ID>`)
-                .setTitle(ticketsManager)
-                .setDescription("Cannot remove the ticket author!"));
-            return client.tickets.removeUser(member.id, message.channel.id, message);
-        });
+        const ticket = await client.cache.getTicket(message.channel.id);
+        if (!ticket) return client.createArgumentError(message, { title: ticketsManager, description: "This is not a ticket channel!" }, this.usage);
+        const user = args[0];
+        if (user.id == ticket.userID) return client.createArgumentError(message, { title: ticketsManager, description: "You cannot remove the ticket author from the ticket!" }, this.usage);
+        await client.tickets.removeUser(message, user.id);
     };
 };

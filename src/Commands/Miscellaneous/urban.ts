@@ -7,13 +7,19 @@ export default class UrbanCommand extends Command {
             name: "urban",
             description: "searches a query in the urban dictionary",
             category: "miscellaneous",
-            aliases: ["ud"]
+            aliases: ["ud"],
+            args: [{
+                type: "text",
+                required: true,
+                index: 1,
+                errorTitle: "Urban Manager",
+                errorMessage: "You have to provide a query to search for!"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return client.createArgumentError(message, { title: "Urban Manager", description: "You have to provide a query to search for!" }, this.usage);
-        const results = await axios.get(`https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(args.join(" "))}`);
-        if (results.status != 200 || results.data?.list.length <= 0) return client.createArgumentError(message, { title: "Urban Manager", description: `Cannot find any results that includes \`${args.join(" ")}\`!` }, this.usage);
+        const results = await axios.get(`https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(args[0])}`);
+        if (results.status != 200 || results.data?.list.length <= 0) return client.createArgumentError(message, { title: "Urban Manager", description: `Cannot find any results that includes \`${args[0]}\`!` }, this.usage);
         const result = results.data.list[0];
         return message.channel.send(client.createEmbed()
             .setTitle(result.word)

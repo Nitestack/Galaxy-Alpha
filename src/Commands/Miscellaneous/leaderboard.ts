@@ -1,7 +1,7 @@
 import Command, { CommandRunner } from '@root/Command';
-import ProfileSchema, { Profile } from '@models/profile';
+import ProfileSchema from '@models/profile';
 import LevelSchema, { Level } from "@models/level";
-import VouchSchema, { Vouch } from '@models/vouches';
+import VouchSchema from '@models/vouches';
 
 export default class LeaderboardCommand extends Command {
     constructor() {
@@ -9,9 +9,17 @@ export default class LeaderboardCommand extends Command {
             name: "leaderboard",
             description: "shows the server's leaderboard of a category",
             guildOnly: true,
-            usage: "leaderboard <messages/levels/invites/currency/vouches> [user amount]",
+            usage: "leaderboard <messages/levels/currency/vouches> [user amount]",
             aliases: ["lb"],
-            category: "miscellaneous"
+            category: "miscellaneous",
+            args: [{
+                type: "certainString",
+                required: true,
+                certainStrings: ["levels", "currency", "messages", "vouches"],
+                index: 1,
+                errorTitle: "Leaderboard Manager",
+                errorMessage: "You have to provide a leaderboard category!\n`vouches`, `levels`, `messages`, `currency`"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {

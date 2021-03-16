@@ -2,8 +2,8 @@
 import { readdirSync, lstatSync } from 'fs';
 import { join } from 'path';
 import ms from 'ms';
-import { Client, Intents, Collection, Message, Guild, MessageEmbed, NewsChannel, TextChannel, WebhookClient, StringResolvable } from 'discord.js';
-import { set, connect, ConnectOptions, connection } from 'mongoose';
+import { Client, Intents, Collection, Message, Guild, MessageEmbed, NewsChannel, TextChannel, WebhookClient, StringResolvable, ShardingManager } from 'discord.js';
+import { set, connect, ConnectOptions, connection, Connection } from 'mongoose';
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
@@ -64,7 +64,8 @@ export default class GalaxyAlpha extends Client {
 			partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER', 'GUILD_MEMBER'],
 			disableMentions: "everyone",
 			shards: "auto",
-			shardCount: 1
+			shardCount: 1,
+			retryLimit: 0
 		});
 		if (!this.config.ownerID) throw new Error("A bot owner has to be provided!");
 		if (!this.config.globalPrefix) throw new Error("A global prefix has to be provided!");
@@ -155,17 +156,22 @@ export default class GalaxyAlpha extends Client {
 	public desktopEmojiID: string = this.getEmojiID(this.desktopEmoji);
 	public galaxyAlphaEmojiID: string = this.getEmojiID(this.galaxyAlphaEmoji);
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
+	public mongoDBConnection: Connection;
 	//METHODS\\
 	public async start() {
 		//LOGIN\\
-		this.login(this.config.token).catch((error: any) => console.log(error));
-		//READ COMMANDS, EVENTS, FEATURES\\
+		this.login(this.config.token);
+		process.on('unhandledRejection', (reason, promise) => {
+			console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+		});
+		//READ COMMANDS, EVENTS, FEATURES, SLASH COMMANDS\\
 		await this.readCommands(this.config.commandsDir);
 		await this.readEvents(this.config.eventsDir);
 		await this.readFeatures(this.config.featuresDir);
 		await this.readSlashCommands(this.config.slashCommandsDir);
 		//MONGO DB\\
 		await this.connectToMongoDB(this.config.mongoDBUrl, this.config.mongoDBConnectionOptions);
+		this.mongoDBConnection = connection;
 		//READY EVENT\\
 		this.once("ready", async () => {
 			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth&scope=applications.commands%20bot`;
@@ -230,9 +236,7 @@ export default class GalaxyAlpha extends Client {
 				index++;
 				typeIndex++;
 			}, 10000);
-			setInterval(() => {
-				this.cache.clearCacheAndSave();
-			}, 3600000);
+			setInterval(async () => await this.cache.clearCacheAndSave(), 3600000);
 		});
 	};
 	/**

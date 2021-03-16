@@ -1,6 +1,4 @@
 import Command, { CommandRunner } from '@root/Command';
-import { GuildMember } from 'discord.js';
-import TicketSchema from '@models/ticket';
 import { ticketsManager } from '@commands/Utility/Ticket/Ticket';
 
 export default class AddUserToTicketCommand extends Command {
@@ -13,30 +11,20 @@ export default class AddUserToTicketCommand extends Command {
             category: "ticket",
             usage: "ticketadd <@User/User ID>",
             clientPermissions: ["MANAGE_CHANNELS"],
-            userPermissions: ["MANAGE_MESSAGES"]
+            requiredRoles: ["ticketManagerRoleID"],
+            userPermissions: ["MANAGE_MESSAGES"],
+            args: [{
+                type: "realUser",
+                index: 1,
+                required: true
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let member: GuildMember;
-        if (message.mentions.users.first() && message.guild.members.cache.filter(member => !member.user.bot).has(message.mentions.users.first().id)) member = message.guild.members.cache.filter(member => !member.user.bot).get(message.mentions.users.first().id);
-        if (args[0] && message.guild.members.cache.filter(member => !member.user.bot).has(args[0])) member = message.guild.members.cache.filter(member => !member.user.bot).get(args[0]);
-        if (!member) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
-            .setTitle(ticketsManager)
-            .setDescription("You have to mention an user or provide an user ID"));
-        if (member.id == message.author.id) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
-            .setTitle(ticketsManager)
-            .setDescription("You are already in the ticket!"));
-        await TicketSchema.findOne({
-            channelID: message.channel.id
-        }, {}, {}, (err, ticket) => {
-            if (err) return console.log(err);
-            if (!ticket) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
-                .setTitle(ticketsManager)
-                .setDescription("This is not a ticket channel!"));
-            if (ticket.userID == member.id) return message.channel.send(client.createRedEmbed(true, `${prefix}ticketadd <@User/User ID>`)
-                .setTitle(ticketsManager)
-                .setDescription("Cannot add the ticket author itself!"));
-            return client.tickets.addUser(member.id, message.channel.id, message);
-        });
+        const ticket = await client.cache.getTicket(message.channel.id);
+        if (!ticket) return client.createArgumentError(message, { title: ticketsManager, description: "This is not a ticket channel!" }, this.usage);
+        const user = args[0];
+        if (user.id == ticket.userID) return client.createArgumentError(message, { title: ticketsManager, description: "The ticket author is already added to the ticket!" }, this.usage);
+        await client.tickets.addUser(message, user.id);
     };
 };

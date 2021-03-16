@@ -3,7 +3,7 @@ import GalaxyAlpha from '@root/Client';
 import { Guild } from '@models/guild';
 
 export interface CommandRunner {
-	(client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown>;
+	(client: GalaxyAlpha, message: Message, args: {}, prefix: string): Promise<unknown>;
 };
 
 export type Categories = "miscellaneous"
@@ -21,6 +21,16 @@ export type Categories = "miscellaneous"
 
 interface CommandInfos {
 	name: string;
+	args?: Array<{
+		index: number;
+		type?: Argument;
+		required?: boolean;
+		errorTitle?: string;
+		errorMessage?: string;
+		default?: (message: Message) => any | Promise<any>;
+		certainStrings?: Array<string>;
+		filter?: (message: Message, arg: any) => boolean | Promise<boolean>;
+	}>;
 	aliases?: Array<string>;
 	description: string;
 	category: Categories;
@@ -35,6 +45,36 @@ interface CommandInfos {
 	dmOnly?: boolean;
 	newsChannelOnly?: boolean;
 	textChannelOnly?: boolean;
+	subCommands?: Array<SubCommand>;
+};
+
+type Argument = "member"
+	| "realUser"
+	| "user"
+	| "realMember"
+	| "member"
+	| "messageChannel"
+	| "string"
+	| "number"
+	| "text"
+	| "certainString"
+	| "guild"
+	| "custom"
+
+export interface SubCommand {
+	name: string;
+	description: string;
+	usage?: string;
+	userPermissions?: Array<PermissionString>;
+	clientPermissions?: Array<PermissionString>;
+	requiredRoles?: Array<keyof Guild>
+	developerOnly?: boolean;
+	ownerOnly?: boolean;
+	guildOnly?: boolean;
+	dmOnly?: boolean;
+	newsChannelOnly?: boolean;
+	textChannelOnly?: boolean;
+	function: (client: GalaxyAlpha, message: Message, args: {}, prefix: string) => Promise<unknown>;
 };
 
 export default class Command {
@@ -53,6 +93,17 @@ export default class Command {
 	public newsChannelOnly?: boolean;
 	public textChannelOnly?: boolean;
 	public requiredRoles?: Array<keyof Guild>;
+	public subCommands?: Array<SubCommand>;
+	public args?: Array<{
+		index: number;
+		type?: Argument;
+		required?: boolean;
+		errorTitle?: string;
+		errorMessage?: string;
+		default?: (message: Message) => any | Promise<any>;
+		filter?: (message: Message, arg: any) => boolean | Promise<boolean>;
+		certainStrings?: Array<string>;
+	}>;
 	/**
 	 * @param {CommandInfo} info The command informations
 	 */
@@ -72,8 +123,10 @@ export default class Command {
 		this.newsChannelOnly = info.newsChannelOnly ? info.newsChannelOnly : false;
 		this.textChannelOnly = info.textChannelOnly ? info.textChannelOnly : false;
 		this.requiredRoles = info.requiredRoles ? info.requiredRoles : null;
+		this.subCommands = info.subCommands ? info.subCommands : null;
+		this.args = info.args ? info.args : null;
 	};
-	public run: CommandRunner = async (client: GalaxyAlpha, message: Message, args: Array<string>, prefix: string): Promise<unknown> => {
+	public run: CommandRunner = async (client: GalaxyAlpha, message: Message, args: Array<any>, prefix: string): Promise<unknown> => {
 		throw new Error(`${this.constructor.name} doesn't have a run() method.`);
 	};
 };

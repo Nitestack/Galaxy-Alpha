@@ -1,5 +1,4 @@
 import Command, { CommandRunner } from "@root/Command";
-import { Guild } from "discord.js";
 
 export default class GuildCreateCommand extends Command {
     constructor(){
@@ -8,13 +7,18 @@ export default class GuildCreateCommand extends Command {
             description: "simulates a new guild",
             category: "developer",
             developerOnly: true,
-            usage: "guildcreate [guild ID]"
+            usage: "guildcreate [guild ID]",
+            args: [{
+                type: "guild",
+                required: true,
+                index: 1,
+                errorTitle: "Simulation Manager",
+                errorMessage: "You have to provide a valid guild ID!",
+                default: (message) => message.channel.type == "dm" ? null : message.guild
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let guild: Guild = message.channel.type != "dm" ? message.guild : null;
-        if (args[0] && client.guilds.cache.has(args[0])) guild = client.guilds.cache.get(args[0]);
-        if (!guild) return client.createArgumentError(message, { title: "Simulation Manager", description: "You have to provide a valid guild ID!"}, this.usage);
-        return client.emit("guildCreate", guild);
+        return client.emit("guildCreate", args[0]);
     };
 };
