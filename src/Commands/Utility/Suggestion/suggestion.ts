@@ -11,7 +11,7 @@ export default class SuggestCommand extends Command {
             usage: "suggestion accept [reason]"
         });
     };
-    run: CommandRunner = async (client, message, args, prefix) => {
+    run: CommandRunner = async (client, message, args: Array<string>, prefix) => {
         const guildSettings = await client.cache.getGuild(message.guild.id);
         if (!guildSettings.suggestionChannelID) return client.createArgumentError(message, { title: "Suggestino Manager", description: "This server has no suggestion channel set up!\nAsk the server managers to setup a suggestion channel!" }, this.usage);
         if (args[0]?.toLowerCase() == 'command') {

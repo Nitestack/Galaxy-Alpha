@@ -14,10 +14,10 @@ export default class MessageDeleteEvent extends Event {
         const guildSettings = await client.cache.getGuild(message.guild.id);
         if (guildSettings.modLogChannelID == message.channel.id) return;
         await client.modLogWebhook(message.guild.id, client.createRedEmbed()
-            .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+            .setAuthor(message.author.username + "#" + message.author.discriminator, message.author.displayAvatarURL({ dynamic: true }))
             .setTitle("Message Deleted!")
-            .setDescription(`**Author:** ${message.author}
+            .setDescription(client.util.embedFormatter.description(`**Author:** ${message.author}
             **Created At:** *${client.util.dateFormatter(message.createdAt)}*
-            **Content** *${message.embeds[0] ? message.embeds[0].description : message.content}*`));
+            **Content** *${message.embeds[0] ? message.embeds[0].description : message.content}*`)));
     };
 };

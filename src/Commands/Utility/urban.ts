@@ -6,12 +6,11 @@ export default class UrbanCommand extends Command {
         super({
             name: "urban",
             description: "searches a query in the urban dictionary",
-            category: "miscellaneous",
+            category: "utility",
             aliases: ["ud"],
             args: [{
                 type: "text",
                 required: true,
-                index: 1,
                 errorTitle: "Urban Manager",
                 errorMessage: "You have to provide a query to search for!"
             }]

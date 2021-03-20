@@ -3,6 +3,11 @@ import { requiredString } from "@models/ModelBase";
 
 const customSchema = new Schema({
     guildID: requiredString,
+    name: requiredString,
+    aliases: {
+        type: SchemaTypes.Array,
+        default: []
+    },
     allowedRoles: {
         type: SchemaTypes.Array,
         default: []
@@ -35,6 +40,8 @@ const customSchema = new Schema({
 
 export interface CustomCommand {
     guildID: string,
+    name: string,
+    aliases: Array<string>,
     allowedRoles: Array<string>,
     notAllowedRoles: Array<string>,
     allowedChannels: Array<string>,

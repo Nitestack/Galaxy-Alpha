@@ -3,7 +3,7 @@ import { readdirSync, lstatSync } from 'fs';
 import { join } from 'path';
 import ms from 'ms';
 import { Client, Intents, Collection, Message, Guild, MessageEmbed, NewsChannel, TextChannel, WebhookClient, StringResolvable, ShardingManager } from 'discord.js';
-import { set, connect, ConnectOptions, connection, Connection } from 'mongoose';
+import { set, connect, ConnectionOptions, connection, Connection } from 'mongoose';
 import Humanizer from "humanize-duration";
 import ascii from "ascii-table";
 //CLASSES\\
@@ -28,10 +28,6 @@ import LevelSchema from '@models/level';
 //ANY THING ELSE\\
 import { deleteDrop } from '@commands/Giveaway/Drop';
 //TABLES\\
-const commandTable = new ascii("Commands").setHeading("Name", "Status", "Error");
-const eventTable = new ascii("Events").setHeading("Name", "Status", "Error");
-const featureTable = new ascii("Features").setHeading("Name", "Status", "Error");
-const slashCommandTable = new ascii("Slash Commands").setHeading("Name", "Status", "Error");
 const clientInfoTable = new ascii("Client Info");
 
 interface GalaxyAlphaOptions {
@@ -43,7 +39,7 @@ interface GalaxyAlphaOptions {
 	featuresDir: string;
 	slashCommandsDir: string;
 	mongoDBUrl: string;
-	mongoDBConnectionOptions?: ConnectOptions;
+	mongoDBConnectionOptions?: ConnectionOptions;
 	developers?: Array<string>;
 	ignoreFiles?: Array<string>;
 	contributors?: Array<string>;
@@ -165,12 +161,19 @@ export default class GalaxyAlpha extends Client {
 			console.log('Unhandled Rejection at:', promise, 'reason:', reason);
 		});
 		//READ COMMANDS, EVENTS, FEATURES, SLASH COMMANDS\\
-		await this.readCommands(this.config.commandsDir);
-		await this.readEvents(this.config.eventsDir);
-		await this.readFeatures(this.config.featuresDir);
-		await this.readSlashCommands(this.config.slashCommandsDir);
+		const commands = await this.readCommands(this.config.commandsDir);
+		const events = await this.readEvents(this.config.eventsDir);
+		const features = await this.readFeatures(this.config.featuresDir);
+		const slashCommands = await this.readSlashCommands(this.config.slashCommandsDir);
+		clientInfoTable.addRow("Commands", commands);
+		clientInfoTable.addRow("Events", events);
+		clientInfoTable.addRow("Features", features);
+		clientInfoTable.addRow("Slash Commands", slashCommands);
 		//MONGO DB\\
-		await this.connectToMongoDB(this.config.mongoDBUrl, this.config.mongoDBConnectionOptions);
+		await this.connectToMongoDB(this.config.mongoDBUrl, {
+			...this.config.mongoDBConnectionOptions,
+			dbName: "data"
+		});
 		this.mongoDBConnection = connection;
 		//READY EVENT\\
 		this.once("ready", async () => {
@@ -197,10 +200,6 @@ export default class GalaxyAlpha extends Client {
 			clientInfoTable.addRow('Client Status', '✅ Online!');
 			clientInfoTable.addRow('Author', 'HydraNhani#8303');
 			//TABLES\\
-			console.log(commandTable.toString());
-			console.log(eventTable.toString());
-			console.log(featureTable.toString());
-			console.log(slashCommandTable.toString());
 			console.log(clientInfoTable.toString());
 			//FEATURE HANDLER\\
 			this.features.forEach(feature => feature.run(this));
@@ -244,109 +243,118 @@ export default class GalaxyAlpha extends Client {
 	 * @param {string} commandPath The command directory
 	 */
 	public async readCommands(commandPath: string) {
+		let i = 0;
 		for (const file of readdirSync(join(__dirname, commandPath))) {
 			if (lstatSync(join(__dirname, commandPath, file)).isDirectory()) this.readCommands(join(commandPath, file));
 			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					commandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Command } = await import(join(__dirname, commandPath, file));
+				if (typeof Command == "undefined") clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", `NO constructor - ${join(__dirname, commandPath, file)}`);
 				const command: Command = new Command();
 				if (!command.name) {
-					commandTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
 					continue;
 				} else if (!command.description) {
-					commandTable.addRow(`${command.name}`, "❌", "Description left!");
+					clientInfoTable.addRow(`${command.name}`, "❌", "Description left!");
 					continue;
 				} else if (!command.category) {
-					commandTable.addRow(`${command.name}`, "❌", "Category left!");
+					clientInfoTable.addRow(`${command.name}`, "❌", "Category left!");
 					continue;
 				} else {
 					if (this.commands.some(cmd => cmd.name == command.name || cmd.aliases?.includes(command.name))) {
-						commandTable.addRow(`${command.name}`, "❌", "Name already existing!");
+						clientInfoTable.addRow(`${command.name}`, "❌", "Name already existing!");
 						continue;
 					};
 					for (const alias of command.aliases ? command.aliases : []) if (this.commands.some(cmd => cmd.name == alias || cmd.aliases?.includes(alias))) {
-						commandTable.addRow(`${command.name}`, "❌", "Alias already existing!");
+						clientInfoTable.addRow(`${command.name}`, "❌", "Alias already existing!");
 						continue;
 					};
-					this.commands.set(command.name, command);
+					this.commands.set(command.name.toLowerCase(), command);
+					i++;
 					if (!this.categories.has(command.category)) this.categories.set(command.category, []);
 					this.categories.get(command.category).push(command);
-					if (command.aliases) command.aliases.map(alias => this.aliases.set(alias, command.name));
-					commandTable.addRow(`${command.name}`, "✅");
+					if (command.aliases) command.aliases.map(alias => this.aliases.set(alias.toLowerCase(), command.name));
 				};
 			};
 		};
+		return i;
 	};
 	/**
 	 * Reads all events of the provided directory
-	 * @param {string} eventPath The event directory 
+	 * @param {string} eventPath The event directory
 	 */
 	public async readEvents(eventPath: string) {
+		let i = 0;
 		for (const file of readdirSync(join(__dirname, eventPath))) {
 			if (lstatSync(join(__dirname, eventPath, file)).isDirectory()) this.readEvents(join(eventPath, file));
 			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					eventTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Event } = await import(join(__dirname, eventPath, file));
 				const event: Event = new Event();
 				if (!event.name) {
-					eventTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "Name left!");
 					continue;
 				} else {
 					this.on(event.name, event.run.bind(null, this));
 					this.events.set(event.name, event);
-					eventTable.addRow(`${event.name}`, "✅");
+					i++;
 				};
 			};
 		};
+		return i;
 	};
 	/**
 	 * Reads all features of the provided directory
 	 * @param {string} featurePath The feature directory 
 	 */
 	public async readFeatures(featurePath: string) {
+		let i = 0;
 		for (const file of readdirSync(join(__dirname, featurePath))) {
 			if (lstatSync(join(__dirname, featurePath, file)).isDirectory()) this.readFeatures(join(featurePath, file));
 			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					featureTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: Feature } = await import(join(__dirname, featurePath, file));
 				const feature: Feature = new Feature();
 				if (!feature.name) {
-					featureTable.addRow(`${feature.name}`, "❌", "Name left!");
+					clientInfoTable.addRow(`${feature.name}`, "❌", "Name left!");
 					continue;
 				} else {
 					this.features.set(feature.name, feature);
-					featureTable.addRow(`${feature.name}`, "✅");
+					i++;
 				};
 			};
 		};
+		return i;
 	};
 	/**
 	 * Reads all slash commands of the provided directory
 	 * @param {string} slashCommandPath The slash command directory
 	 */
 	public async readSlashCommands(slashCommandPath: string) {
+		let i = 0;
 		for (const file of readdirSync(join(__dirname, slashCommandPath))) {
 			if (lstatSync(join(__dirname, slashCommandPath, file)).isDirectory()) this.readSlashCommands(join(slashCommandPath, file));
 			else if (!this.ignoreFiles.includes(file)) {
 				if (!file.endsWith(".ts")) {
-					slashCommandTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
+					clientInfoTable.addRow(`${file.split(".")[0]}`, "❌", "NO Typescript file");
 					continue;
 				};
 				const { default: SlashCommand } = await import(join(__dirname, slashCommandPath, file));
 				const slashCommand: SlashCommand = new SlashCommand();
 				this.slashCommands.set(slashCommand.name, slashCommand);
-				slashCommandTable.addRow(`${slashCommand.name}`, "✅");
+				i++;
 			};
 		};
+		return i;
 	};
 	/**
 	 * Creates an error and sends it to the channel
@@ -355,7 +363,7 @@ export default class GalaxyAlpha extends Client {
 	 * @param {string} usage The command usage
 	 */
 	public async createArgumentError(message: Message, embed: { title: string, description: string }, usage: string) {
-		return message.channel.send(this.createRedEmbed(true, `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}`)
+		return message.channel.send(this.createRedEmbed(true, `${message.guild ? (await this.cache.getGuild(message.guild.id)).prefix : this.globalPrefix}${usage}`)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
@@ -366,7 +374,7 @@ export default class GalaxyAlpha extends Client {
 	 * @param {string} usage The command usage 
 	 */
 	public async createSuccess(message: Message, embed: { title: string, description: string }, usage?: string) {
-		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${(await this.cache.getGuild(message.guild.id)).prefix}${usage}` : null)
+		return message.channel.send(this.createGreenEmbed(usage ? true : false, usage ? `${message.guild ? (await this.cache.getGuild(message.guild.id)).prefix : this.globalPrefix}${usage}` : null)
 			.setTitle(embed.title)
 			.setDescription(embed.description));
 	};
@@ -378,7 +386,7 @@ export default class GalaxyAlpha extends Client {
 	 */
 	public async createEmbedForSubCommands(message: Message, embed: { title: string, description?: string }, commands: Array<{ usage: string, description: string }>) {
 		const EMBED = this.createEmbed().setTitle(embed.title);
-		const prefix = (await this.cache.getGuild(message.guild.id)).prefix;
+		const prefix = message.guild ? (await this.cache.getGuild(message.guild.id)).prefix : this.globalPrefix;
 		for (const command of commands) EMBED.addField(this.util.toUpperCaseBeginning(command.description), `\`${prefix}${command.usage}\``);
 		if (embed.description) EMBED.setDescription(embed.description);
 		return message.channel.send(EMBED);
@@ -570,8 +578,8 @@ export default class GalaxyAlpha extends Client {
 		if (guildID) app.guilds(guildID);
 		return app;
 	};
-	private async connectToMongoDB(url: string, options?: ConnectOptions) {
-		await connect(this.config.mongoDBUrl, {
+	private async connectToMongoDB(url: string, options?: ConnectionOptions) {
+		await connect(url, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,

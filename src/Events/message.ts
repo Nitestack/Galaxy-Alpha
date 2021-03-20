@@ -38,7 +38,7 @@ export default class MessageEvent extends Event {
 			mentionPrefix = true;
 			const [, matchedPrefix] = message.content.match(prefixRegex);
 			prefix = matchedPrefix;
-			if (message.mentions.users.first().id == client.user.id) message.mentions.users.delete(message.mentions.users.first().id);
+			if (message.mentions.users.first()?.id == client.user.id) message.mentions.users.delete(message.mentions.users.first().id);
 		} else mentionPrefix = false;
 		if (message.channel.type != "dm") {
 			const authorStats = await client.cache.getLevelandMessages(message.guild.id, message.author.id);
@@ -73,6 +73,12 @@ export default class MessageEvent extends Event {
 			await message.react("👎");
 		};
 		if (message.channel.id == "817379995102085140" && !message.content.startsWith(prefix + "eval")) message.delete();
+		if (message.channel.type != "dm") {
+			const customCommand = await client.cache.getCustomCommand(message.guild.id, message.content.toLowerCase());
+			if (customCommand) {
+				return message.channel.send(customCommand.answers[client.util.getRandomArbitrary(0, customCommand.answers.length - 1)]);
+			};
+		};
 		if (!message.content.startsWith(prefix)) return;
 		const [cmd, ...args] = message.content.slice(prefix.length).trim().split(/\s+/g); //destructures the command of the message
 		if (cmd.toLowerCase() == "modmail") return;
@@ -94,25 +100,25 @@ export default class MessageEvent extends Event {
 			.setDescription(`You are blacklisted from using any commands of ${client.user.username}!
 			If you want to be whitelisted, please [join this link](https://discord.gg/X6YYfZMQeX) to get whitelisted!
 			Any questions about the process etc. will be answered there!`));
-		if (command) await (client.supportGuild.channels.cache.get("819285259974737960") as TextChannel | NewsChannel).send(`**${message.author.tag}** used command **${command.name}** in **${message.guild ? message.guild.name : "DM's"}**!`);
+		if (command && command.category != "private") await (client.supportGuild.channels.cache.get("819285259974737960") as TextChannel | NewsChannel).send(`**${message.author.tag}** used command **${command.name}** in **${message.guild ? message.guild.name : "DM's"}**!`);
 		if (command.subCommands) {
 			for (const subCommand of command.subCommands) {
-				const commandHandler = await this.handleCommand(client, message, subCommand, prefix, command.usage);
+				const commandHandler = await this.handleCommand(client, message, subCommand, message.channel.type == "dm" ? client.globalPrefix : prefix, command.usage);
 				if (!commandHandler) return;
 			};
 		} else {
-			const commandHandler = await this.handleCommand(client, message, command, prefix);
+			const commandHandler = await this.handleCommand(client, message, command, message.channel.type == "dm" ? client.globalPrefix : prefix);
 			if (!commandHandler) return;
 		};
 		let argsValues: Array<any> = [];
 		if (command.args) {
 			for (const arg of command.args) {
 				let argument: any = arg.default ? await arg.default(message) : null;
-				const { type: argType, index } = arg;
-				const argIndex = index - 1;
+				const { type: argType } = arg;
+				const argIndex = command.args.indexOf(arg);
 				if (!args[argIndex] && arg.required) return client.createArgumentError(message, {
 					title: arg.errorTitle ? arg.errorTitle : "Syntax Error",
-					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${index}.\` argument!`
+					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${argIndex + 1}.\` argument!`
 				}, command.usage);
 				if (argType == "messageChannel") argument = message.mentions.channels.first() && message.guild.channels.cache.has(message.mentions.channels.first().id) ? message.mentions.channels.first() : (message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(args[argIndex]) ? message.guild.channels.cache.get(args[argIndex]) as TextChannel | NewsChannel : null);
 				else if (argType == "member") argument = message.mentions.members.first()?.id != message.author.id ? message.mentions.members.first() : (message.guild.members.cache.filter(member => member.id != message.author.id).has(args[argIndex]) ? message.guild.members.cache.get(arg[argIndex]) : null);
@@ -129,13 +135,13 @@ export default class MessageEvent extends Event {
 				if (arg.filter && arg.filter(message, args[argIndex]) && (!argument || !argsValues[argIndex])) argsValues[argIndex] = args[argIndex];
 				if (arg.required && !argsValues[argIndex]) return client.createArgumentError(message, {
 					title: arg.errorTitle ? arg.errorTitle : "Syntax Error",
-					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${index}.\` argument!`
+					description: arg.errorMessage ? arg.errorMessage : `You need to provide the \`${argIndex + 1}.\` argument!`
 				}, command.usage);
 			};
 		};
 		//COMMAND RUNNER\\
 		try {
-			await command.run(client, message, command.args ? argsValues : args, prefix);
+			await command.run(client, message, command.args ? argsValues : args, message.channel.type == "dm" ? client.globalPrefix : prefix);
 		} catch (error) {
 			if (error && client.developers.includes(message.author.id)) {
 				message.channel.send(client.createRedEmbed()

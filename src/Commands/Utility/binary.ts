@@ -6,7 +6,7 @@ export default class BinaryCommand extends Command {
         super({
             name: "binary",
             description: "encodes or decodes a query",
-            category: "miscellaneous",
+            category: "utility",
             args: [{
                 type: "certainString",
                 required: true,

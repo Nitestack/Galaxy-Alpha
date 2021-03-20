@@ -6,15 +6,20 @@ export default class WikipediaCommand extends Command {
         super({
             name: "wikipedia",
             description: "searches a wikipedia article",
-            category: "miscellaneous",
+            category: "utility",
             aliases: ["wiki"],
-            usage: "wikipedia <query>"
+            usage: "wikipedia <query>",
+            args: [{
+                type: "text",
+                required: true,
+                errorTitle: "Wikipedia Manager",
+                errorMessage: "You have to provide a query to search!"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return client.createArgumentError(message, { title: "Wikipedia Manager", description: "You have to provide a query to search!" }, this.usage);
         try {
-            const page = await wiki.page(args.join(" "));
+            const page = await wiki.page(args[0]);
             const intro = await page.intro();
             return message.channel.send(client.createEmbed()
                 .setTitle(page.title)
@@ -22,7 +27,7 @@ export default class WikipediaCommand extends Command {
                 .setDescription(client.util.embedFormatter.description(intro))
                 .setThumbnail((await page.images())[0].url));
         } catch (error) {
-            return client.createArgumentError(message, { title: "Wikipedia Manager", description: `Cannot find any results, that includes\n\`${args.join(" ")}\`` }, this.usage);
+            return client.createArgumentError(message, { title: "Wikipedia Manager", description: `Cannot find any results, that includes\n\`${args[0]}\`` }, this.usage);
         };
     };
 };

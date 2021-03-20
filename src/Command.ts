@@ -22,7 +22,6 @@ export type Categories = "miscellaneous"
 interface CommandInfos {
 	name: string;
 	args?: Array<{
-		index: number;
 		type?: Argument;
 		required?: boolean;
 		errorTitle?: string;
@@ -95,7 +94,6 @@ export default class Command {
 	public requiredRoles?: Array<keyof Guild>;
 	public subCommands?: Array<SubCommand>;
 	public args?: Array<{
-		index: number;
 		type?: Argument;
 		required?: boolean;
 		errorTitle?: string;

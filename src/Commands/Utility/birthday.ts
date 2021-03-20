@@ -5,7 +5,7 @@ export default class BirtdayCommand extends Command {
         super({
             name: "birthday",
             description: "birthday commands",
-            category: "miscellaneous",
+            category: "utility",
             usage: "birthday set <mm/dd/yyyy> or birthday when"
         });
     };

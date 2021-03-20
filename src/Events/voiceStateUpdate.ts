@@ -9,8 +9,8 @@ export default class VoiceStateUpdateEvent extends Event {
         });
     };
     run: EventRunner = async (client, oldState: VoiceState, newState: VoiceState) => {
-        if (newState && newState.id == client.user.id && !newState.channel.id) {
-            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channel.id);
+        if (newState && newState.id == client.user.id && !newState.channelID) {
+            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channelID);
             if (!queue) return;
             try { 
                 newState.channel.leave();
@@ -19,7 +19,7 @@ export default class VoiceStateUpdateEvent extends Event {
             };
         };
         if (oldState && oldState.channel) {
-            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channel.id);
+            const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channelID);
             if (queue && this._isVoiceChannelEmpty(queue)) {
                 setTimeout(() => {
                     if (client.queue.has(queue.connection.channel.guild.id) && this._isVoiceChannelEmpty(queue)) queue.connection.channel.leave();

@@ -51,7 +51,7 @@ export default class TicketSetupCommand extends Command {
                 if (msg.content.toLowerCase() == "create") {
                     const newRole = await message.guild.roles.create({
                         data: {
-                            name: "ModMail Manager",
+                            name: "Ticket Manager",
                         }
                     });
                     role = newRole;

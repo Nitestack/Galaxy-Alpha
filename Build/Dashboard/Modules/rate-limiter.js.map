@@ -1,0 +1,1 @@
+{"version":3,"file":"rate-limiter.js","sourceRoot":"","sources":["../../../src/Dashboard/Modules/rate-limiter.ts"],"names":[],"mappings":";;;;;AAAA,4EAA2C;AAC3C,wEAA8C;AAE9C,kBAAe,4BAAS,CAAC;IACrB,GAAG,EAAE,GAAG;IACR,OAAO,EAAE,6BAA6B;IACtC,KAAK,EAAE,IAAI,0BAAc,CAAC,EAAE,GAAG,EAAE,OAAO,CAAC,GAAG,CAAC,SAAS,EAAE,CAAC;IACzD,QAAQ,EAAE,EAAE,GAAG,IAAI;CACtB,CAAC,CAAC"}

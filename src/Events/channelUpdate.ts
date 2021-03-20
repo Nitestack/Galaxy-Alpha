@@ -28,11 +28,11 @@ async function muteRole(client: GalaxyAlpha, channel: DMChannel | GuildChannel, 
 	const muteRole: Role = guild.roles.cache.get(muteRoleID);
 	if (!guild || !muteRole) return;
 	if (channel.type == 'voice') {
-		await channel.createOverwrite(muteRole, {
+		await channel.updateOverwrite(muteRole, {
 			CONNECT: false,
 		});
 	} else if (channel.type == 'category') {
-		await channel.createOverwrite(muteRole, {
+		await channel.updateOverwrite(muteRole, {
 			CONNECT: false,
 			SEND_MESSAGES: false,
 			ADD_REACTIONS: false,
@@ -42,7 +42,7 @@ async function muteRole(client: GalaxyAlpha, channel: DMChannel | GuildChannel, 
 		channel.type == 'text' ||
 		channel.type == 'store'
 	) {
-		await channel.createOverwrite(muteRole, {
+		await channel.updateOverwrite(muteRole, {
 			SEND_MESSAGES: false,
 			ADD_REACTIONS: false,
 		});

@@ -6,6 +6,7 @@ import GuildSchema, { Guild } from "@models/guild";
 import GalaxyAlpha from "@root/Client";
 import GiveawaySchema, { Giveaway } from "@models/Giveaways/giveaways";
 import TicketSchema, { Ticket } from "./Models/ticket";
+import CustomCommandSchema, { CustomCommand } from "./Models/customCommand";
 
 export default class GlobalCache {
     constructor(private client: GalaxyAlpha) {
@@ -14,6 +15,22 @@ export default class GlobalCache {
             if (!results) throw new Error("Cannot find the client data schema!");
             this.clientData = {
                 blockedUser: results.blockedUser
+            };
+            const customCommands = await CustomCommandSchema.find();
+            for (const command of customCommands) {
+                this.customCommands.set(`${command.guildID}-${command.name}`, {
+                    aliases: command.aliases || [],
+                    allowedChannels: command.allowedChannels || [],
+                    allowedMembers: command.allowedMembers || [],
+                    allowedRoles: command.allowedRoles || [],
+                    answers: command.answers || [],
+                    guildID: command.guildID,
+                    name: command.name,
+                    notAllowedChannels: command.notAllowedChannels || [],
+                    notAllowedMembers: command.notAllowedMembers || [],
+                    notAllowedRoles: command.notAllowedRoles || []
+                });
+                if (command.aliases.length > 0) command.aliases.map(alias => this.customCommandAliases.set(`${command.guildID}-${alias}`, command.name));
             };
         });
     };
@@ -24,6 +41,9 @@ export default class GlobalCache {
     public clientData: ClientData = {};
     public giveaways: Collection<string, Giveaway> = new Collection();
     public tickets: Collection<string, Ticket> = new Collection();
+    public customCommands: Collection<string, CustomCommand> = new Collection();
+    public customCommandAliases: Collection<string, string> = new Collection();
+    public rateLimits
     //METHODS\\
     /**
      * Clears the cache and uploads the caches data to the database
@@ -63,6 +83,11 @@ export default class GlobalCache {
         });
         if (this.tickets.first()) this.tickets.forEach(async ticket => {
             await TicketSchema.findOneAndUpdate({ channelID: ticket.channelID }, ticket, {
+                upsert: true
+            });
+        });
+        if (this.customCommands.first()) this.customCommands.forEach(async command => {
+            await CustomCommandSchema.findOneAndUpdate({ guildID: command.guildID, name: command.name}, command, {
                 upsert: true
             });
         });
@@ -203,7 +228,9 @@ export default class GlobalCache {
                     messageLimit: 0,
                     timer: 0
                 }
-            }
+            },
+            suggestionManagerRoleID: guild ? guild.suggestionManagerRoleID : null,
+            chatBot: guild ? guild.chatBot : []
         });
         if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);
@@ -252,6 +279,11 @@ export default class GlobalCache {
             ...settings
         });
     };
+    /**
+     * Get's data of a ticket 
+     * @param {Snowflake} channelID The ID of the channel
+     * @param {object?} optionalData Optional data, if no ticket was found
+     */
     public async getTicket(channelID: string, optionalData?: {
         categoryID: string,
         userID: string
@@ -265,5 +297,14 @@ export default class GlobalCache {
         });
         const newTicket = this.tickets.get(channelID);
         return newTicket.categoryID && newTicket.userID ? newTicket : null;
+    };
+    /**
+     * Get's a custom command
+     * @param {Snowflake} guildID The ID of the guild
+     * @param {CustomCommand} customCommand The custom command name or an alias of the command
+     */
+    public async getCustomCommand(guildID: Snowflake, customCommand: string) {
+        const key = `${guildID}-${customCommand.toLowerCase()}`;
+        return this.customCommands.has(key) ? this.customCommands.get(key) : this.customCommands.get(this.customCommandAliases.get(key));
     };
 };

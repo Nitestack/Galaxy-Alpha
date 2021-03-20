@@ -1,0 +1,1 @@
+{"version":3,"file":"clientData.js","sourceRoot":"","sources":["../../src/Models/clientData.ts"],"names":[],"mappings":";;AAAA,uCAAgE;AAEhE,iEAAiE;AACjE,MAAM,gBAAgB,GAAG,IAAI,iBAAM,CAAC;IACnC,GAAG,EAAE,iBAAM,CAAC,KAAK,CAAC,QAAQ;IAC1B,WAAW,EAAE,CAAC,sBAAW,CAAC,MAAM,CAAC;CACjC,CAAC,CAAC;AAKF,CAAC;AAE2D,CAAC;AAE9D,kBAAe,gBAAK,CAAqB,YAAY,EAAE,gBAAgB,EAAE,qBAAqB,CAAC,CAAC"}

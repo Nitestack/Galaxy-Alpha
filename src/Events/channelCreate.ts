@@ -22,17 +22,17 @@ export default class ChannelCreateEvent extends Event {
 		const muteRole: Role = guild.roles.cache.get(result.muteRole);
 		if (!guild || !muteRole) return;
 		if (channel.type == 'voice') {
-			return channel.createOverwrite(muteRole, {
+			return channel.updateOverwrite(muteRole, {
 				CONNECT: false,
 			});
 		} else if (channel.type == 'category') {
-			return channel.createOverwrite(muteRole, {
+			return channel.updateOverwrite(muteRole, {
 				CONNECT: false,
 				SEND_MESSAGES: false,
 				ADD_REACTIONS: false,
 			});
 		} else if (channel.type == 'news' || channel.type == 'text' || channel.type == 'store') {
-			return channel.createOverwrite(muteRole, {
+			return channel.updateOverwrite(muteRole, {
 				SEND_MESSAGES: false,
 				ADD_REACTIONS: false,
 			});

@@ -12,4 +12,5 @@ export default class ShopCommand extends Command {
     run: CommandRunner = async (client, message, args, prefix) => {
         
     };
+    private generateEmbed
 };

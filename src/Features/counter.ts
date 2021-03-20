@@ -17,7 +17,7 @@ export default class CounterFeature extends Feature {
         function allMembers(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -27,7 +27,7 @@ export default class CounterFeature extends Feature {
         function members(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -37,7 +37,7 @@ export default class CounterFeature extends Feature {
         function bots(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -47,7 +47,7 @@ export default class CounterFeature extends Feature {
         function roles(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -57,7 +57,7 @@ export default class CounterFeature extends Feature {
         function allChannels(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -67,7 +67,7 @@ export default class CounterFeature extends Feature {
         function textChannels(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -77,7 +77,7 @@ export default class CounterFeature extends Feature {
         function voiceChannels(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -87,7 +87,7 @@ export default class CounterFeature extends Feature {
         function categories(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -97,7 +97,7 @@ export default class CounterFeature extends Feature {
         function announcementsChannels(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -107,7 +107,7 @@ export default class CounterFeature extends Feature {
         function allEmojis(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -117,7 +117,7 @@ export default class CounterFeature extends Feature {
         function animatedEmojis(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -127,7 +127,7 @@ export default class CounterFeature extends Feature {
         function notAnimatedEmojis(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -137,7 +137,7 @@ export default class CounterFeature extends Feature {
         function boosts(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });
@@ -147,7 +147,7 @@ export default class CounterFeature extends Feature {
         function boostLevel(guildID: string, channelID: string) {
             const guild: Guild = client.guilds.cache.get(guildID);
             const channel: VoiceChannel = (guild.channels.cache.filter(channel => channel.type == 'voice').get(channelID) as VoiceChannel);
-            channel.createOverwrite(guild.id, {
+            channel.updateOverwrite(guild.id, {
                 VIEW_CHANNEL: true,
                 CONNECT: false
             });

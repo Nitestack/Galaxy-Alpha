@@ -42,7 +42,9 @@ export interface Guild {
 			messageLimit: number,
 			timer: number
 		}
-	}
+	},
+	suggestionManagerRoleID?: string,
+	chatBot?: Array<string>
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
@@ -123,6 +125,11 @@ const guildSchema = new Schema({
 				timer: 0
 			}
 		}
+	},
+	suggestionManagerRoleID: SchemaTypes.String,
+	chatBot: {
+		type: SchemaTypes.Array,
+		default: []
 	}
 });
 
