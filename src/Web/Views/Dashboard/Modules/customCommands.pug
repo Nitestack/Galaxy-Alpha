@@ -1,0 +1,38 @@
+section#customCommandModule.module.container.px-5
+    .jumbotron.bg-transparent.pb-0
+        h1.display-4.text-center(style="color: white;") Custom Commands
+    .form-group.mt-5
+        .row
+            table.table.table-dark.table-striped
+                thead
+                    tr  
+                        th(scope="col") #
+                        th(scope="col") Name
+                        th(scope="col") Edit
+                        th(scope="col")
+                            form(method="POST", action="/servers/" + guild.id + "/customcommand/create")
+                                button.btn.btn-success(type='button', data-bs-toggle='modal', data-bs-target='#staticBackdropCustomCommandcreate') #[i.fas.fa-plus]
+                                +createCustomCommandModal(null, "create")
+                tbody
+                    if savedGuild.customCommands.length > 0
+                        -var index = 1
+                        each customCommand of savedGuild.customCommands
+                            tr
+                                th(scope="row") #{index++}
+                                td #{customCommand.name}
+                                td
+                                    button.btn.btn-warning(type='button', data-bs-toggle='modal', data-bs-target='#staticBackdropCustomCommandedit') #[i.far.fa-edit]
+                                    +createCustomCommandModal(customCommand, "edit")
+                                td
+                                    form(method="POST", action="/servers/" + guild.id + "/customcommand/delete")
+                                        labe(for="name")
+                                            button.btn.btn-danger(name="name", type="submit", value=customCommand.name)
+                                                i.fas.fa-trash-alt
+                    else
+                        tr
+                            th(scope="row") 1 
+                            td No custom command!
+                            td
+                            td
+
+script(src="/JS/Dashboard/Modules/customCommand.js", defer)

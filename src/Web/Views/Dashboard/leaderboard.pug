@@ -1,0 +1,45 @@
+doctype
+html(lang='en')
+    head
+        - var subTitle = "Leaderboard of " + client.util.toUpperCaseBeginning(leaderboardCategory)
+        include ../Includes/header
+
+        link(rel='stylesheet', href='/CSS/leaderboard.css')
+    body
+        include ../Includes/navbar
+        header.text-center
+            h1
+                img.round.mr-3(src=guild.iconURL({ dynamic: true, format: "png" }))
+                span(id="title") #{guild.name} Leaderboard
+            if leaderboardCategory == "level"
+                p.lead(id="description") View the top 100 most active users in #{guild.name}.
+            if leaderboardCategory == "currency"
+                p.lead(id="description") View the top 100 richest users in #{guild.name}.
+
+        - var index = 1
+        ul.list-group.container.mt-5
+            #leaderboard.accordion.accordion-flush
+                ul.list-group
+                each savedUser of savedUsers
+                    - var user = guild.members.cache.get(savedUser.userID)?.user;
+                    if user
+                        li.list-group-item.accordion-item.bg-dark
+                            h2.accordion-header(id=user.username + "Header")
+                                .accordion-button(type='button', data-bs-toggle='collapse', data-bs-target="#" + user.username + "User", aria-expanded="false", aria-controls=user.username + "User")
+                                    span
+                                    strong.round.mr-3 #{index++}
+                                    img.round.user-avatar.mr-2(src=user.displayAvatarURL({ dynamic: true, format: "png" }))
+                                    span.lead #{user.username}
+                                    span.text-muted ##{user.discriminator}
+                                .accordion-collapse.collapse(aria-labelledby=user.username + "Header", id=user.username + "User", data-bs-parent="#leaderboard")
+                                    .accordion-body
+                                        if leaderboardCategory == "level"
+                                            p.lead Level #{savedUser.level} (#{savedUser.xp}/#{(savedUser.level + 1) * (savedUser.level + 1) * 100} XP)
+                                            p.lead #{savedUser.messages} messages sent
+                                        if leaderboardCategory == "currency"
+                                            p.lead Wallet: #{savedUser.wallet}$
+                                            p.lead Bank: #{savedUser.bank}$
+                                            p.lead #{savedUser.messageCount} currency commands used 
+                                            p.lead Passive: #{savedUser.passive ? "Enabled" : "Disabled"}!
+                                            p.lead Account created at: #{client.util.dateFormatter(savedUser.profileCreatedAt.getTime())} (#{client.humanizer(Date.now() - savedUser.profileCreatedAt.getTime(), { round: true, units: ["y", "mo", "w", "d", "h", "m", "s"]})} ago)
+        include ../Includes/footer

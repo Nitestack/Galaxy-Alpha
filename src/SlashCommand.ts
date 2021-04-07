@@ -15,15 +15,6 @@ interface SlashCommandInfos {
 	requiredRoles?: Array<keyof Guild>;
 };
 
-interface lol {
-	developerOnly?: boolean;
-	ownerOnly?: boolean;
-	guildOnly?: boolean;
-	dmOnly?: boolean;
-	newsChannelOnly?: boolean;
-	textChannelOnly?: boolean;
-}
-
 interface ApplicationCommandOption {
     /**
      * `1` = `SUB_COMMAND`, `2` = `SUB_COMMAND_GROUP`, `3` = `STRING`, `4` = `NUMBER`, `5` = `BOOLEAN`, `6` = `USER`, `7` = `CHANNEL`, `8` = `ROLE`
@@ -44,7 +35,6 @@ export interface SlashCommandRunner {
 };
 
 export default class SlashCommand {
-    public client: GalaxyAlpha = client;
     public id: string;
     public name: string;
     public description: string;
@@ -69,7 +59,7 @@ export default class SlashCommand {
     };
     public static createInteractionResponse(interaction, slashCommand: SlashCommand) {
         //@ts-ignore
-        return this.client.api.interactions(interaction.id, interaction.token).callback.post({
+        return client.api.interactions(interaction.id, interaction.token).callback.post({
             data: {
                 type: slashCommand.type == "message" ? 4 : 5,
                 data: {

@@ -2,11 +2,10 @@ import { Collection, Snowflake } from "discord.js";
 import CurrencySchema, { Profile } from "@models/profile";
 import LevelSchema, { Level } from "@models/level";
 import ClientDataSchema, { ClientData } from "@models/clientData";
-import GuildSchema, { Guild } from "@models/guild";
+import GuildSchema, { Guild, CustomCommand } from "@models/guild";
 import GalaxyAlpha from "@root/Client";
 import GiveawaySchema, { Giveaway } from "@models/Giveaways/giveaways";
 import TicketSchema, { Ticket } from "./Models/ticket";
-import CustomCommandSchema, { CustomCommand } from "./Models/customCommand";
 
 export default class GlobalCache {
     constructor(private client: GalaxyAlpha) {
@@ -16,22 +15,27 @@ export default class GlobalCache {
             this.clientData = {
                 blockedUser: results.blockedUser
             };
-            const customCommands = await CustomCommandSchema.find();
-            for (const command of customCommands) {
-                this.customCommands.set(`${command.guildID}-${command.name}`, {
-                    aliases: command.aliases || [],
-                    allowedChannels: command.allowedChannels || [],
-                    allowedMembers: command.allowedMembers || [],
-                    allowedRoles: command.allowedRoles || [],
-                    answers: command.answers || [],
-                    guildID: command.guildID,
-                    name: command.name,
-                    notAllowedChannels: command.notAllowedChannels || [],
-                    notAllowedMembers: command.notAllowedMembers || [],
-                    notAllowedRoles: command.notAllowedRoles || []
-                });
-                if (command.aliases.length > 0) command.aliases.map(alias => this.customCommandAliases.set(`${command.guildID}-${alias}`, command.name));
+            for (const guild of this.client.guilds.cache.values()) await client.cache.getGuild(guild.id);
+            for (const guild of this.guilds.values()) {
+                for (const command of guild.customCommands) {
+                    this.customCommands.set(`${guild.guildID}-${command.name}`, {
+                        aliases: command.aliases || [],
+                        allowedChannels: command.allowedChannels || [],
+                        allowedRoles: command.allowedRoles || [],
+                        answers: command.answers || [],
+                        guildID: guild.guildID,
+                        name: command.name,
+                        notAllowedChannels: command.notAllowedChannels || [],
+                        notAllowedRoles: command.notAllowedRoles || [],
+                        random: command.random
+                    });
+                    if (command.aliases.length > 0) command.aliases.map(alias => this.customCommandAliases.set(`${guild.guildID}-${alias}`, command.name));
+                };
             };
+            for (const user of await LevelSchema.find()) await client.cache.getLevelandMessages(user.guildID, user.userID);
+            for (const currency of await CurrencySchema.find()) await client.cache.getCurrency(currency.userID);
+            for (const ticket of await TicketSchema.find()) await client.cache.getTicket(ticket.channelID);
+            console.log("[Global Cache => Manager] Cached data of MongoDB");
         });
     };
     //COLLECTIONS\\
@@ -43,7 +47,8 @@ export default class GlobalCache {
     public tickets: Collection<string, Ticket> = new Collection();
     public customCommands: Collection<string, CustomCommand> = new Collection();
     public customCommandAliases: Collection<string, string> = new Collection();
-    public rateLimits
+    public rateLimis: Collection<string, string> = new Collection();
+    public mutes: Collection<string, number> = new Collection();
     //METHODS\\
     /**
      * Clears the cache and uploads the caches data to the database
@@ -86,8 +91,17 @@ export default class GlobalCache {
                 upsert: true
             });
         });
-        if (this.customCommands.first()) this.customCommands.forEach(async command => {
-            await CustomCommandSchema.findOneAndUpdate({ guildID: command.guildID, name: command.name}, command, {
+        const guilds: Collection<string, Array<CustomCommand>> = new Collection();
+        if (this.customCommands.first()) this.customCommands.forEach(async customCommand => {
+            const guildID = customCommand.guildID;
+            const guildCollection = guilds.get(guildID);
+            if (!guildCollection) guilds.set(guildID, [customCommand]);
+            guilds.get(guildID).push(customCommand);
+        });
+        if (guilds.first()) guilds.forEach(async guild => {
+            await GuildSchema.findOneAndUpdate({ guildID: guild[0].guildID }, {
+                customCommands: guild
+            }, {
                 upsert: true
             });
         });
@@ -170,7 +184,7 @@ export default class GlobalCache {
         });
     };
     /**
-     * Increases the message count to 1
+     * Increases the message count to `1`
      * @param {Snowflake} userID The ID of the user 
      */
     public async increaseCurrencyMessageCount(userID: Snowflake) {
@@ -200,8 +214,6 @@ export default class GlobalCache {
             modLogChannelWebhookID: guild ? guild.modLogChannelWebhookID : null,
             muteRoleID: guild ? guild.muteRoleID : null,
             memberRoleID: guild ? guild.memberRoleID : null,
-            ticketCategoryID: guild ? guild.ticketCategoryID : null,
-            ticketManagerRoleID: guild ? guild.ticketManagerRoleID : null,
             giveawayManagerRoleID: guild ? guild.giveawayManagerRoleID : null,
             giveawayBlacklistedRoleID: guild ? guild.giveawayBlacklistedRoleID : null,
             giveawayByPassRoleID: guild ? guild.giveawayByPassRoleID : null,
@@ -218,7 +230,6 @@ export default class GlobalCache {
             autoPublishChannels: guild ? guild.autoPublishChannels : [],
             autoSuggestionChannel: guild ? guild.autoSuggestionChannel : [],
             blacklistedWords: guild ? guild.blacklistedWords : [],
-            suggestionChannelID: guild ? guild.suggestionChannelID : null,
             autoMod: guild ? guild.autoMod : {
                 blacklistedWords: [],
                 deletingLinks: false,
@@ -229,8 +240,16 @@ export default class GlobalCache {
                     timer: 0
                 }
             },
-            suggestionManagerRoleID: guild ? guild.suggestionManagerRoleID : null,
-            chatBot: guild ? guild.chatBot : []
+            chatBot: guild ? guild.chatBot : [],
+            customCommands: guild ? guild.customCommands : [],
+            ticket: guild ? guild.ticket : {
+                categoryID: null,
+                managerRoleID: null
+            },
+            suggestion: guild ? guild.suggestion : {
+                channelID: null,
+                managerRoleID: null
+            }
         });
         if (!guild) await GuildSchema.create(this.guilds.get(guildID));
         return this.guilds.get(guildID);

@@ -10,7 +10,7 @@ export default class ReloadCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        client.start();
+        await client.start();
         return client.createSuccess(message, { title: "File Manager", description: "Reloaded all commands!"});
     };
 };

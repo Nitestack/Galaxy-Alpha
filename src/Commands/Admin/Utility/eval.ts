@@ -1,5 +1,6 @@
 import Command, { CommandRunner } from '@root/Command';
 import { inspect } from 'util';
+import { create } from "sourcebin";
 
 export default class EvalCommand extends Command {
     constructor(){
@@ -11,7 +12,6 @@ export default class EvalCommand extends Command {
             category: "developer",
             args: [{
                 type: "text",
-                index: 1,
                 errorTitle: "Eval Manager",
                 errorMessage: "You have to provide valid JavaScript code, that I can evaluate!",
                 required: true
@@ -22,22 +22,29 @@ export default class EvalCommand extends Command {
         const evalChannel = '817379995102085140';
         if (message.channel.type == 'dm' ? message.author.id != client.ownerID : message.channel.id != evalChannel) return;
         try {
-            let output = eval(args[0]);
+            const evaluation = eval(args[0]);
+            let output = evaluation;
             const start = process.hrtime();
             const difference = process.hrtime(start);
             if (typeof output != 'string') output = inspect(output, { depth: 2 });
             return message.channel.send(client.createEmbed()
                 .addFields([{
                     name: "Evaluated",
-                    value: `\`\`\`js\n${output}\`\`\``,
+                    value: client.util.embedFormatter.passDescription(output) ? (await create([{
+                        name: "",
+                        content: output,
+                        language: "javascript"
+                    }], {
+                        title: "Evaluation",
+                        description: `This is the ouput of: "${args[0]}"`
+                    })).url : `\`\`\`js\n${output}\`\`\``,
                     inline: false
+                }, {
+                    name: `${client.developerToolsEmoji} Type of`,
+                    value: `\`\`\`${typeof evaluation}\`\`\``
                 }, {
                     name: "🕐 Executed in",
                     value: `${difference[0] > 0 ? `${difference[0]}s` : ""}${difference[1] / 1000000}ms`,
-                    inline: false
-                }, {
-                    name: `**${client.developerToolsEmoji} Type of**`,
-                    value: `\`\`\`js\n${typeof output}\`\`\``,
                     inline: false
                 }, {
                     name: `${client.memberEmoji} User`,

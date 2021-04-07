@@ -1,0 +1,54 @@
+section#settingsModule.module.container.px-5
+    .jumbotron.bg-transparent.pb-0
+        h1.display-4.text-center(style="color: white;") General
+    .form-group.my-5
+        .row
+            .col-4
+                form(method="POST", action="/servers/" + guild.id + "/settings/set/prefix")
+                    label(style="color: white;", for="prefix") Prefix
+                        p
+                        input.form-control(type='text', name="prefix", placeholder=savedGuild.prefix, required)
+                        +popUp("prefix", "Do you really want to update the prefix?")
+            .col-4
+                if savedGuild.ignoreChannels.length > 0
+                    label.btn-group-vertical(style="color: white;", for="ignoreChannels") Blacklisted Channels
+                        p
+                        each channelID of savedGuild.ignoreChannels
+                            form(method="POST", action="/servers/" + guild.id + "/settings/remove/ignoreChannels") 
+                                button.btn.btn-dark(type="button", target="_blank", href="https://discord.com/channels/" + guild.id + "/" + channelID)
+                                    span.text-muted #
+                                    span  #{guild.channels.cache.get(channelID).name}
+                                button.btn.btn-close.btn-close-white(name="ignoreChannels", type="submit", value=channelID)
+                    p 
+                form(method="POST", action="/servers/" + guild.id + "/settings/push/ignoreChannels")
+                    label(style="color: white;", for="ignoreChannels") Choose a channel to blacklist it
+                        p
+                        select.form-control(name='ignoreChannels', required).bg-dark
+                            each channel of guild.channels.cache.filter(c => c.type === 'text' || c.type == "news").sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array()
+                                if !savedGuild.ignoreChannels.includes(channel.id)
+                                    option(value=channel.id, style="color: white;")
+                                        span.text-muted #
+                                        span  #{channel.name}
+                        +popUp("ignoreChannels", "Do you really want ignore this channels?")
+            .col-4 
+                label(style="color: white;", for="serverManagerRoleID") Server Manager Role
+                    p
+                    if savedGuild.serverManagerRoleID
+                        form(method="POST", action="/servers/" + guild.id + "/settings/remove/serverManagerRoleID")
+                            button.btn.btn-dark(type="button")
+                                if savedGuild.serverManagerRoleID 
+                                    span.text-muted @
+                                span  #{guild.roles.cache.get(savedGuild.serverManagerRoleID).name}
+                            button.btn.btn-close.btn-close-white(name="serverManagerRoleID", type="submit", value=savedGuild.serverManagerRoleID)
+                        p
+                    form(method="POST", action="/servers/" + guild.id + "/settings/set/serverManagerRoleID")
+                        select.form-control(name="serverManagerRoleID", required).bg-dark
+                            each role of guild.roles.cache.sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array().reverse()
+                                if !savedGuild.serverManagerRoleID != role.id
+                                    if role.hexColor == "#000000"
+                                        option(value=role.id, style="color: white;")
+                                            span #{role.name == "@everyone" ? "@ everyone" : `@ ${role.name}`}
+                                    else
+                                        option(value=role.id, style="color:" + role.hexColor + ";")
+                                            span @ #{role.name}
+                        +popUp("serverManagerRoleID", "Do you really want to update the server manager role?")

@@ -13,7 +13,7 @@ export default class SuggestCommand extends Command {
     };
     run: CommandRunner = async (client, message, args: Array<string>, prefix) => {
         const guildSettings = await client.cache.getGuild(message.guild.id);
-        if (!guildSettings.suggestionChannelID) return client.createArgumentError(message, { title: "Suggestino Manager", description: "This server has no suggestion channel set up!\nAsk the server managers to setup a suggestion channel!" }, this.usage);
+        if (!guildSettings.suggestion.channelID) return client.createArgumentError(message, { title: "Suggestino Manager", description: "This server has no suggestion channel set up!\nAsk the server managers to setup a suggestion channel!" }, this.usage);
         if (args[0]?.toLowerCase() == 'command') {
             const suggestionManager: string = '📩 Suggestion Manager';
             const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -38,7 +38,7 @@ export default class SuggestCommand extends Command {
             return message.channel.send(successEmbed);
         } else if (args[0]?.toLowerCase() == "accept") {
             if (!args[1]) return client.createArgumentError(message, { title: "Suggestion Manager", description: "You have to provide a message ID!" }, this.usage);
-            const channel = message.guild.channels.cache.get(guildSettings.suggestionChannelID) as TextChannel | NewsChannel;
+            const channel = message.guild.channels.cache.get(guildSettings.suggestion.channelID) as TextChannel | NewsChannel;
             const suggestionMessage = await channel.messages.fetch(args[1]);
             if (!suggestionMessage) return client.createArgumentError(message, { title: "Suggestion Manager", description: "Invalid message ID!" }, this.usage);
             if (!suggestionMessage.embeds[0] || suggestionMessage.author.id != client.user.id || !suggestionMessage.embeds[0].fields.find(field => field.name.toLowerCase().includes("status"))) return client.createArgumentError(message, { title: "Suggestion Manager", description: "This message is not a suggestion!" }, this.usage)
@@ -56,7 +56,7 @@ export default class SuggestCommand extends Command {
             return client.createSuccess(message, { title: "Suggestion Manager", description: "Suggestion accepted!" });
         } else if (args[0]?.toLowerCase() == "decline") {
             if (!args[1]) return client.createArgumentError(message, { title: "Suggestion Manager", description: "You have to provide a message ID!" }, this.usage);
-            const channel = message.guild.channels.cache.get(guildSettings.suggestionChannelID) as TextChannel | NewsChannel;
+            const channel = message.guild.channels.cache.get(guildSettings.suggestion.channelID) as TextChannel | NewsChannel;
             const suggestionMessage = await channel.messages.fetch(args[1]);
             if (!suggestionMessage) return client.createArgumentError(message, { title: "Suggestion Manager", description: "Invalid message ID!" }, this.usage);
             if (!suggestionMessage.embeds[0] || suggestionMessage.author.id != client.user.id || !suggestionMessage.embeds[0].fields.find(field => field.name.toLowerCase().includes("status"))) return client.createArgumentError(message, { title: "Suggestion Manager", description: "This message is not a suggestion!" }, this.usage)

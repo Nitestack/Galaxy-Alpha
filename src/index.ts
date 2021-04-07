@@ -11,12 +11,12 @@ const betaToken: string = process.env.BETA_TOKEN;
 export default new GalaxyAlpha({
     ownerID: "700277649347575870",
     globalPrefix: process.env.GLOBAL_PREFIX,
-    token: token,
+    token: betaToken,
     commandsDir: "Commands",
     eventsDir: "Events",
     featuresDir: "Features",
     mongoDBUrl: process.env.MONGOPATH,
-    contributors: ['694162762020159539'],
+    contributors: ['694162762020159539', '358303166845943808'],
     supportGuildID: "783440776285651024",
     ignoreFiles: ["Giveaway.ts", "Music.ts", "Drop.ts", "Ticket.ts", "Constants.ts", "Queue.ts", "BrawlerData.ts"],
     slashCommandsDir: "SlashCommands"

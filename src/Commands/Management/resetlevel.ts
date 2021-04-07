@@ -7,8 +7,7 @@ export default class extends Command {
             description: "resets the level of an user",
             category: "miscellaneous",
             args: [{
-                type: "realUser",
-                index: 1,
+                type: "realMember",
                 required: true,
                 errorTitle: "🎚️ Level Manager",
                 errorMessage: "You have to mention an user or provide an user ID!"

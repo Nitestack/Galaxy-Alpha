@@ -1,0 +1,154 @@
+mixin category(name)
+    li.nav-item(id=name.name, type="button") 
+        a.nav-link.bg-dark #[i(class=name.icon)] #{name.capitalized}
+
+mixin command(command)
+    li.list-group-item.accordion-item.bg-dark(id=command.name, class=command.category)
+        h2.accordion-header(id=command.name + "Header")
+            .accordion-button.collapsed.bg-light(type='button', data-bs-toggle='collapse', data-bs-target="#" + command.name + "Command", aria-expanded="false", aria-controls=command.name + "Command")
+                code.lead #{client.globalPrefix}#{command.name.toUpperCase()}
+        .accordion-collapse.collapse(aria-labelledby=command.name + "Header", data-bs-parent="#commands", id=command.name + "Command")
+            .accordion-body.bg-light
+                span.lead #{client.util.toUpperCaseBeginning(command.description)}
+                p
+                strong Aliases
+                if command.aliases
+                    p
+                    code.lead #{command.aliases.join(", ")}
+                else
+                    p
+                    span.lead #{command.aliases ? command.aliases.join(", ") : "No aliases!"}
+                p
+                strong Usage 
+                p 
+                code.lead #{client.globalPrefix}#{command.usage}
+                p
+                strong Required User Permissions
+                p
+                span.lead #{command.userPermissions ? command.userPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No user permissions required!"}
+                p
+                strong Required Bot Permissions
+                p
+                span.lead #{command.clientPermissions ? command.clientPermissions.sort((a, b) => { if (a[0].category < b[0].category) return -1; if (a[0].category > b[0].category) return 1; return 0;}).map(permission => client.util.permissionConverted(permission)).join(", ") : "No bot permissions required!"}
+                p
+                strong Cooldown 
+                p
+                span.lead #{client.ms(command.cooldown) == 3000 ? "No cooldown!" : client.humanizer(client.ms(command.cooldown))}
+
+
+mixin user(user)
+    span(title=user.id)
+        img.user-avatar.round.mr-2(src=user.displayAvatarURL({ dynamic: true }))
+        h5.d-inline #{user.username}
+
+mixin popUp(name, text)
+    button.btn.btn-success(type='button', data-bs-toggle='modal', data-bs-target='#staticBackdrop' + name) #[i.fas.fa-rocket] Save
+    .modal.fade(id="staticBackdrop" + name, data-bs-backdrop='static', data-bs-keyboard='false', tabindex='-1', aria-labelledby="staticBackdropLabel" + name, aria-hidden='true')
+        .modal-dialog 
+            .modal-content.bg-dark
+                .modal-header
+                    h5.modal-title(id="staticBackdropLabel" + name, style="color: white;") Careful - you have unsaved changes!
+                    button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    p #{text || "Do you really want to update?"}
+                .modal-footer
+                    button.btn.btn-secondary(type='reset', data-bs-dismiss='modal') Reset
+                    button.btn.btn-success(type="submit") Save Changes
+
+mixin createCustomCommandModal(command, id)
+    .modal.fade(id="staticBackdropCustomCommand" + id, data-bs-backdrop='static', data-bs-keyboard='false', tabindex='-1', aria-labelledby="staticBackdropCustomCommandLabel" + id, aria-hidden='true')
+        .modal-dialog.modal-dialog-scrollable
+            .modal-content.bg-dark
+                .modal-header
+                    if command
+                        h5.modal-title(id="staticBackdropCustomCommandLabel" + id) Edit Custom Command
+                    else 
+                        h5.modal-title(id="staticBackdropCustomCommandLabel" + id) New Custom Command
+                    button.btn-close.btn-close-white(type='button', data-bs-dismiss='modal', aria-label='Close')
+                .modal-body
+                    label(for="name") Name
+                    input.form-control(type="text", required, placeholder=command ? command.name : "Name", name="name")
+                    p 
+                    label(for="aliases") Aliases
+                        input.form-control(type="text", placeholder="Alias", id="alias")
+                    button.btn.btn-success(type="button", onclick="addAlias()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteAlias()") #[i.fas.fa-minus]
+                    select#aliases.form-control.bg-dark(name="aliases", multiple)
+                        if command && command.aliases.length > 0
+                            each alias of command.aliases
+                                option(style="color: white", value=alias, selected) #{alias}
+                    p 
+                    label(for="allowedRoles") Allowed Roles 
+                        select.form-control.mul-select(id="allowedRole")
+                            each role of guild.roles.cache.sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array().reverse()
+                                if role.hexColor == "#000000"
+                                    option(value=role.id, style="color: black;")
+                                        span #{role.name == "@everyone" ? "@ everyone" : `@ ${role.name}`}
+                                else
+                                    option(value=role.id, style="color:" + role.hexColor + ";")
+                                        span @ #{role.name}
+                    button.btn.btn-success(type="button", onclick="addAllowedRole()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteAllowedRole()") #[i.fas.fa-minus]
+                    select#allowedRoles.form-control.bg-dark(name="allowedRoles", multiple)
+                        if command && command.allowedRoles.length > 0
+                            each role of command.allowedRoles
+                                option(style="color: white;", value=role, selected) role 
+                    p
+                    label(for="notAllowedRoles") Blacklisted Roles 
+                        select.form-control(id="notAllowedRole")
+                            each role of guild.roles.cache.sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array().reverse()
+                                if role.hexColor == "#000000"
+                                    option(value=role.id, style="color: black;")
+                                        span #{role.name == "@everyone" ? "@ everyone" : `@ ${role.name}`}
+                                else
+                                    option(value=role.id, style="color:" + role.hexColor + ";")
+                                        span @ #{role.name}
+                    button.btn.btn-success(type="button", onclick="addNotAllowedRole()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteNotAllowedRole()") #[i.fas.fa-minus]
+                    select#notAllowedRoles.form-control.bg-dark(name="notAllowedRoles", multiple)
+                        if command && command.allowedRoles.length > 0
+                            each role of command.allowedRoles
+                                option(style="color: white;", value=role, selected) #{role} 
+                    p
+                    label(for="allowedChannels") Allowed Channels 
+                        select.form-control(id="allowedChannel")
+                            each channel of guild.channels.cache.filter(c => c.type === 'text' || c.type == "news").sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array()
+                                if !savedGuild.ignoreChannels.includes(channel.id)
+                                    option(value=channel.id, style="color: black;")
+                                        span.text-muted #
+                                        span  #{channel.name}
+                    button.btn.btn-success(type="button", onclick="addAllowedChannel()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteAllowedChannel()") #[i.fas.fa-minus]
+                    select#allowedChannels.form-control.bg-dark(name="allowedChannels", multiple)
+                        if command && command.allowedChannels.length > 0
+                            each channel of command.allowedChannels
+                                option(style="color: white;", value=channel, selected) #{channel}
+                    p
+                    label(for="allowedChannels") Blacklisted Channels 
+                        select.form-control(id="notAllowedChannel")
+                            each channel of guild.channels.cache.filter(c => c.type === 'text' || c.type == "news").sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array()
+                                if !savedGuild.ignoreChannels.includes(channel.id)
+                                    option(value=channel.id, style="color: black;")
+                                        span.text-muted #
+                                        span  #{channel.name}
+                    button.btn.btn-success(type="button", onclick="addNotAllowedChannel()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteNotAllowedChannel()") #[i.fas.fa-minus]
+                    select#notAllowedChannels.form-control.bg-dark(name="notAllowedChannels", multiple)
+                        if command && command.allowedChannels.length > 0
+                            each channel of command.allowedChannels
+                                option(style="color: white;", value=channel, selected) #{channel}
+                    p
+                    label(for="answers") Answers
+                        input.form-control(type="text", placeholder="Answer", id="answer", required)
+                    button.btn.btn-success(type="button", onclick="addAnswer()") #[i.fas.fa-plus]
+                    button.btn.btn-danger(type="button", onclick="deleteAnswer()") #[i.fas.fa-minus]
+                    select#answers.form-control.bg-dark(name="answers", multiple)
+                        if command && command.answers.length > 0
+                            each alias of command.aliases
+                                option(style="color: white", value=alias, selected) #{alias}
+                    input(type="checkbox", name="random")
+                    span  random answer (otherwise in order)
+                    p 
+                .modal-footer
+                    button.btn.btn-danger(type='reset', data-bs-dismiss='modal') Delete
+                    button.btn.btn-success(type="submit") Create

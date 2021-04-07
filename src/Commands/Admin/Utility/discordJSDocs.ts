@@ -9,13 +9,18 @@ export default class DiscordJSDocumentationCommand extends Command {
             category: "developer",
             usage: "discordjsdocs <keywords>",
             aliases: ["docs"],
-            developerOnly: true
+            developerOnly: true,
+            args: [{
+                type: "text",
+                required: true,
+                errorTitle: "🔖 DiscordJS Documentation Manager",
+                errorMessage: "Please provide a query to search for!"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        if (!args[0]) return client.createArgumentError(message, { title: "🔖 DiscordJS Documentation Manager", description: "Please provide keywords to search!" }, this.usage);
-        const result = await axios.get(`https://djsdocs.sorta.moe/v2/embed?src=stable&q=${encodeURIComponent(args.join(" "))}`);
+        const result = await axios.get(`https://djsdocs.sorta.moe/v2/embed?src=stable&q=${encodeURIComponent(args[0])}`);
         if (result.data && !result.data.error) return message.channel.send({ embed: result.data });
-        else return client.createArgumentError(message, { title: "🔖 DiscordJS Documentation Manager", description: `Cannot find any results, that includes\n\`${args.join(" ")}\`!`}, this.usage);
+        else return client.createArgumentError(message, { title: "🔖 DiscordJS Documentation Manager", description: `Cannot find any results, that includes\n\`${args[0]}\`!` }, this.usage);
     };
 };

@@ -141,7 +141,7 @@ export default class MessageEvent extends Event {
 		};
 		//COMMAND RUNNER\\
 		try {
-			await command.run(client, message, command.args ? argsValues : args, message.channel.type == "dm" ? client.globalPrefix : prefix);
+			await command.run(client, message, command.args ? argsValues : args, message.channel.type == "dm" ? client.globalPrefix : (await client.cache.getGuild(message.guild.id)).prefix);
 		} catch (error) {
 			if (error && client.developers.includes(message.author.id)) {
 				message.channel.send(client.createRedEmbed()

@@ -11,9 +11,9 @@ export default class SuggestCommand extends Command {
             usage: "suggest [command] <suggestion>"
         });
     };
-    run: CommandRunner = async (client, message, args, prefix) => {
+    run: CommandRunner = async (client, message, args: Array<string>, prefix) => {
         const guildSettings = await client.cache.getGuild(message.guild.id);
-        if (!guildSettings.suggestionChannelID) return client.createArgumentError(message, { title: "Suggestion Manager", description: "This server has no suggestion channel set up!\nAsk the server managers to setup a suggestion channel!" }, this.usage);
+        if (!guildSettings.suggestion.channelID) return client.createArgumentError(message, { title: "Suggestion Manager", description: "This server has no suggestion channel set up!\nAsk the server managers to setup a suggestion channel!" }, this.usage);
         if (args[0]?.toLowerCase() == 'command') {
             const suggestionManager: string = '📩 Suggestion Manager';
             const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -37,7 +37,7 @@ export default class SuggestCommand extends Command {
             await suggestionChannel.send(suggestionEmbed);
             return message.channel.send(successEmbed);
         } else if (args[0]) {
-            const channel = message.guild.channels.cache.get(guildSettings.suggestionChannelID) as TextChannel | NewsChannel;
+            const channel = message.guild.channels.cache.get(guildSettings.suggestion.channelID) as TextChannel | NewsChannel;
             const msg = await channel.send(`${message.author}`, { embed: client.createYellowEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
                 .setDescription(client.util.embedFormatter.description(args.join(" ")))

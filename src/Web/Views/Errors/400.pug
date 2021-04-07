@@ -1,0 +1,15 @@
+- var subTitle = "Bad Request"
+
+doctype
+html(lang='en')
+    head
+        include ../Includes/header
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        .jumbotron.text-center.bg-transparent
+            h1.display-3 400
+            p.lead The client denied your request! Please return to the homepage!
+                i.fas.fa-times.pl-2
+            a.btn.btn-dark(href='/') Return Home
+        include ../Includes/footer

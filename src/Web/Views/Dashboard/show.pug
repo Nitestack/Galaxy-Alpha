@@ -1,0 +1,44 @@
+doctype
+html(lang='en')
+    head
+        include ../Includes/header
+        include ../Includes/mixins
+
+        script(src='https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js', defer)
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js', defer)
+        script(src='/JS/charts.js', defer)
+        script(src='/JS/guild.js', defer)
+
+        link(rel='stylesheet', href='https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css')
+        link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/ascetic.min.css')
+        link(rel='stylesheet', href='/CSS/sidebar.css')
+        link(rel='stylesheet', href='/CSS/charts.css')
+        link(rel='stylesheet', href='/CSS/music.css')
+    body
+        - var guild = client.guilds.cache.get(guild.id)
+        include ../Includes/navbar
+        include ../Includes/sidebar
+        #sidebarExtension
+            header.text-center.pt-4
+                .large-icon.bg-white.round
+                    if guild.icon
+                        img.round(src=guild.iconURL({ dynamic: true, size: 128 }), alt=guild.name)
+                    else
+                        p.abbr #{guild.nameAcronym}
+                h4#overview.pt-2 #{guild.name}
+            .tabs.navbar-nav
+                .category General 
+                a#overview.cursor-pointer #[i.fas.fa-info-circle] Overview
+                a#settings.cursor-pointer #[i.fas.fa-cog] Settings
+                .category Modules
+                a#customCommand.cursor-pointer #[i.fas.fa-terminal] Custom Commands
+                a#announcer.cursor-pointer #[i.fas.fa-bullhorn] Announcer 
+                .category Leaderboards
+                a.cursor-pointer(href='/leaderboards/currency/' + guild.id) #[i.fas.fa-trophy.pr-1.text-muted] Currency Leaderboard
+                a.cursor-pointer(href='/leaderboards/levels/' + guild.id) #[i.fas.fa-trophy.pr-1.text-muted] Level Leaderboard
+        include General/overview
+        include General/settings
+        include Modules/customCommands 
+        include Modules/announcer
+
+        include ../Includes/footer

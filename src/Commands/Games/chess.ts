@@ -130,13 +130,13 @@ export default class ChessCommand extends Command {
             selectedMove = { fx: -1, fy: -1, tx: -1, ty: -1, replaced: -1 };
             selecting = true;
             errorMessage = "\u200b";
-            gameEmbed = await message.channel.send(getEmbed());
+            gameEmbed = await message.channel.send(message.author, getEmbed());
             await waitForMessage();
             function getDisplayForTurn(): User {
                 return playerOneTurn ? message.author : playerTwo;
             };
             async function step() {
-                gameEmbed.edit(getEmbed());
+                gameEmbed.edit(getDisplayForTurn(), getEmbed());
                 await waitForMessage();
             };
             async function waitForMessage() {

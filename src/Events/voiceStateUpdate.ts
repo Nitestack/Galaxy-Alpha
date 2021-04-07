@@ -20,14 +20,14 @@ export default class VoiceStateUpdateEvent extends Event {
         };
         if (oldState && oldState.channel) {
             const queue = client.queue.find(gQueue => gQueue.connection && gQueue.connection.channel.id == oldState.channelID);
-            if (queue && this._isVoiceChannelEmpty(queue)) {
+            if (queue && this.isVoiceChannelEmpty(queue)) {
                 setTimeout(() => {
-                    if (client.queue.has(queue.connection.channel.guild.id) && this._isVoiceChannelEmpty(queue)) queue.connection.channel.leave();
+                    if (client.queue.has(queue.connection.channel.guild.id) && this.isVoiceChannelEmpty(queue)) queue.connection.channel.leave();
                 }, 60000);
             };
         };
     };
-    private _isVoiceChannelEmpty(queue: Queue) {
+    private isVoiceChannelEmpty(queue: Queue) {
         let voiceChannel = queue.connection.channel;
         let members = voiceChannel.members.filter(m => !m.user.bot);
         return !members.size;

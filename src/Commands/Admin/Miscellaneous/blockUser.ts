@@ -12,7 +12,6 @@ export default class BlockUserCommand extends Command {
 			args: [{
 				type: "realUser",
 				required: true,
-				index: 1,
 				errorMessage: "You have to mention an user or provide an user ID!",
 				errorTitle: "❌ Block User Manager"
 			}]

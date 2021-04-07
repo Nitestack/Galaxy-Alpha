@@ -11,20 +11,17 @@ export default class RemoveCoinsCommand extends Command {
             usage: "removecoins <@User/User ID> <wallet/bank> <amount of coins (limit: 1.000.000.000$)>",
             args: [{
                 type: "realUser",
-                index: 1,
                 required: true,
                 errorTitle: "💰 Currency Manager",
                 errorMessage: "You need to mention an user or provide an user ID!",
                 default: (message) => message.author
             }, {
                 type: "certainString",
-                index: 2,
                 certainStrings: ["bank", "wallet"],
                 required: true,
                 errorTitle: "💰 Currency Manager",
                 errorMessage: "You have to specify, if you want to add coins to the bank or to the wallet!"
             }, {
-                index: 3,
                 required: true,
                 errorTitle: "💰 Currency Manager",
                 errorMessage: "You have to provide an amount of coins to remove!\nTo remove all coins simply type `all`",

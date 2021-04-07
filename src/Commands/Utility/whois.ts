@@ -17,9 +17,7 @@ export default class WhoisCommand extends Command {
         if (args[0] && message.guild.members.cache.get(args[0])) member = message.guild.members.cache.get(args[0]);
         const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',];
-        let roles = member.roles.cache.map((r) => `${r}`);
-        roles.splice(roles.length - 1, 1);
-
+        const roles = member.roles.cache.filter(role => role.id != message.guild.id).sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).map((r) => `${r}`).reverse();
         return message.channel.send(client.createEmbed()
             .setColor(member.roles.highest.hexColor)
             .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))

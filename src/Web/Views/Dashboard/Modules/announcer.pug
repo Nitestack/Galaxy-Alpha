@@ -1,0 +1,24 @@
+section#announcerModule.module.container.px-5
+    .jumbotron.bg-transparent.pb-0
+        h1.display-4.text-center(style="color: white;") Announcer
+    .form-group.mt-5
+        .row
+            form(method="POST", action="/servers/" + guild.id + "/announcer/" + user.id)
+                .col-4
+                    label(style="color: white;", for="channelID") Choose the channel to send the message in
+                        select.form-control(name='channelID', required)
+                            each channel of guild.channels.cache.filter(c => (c.type === 'text' || c.type == "news") && c.permissionsFor(client.user).has("SEND_MESSAGES") && c.permissionsFor(user.id).has("SEND_MESSAGES")).sort((a, b) => { if (a.position < b.position) return -1; if (a.position > b.position) return 1; return 0; }).array()
+                                option(value=channel.id, style="color: black;")
+                                    span.text-muted #
+                                    span  #{channel.name}
+                    p
+                .col-4
+                    label(style="color: white;", for="message") Specify a message to send to the channel
+                        input.form-control(type="text", maxlength=2048, name="message", required)
+                    p
+                .col-4 
+                    label(style="color: white;", for="title") OPTIONAL: Specify a title to add to the message 
+                        input.form-control(type="text", maxlength=256, name="title")
+                    p
+                .col-4 
+                    button.btn.btn-success(type="submit") #[i.fas.fa-check]

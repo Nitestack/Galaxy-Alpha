@@ -1,1 +1,0 @@
-$('#sideBarExtension').addClass("close");

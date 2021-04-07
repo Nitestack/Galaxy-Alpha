@@ -12,7 +12,7 @@ export default class JoinMessageCommand extends Command {
             requiredRoles: ["serverManagerRoleID"]
         });
     };
-    run: CommandRunner = async (client, message, args, prefix) => {
+    run: CommandRunner = async (client, message, args: Array<string>, prefix) => {
         const welcomeManager: string = '🤗 Welcome Manager';
         const setUsage = `${prefix}joinmessage set <#channel/channel ID/dm> [embed] <text>`;
         const removeUsage = `${prefix}joinmessage remove`;

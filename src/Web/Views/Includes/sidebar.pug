@@ -1,0 +1,19 @@
+nav#sidebar.navbar.navbar-expand.flex-column
+    ul.navbar-nav.flex-column.me-auto.my-2.my-lg-0
+        li.nav-item   
+            a(href='/dashboard')
+                .icon.round.shadow
+                    img.round(src=user.avatarUrl(), id="home")
+        hr
+        each guild in guilds
+            li.nav-item 
+                a(href="/servers/" + guild.id)
+                    .icon.round.shadow.my-2(data-toggle='tooltip', data-placement='right', title=guild.name)
+                        if (guild.iconHash)
+                            img.round(alt=guild.name, src=guild.iconUrl())
+                        else 
+                            p.text-center.abbr #{guild.name.replace(/'s /g, ' ').replace(/\w+/g, e => e[0]).replace(/\s/g, '')}
+        li.nav-item 
+            a.icon(href='/invite', target="_blank")
+                p.abbr.text-success.text-center(id="invite")
+                    i.fas.fa-plus

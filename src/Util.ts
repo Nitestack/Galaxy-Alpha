@@ -1,9 +1,9 @@
-import { Message, MessageReaction, PermissionString, User, Collection } from "discord.js";
+import { Message, MessageReaction, PermissionString, User, Collection, TextChannel, NewsChannel, DMChannel, CollectorFilter } from "discord.js";
 import GalaxyAlpha from "@root/Client";
 import { URL } from "url";
 
 export default class GalaxyAlphaUtil {
-    constructor(private client: GalaxyAlpha){ };
+    constructor(private client: GalaxyAlpha) { };
     public permissionConverted(permission: PermissionString): string {
         if (permission == "USE_VAD") return "Use Voice Activity";
         if (permission == "CREATE_INSTANT_INVITE") return "Create Invite";
@@ -86,37 +86,99 @@ export default class GalaxyAlphaUtil {
      * @param {Function} filter The filter to passthrough  
      * @param {number} timeout The time to wait until it auto cancelled 
      */
-    public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking" | "closing", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number, noFunction?: (collected: Collection<string, MessageReaction>, reason: string) => unknown | Promise<unknown> ): Promise<void> {
+    public async YesOrNoCollector(user: User, message: Message, embed: { title: string, activity: "leaving" | "creating" | "setting" | "removing" | "banning" | "kicking" | "unbanning" | "nuking" | "closing" | "muting", toHandle: string }, commandUsage: string, yesFunction: (reaction?: MessageReaction, user?: User) => unknown | Promise<unknown>, filter?: (reaction: MessageReaction, user: User) => boolean | Promise<boolean>, timeout?: number, noFunction?: (collected: Collection<string, MessageReaction>, reason: string) => unknown | Promise<unknown>): Promise<void> {
         if (!filter) filter = (reaction, reactionAuthor) => reactionAuthor.id == user.id && (reaction.emoji.id == this.client.yesEmojiID || reaction.emoji.id == this.client.noEmojiID);
         await message.react(this.client.yesEmojiID);
         await message.react(this.client.noEmojiID);
         const collector = message.createReactionCollector((reaction, user) => filter(reaction, user), { max: 1, time: timeout ? timeout : 30000 });
         collector.on("collect", async (reaction, user) => {
             if (reaction.emoji.id == this.client.yesEmojiID) return await yesFunction(reaction, user);
-            else return this.client.createArgumentError(message, { title: embed.title, description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+            else return this.client.createArgumentError(message, { title: embed.title, description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!` }, commandUsage);
         });
         collector.on("end", (collected, reason) => {
             if (noFunction) return noFunction(collected, reason);
             else {
-                if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!`}, commandUsage);
+                if (collected.size == 0) return this.client.createArgumentError(message, { title: "", description: `${this.client.util.toUpperCaseBeginning(embed.activity)} ${embed.toHandle} cancelled!` }, commandUsage);
             };
         });
+    };
+    /**
+     * Calls a prompt questioner 
+     * @param {string} title The title of the embed 
+     * @param {Array<object>} prompts The prompts in an object 
+     * @param {TextChannel | NewsChannel | DMChannel} channel The channel to listen for messages 
+     * @param {CollectorFilter} filter The filter to passthrough the message collector 
+     * @param {object} error The error object 
+     * @param {Function} next The function after the prompt is running
+     * @param {boolean?} cancelListener If true, it listens, if the user cancelled the process
+     * @param {number?} timeout The number to wait for messages 
+     */
+    public async prompts(title: string, prompts: Array<{
+        title: string,
+        description: string,
+        errorText: string,
+        checkFunction: (i: number, message: Message, promptSendToChannel: Message, beforeExecutionOutput?: any) => boolean | Promise<boolean>,
+        beforeExecutionFunction?: (i: number, promptMessage: Message) => unknown | Promise<unknown>
+    }>, channel: TextChannel | NewsChannel | DMChannel, filter: CollectorFilter, error: {
+        description?: string,
+        commandUsage: string,
+        manager?: string
+    }, next: () => unknown | Promise<unknown>, cancelListener?: boolean, timeout?: number) {
+        const arrayToReturn: Array<Message> = [];
+        let err: boolean = false;
+        let tries: number = 2;
+        for (let i = 0; i < prompts.length; i++) {
+            const prompt = prompts[i];
+            const embed = this.client.createEmbed()
+                .setTitle(title)
+                .setDescription(`**${prompt.title}**
+                ${err ? `**${prompt.errorText}** ${prompt.description}` : prompt.description}`)
+                .setColor(err ? this.redColorHex : this.client.defaultColor);
+            if (cancelListener) embed.addField("How to cancel?", "Simply type `cancel` to cancel the process!");
+            const sendToChannel = await channel.send(embed.addField("Tries remaining:", `\`${tries + 1}\` ${tries == 0 ? "try" : "tries"}`));
+            const promptExecution = prompt.beforeExecutionFunction ?  await prompt.beforeExecutionFunction(i, sendToChannel) : null;
+            const msg = (await channel.awaitMessages((m) => filter(m), { max: 1, time: timeout ? timeout : 30000 })).first();
+            if (!msg || (cancelListener ? msg.content.toLowerCase() == "cancel" : false) || tries == 0) return this.client.createArgumentError(sendToChannel, {
+                title: title.toLowerCase().includes("manager") ? title : (error.manager ? error.manager : title + " Manager"),
+                description: error.description ? error.description : "Cancelled process!"
+            }, `${error.commandUsage}`);
+            arrayToReturn.push(msg);
+            const AreError = await prompt.checkFunction(i, msg, sendToChannel, promptExecution);
+            if (AreError) {
+                i = prompts.indexOf(prompt);
+                err = false;
+                tries = 2;
+            } else {
+                i--;
+                err = true;
+                tries--;
+            };
+        };
+        await next();
+        return arrayToReturn;
     };
 };
 
 class EmbedFormatter {
     /**
-     * Returns a 2048-letter string
+     * Returns a 2048-character string
      * @param {string} description The description to format
      */
     public description(description: string) {
         return description.length > 2048 ? description.split("").splice(0, 2045).join("") + "..." : description;
     };
     /**
-     * Returns a 1024-letter string
+     * Returns a 1024-character string
      * @param {string} description The field value to format
      */
     public fieldValue(description: string) {
         return description.length > 1024 ? description.split("").splice(0, 1021).join("") + "..." : description;
+    };
+    /**
+     * Returns true, if the description is longer than a 2048-character string
+     * @param {string} description The description to check
+     */
+    public passDescription(description: string) {
+        return description.length > 2048 ? true : false;
     };
 };

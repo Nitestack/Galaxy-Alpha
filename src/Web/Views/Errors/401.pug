@@ -1,0 +1,15 @@
+- var subTitle = "Unauthorized"
+
+doctype
+html(lang='en')
+    head
+        include ../Includes/header
+
+        link(rel='stylesheet', href='/CSS/index.css')
+    body
+        .jumbotron.text-center.bg-transparent
+            h1.display-3 401
+            p.lead Your are unauthorized! Please return to the homepage!
+                i.fas.fa-exclamation.pl-2
+            a.btn.btn-dark(href='/') Return Home
+        include ../Includes/footer

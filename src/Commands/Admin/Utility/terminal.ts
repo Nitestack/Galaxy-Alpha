@@ -7,12 +7,17 @@ export default class TerminalCommand extends Command {
             name: "terminal",
             description: "emites a terminal",
             developerOnly: true,
-            category: "developer"
+            category: "developer",
+            args: [{
+                type: "text",
+                required: true,
+                errorTitle: "Terminal Manager",
+                errorMessage: "You have to provide a command to execute on the terminal!"
+            }]
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        const command = args.join(" ");
-        if (!command) return client.createArgumentError(message, { title: "Terminal Manager", description: "You have to provide a command to execute on the terminal!" }, this.usage);
+        const command = args[0];
         child.exec(command, (err, res) => {
             if (err) {
                 if (err.message?.length < 2048) return client.createArgumentError(message, { title: "ERROR", description: `${err}`}, this.usage);

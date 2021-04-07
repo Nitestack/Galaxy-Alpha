@@ -1,5 +1,5 @@
 import Command, { CommandRunner } from '@root/Command';
-import { Message, NewsChannel, TextChannel } from 'discord.js';
+import { Message, NewsChannel, ReactionCollector, TextChannel } from 'discord.js';
 
 export default class ReactionRolesCommand extends Command {
     constructor() {
@@ -13,7 +13,6 @@ export default class ReactionRolesCommand extends Command {
         });
     };
     run: CommandRunner = async (client, message, args, prefix) => {
-        let cancel: boolean = false;
         let responses: {
             messageID: string,
             channelID: string,
@@ -29,108 +28,97 @@ export default class ReactionRolesCommand extends Command {
             emojiIDs: [],
             roleIDs: []
         };
-        const prompts: Array<string> = [
-            "You have to mention a valid channel/channel ID!",
-            "You have to mention valid roles or provide valid role ID's!",
-            "Please mention the channel, where the reaction role should be in! You can also provide a channel ID instead of a mention!",
-            "Now what is the title of the react table?",
-            "What is the description of the react table?",
-            "Now you have to mention the roles or provide role ID's! Make sure to trim each mention or ID with a space!\nKeep in mind that my role has to be over all reaction roles!",
-            "5. PROMPT"
-        ];
-        for (let i = 2; i < prompts.length; i++) {
-            if (cancel) return;
-            let messageEmoji: Message = null;
-            if (i < 2 && i != 6) await message.channel.send(client.createRedEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i] + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
-            if (i > 1 && i != 6) await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(prompts[i] + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
-            if (i == 6) messageEmoji = await message.channel.send(client.createEmbed().setTitle("Reaction Roles Manager").setDescription(`Now react with the emojis! The emojis must be in the same order as this roles:\n <@&${responses.roleIDs.join(">\n<@&")}>\n\nType \`done\`, if you are ready!` + "\n\n**How to cancel?**\nSimply type `cancel` to cancel the entire process!"));
-            await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 60000 }).then(async messages => {
-                if (messages.size == 0) {
-                    cancel = true;
-                    return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                        .setTitle("Reaction Roles Manager")
-                        .setDescription("Reaction Roles settings cancelled!"));
-                } else {
-                    const { content } = messages.first();
-                    if (content.toLowerCase() == "cancel") {
-                        cancel = true;
-                        return message.channel.send(client.createRedEmbed(true, `${prefix}${this.usage}`)
-                            .setTitle("Reaction Roles Manager")
-                            .setDescription("Reaction Roles settings cancelled!"));
-                    };
-                    if (i == 0) {
-                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.has(messages.first().mentions.channels.first().id)) {
-                            responses.channelID = messages.first().mentions.channels.first().id;
-                            i = 2;
-                        } else if (content && message.guild.channels.cache.filter(channel => channel.type == "news" || channel.type == "text").has(content)) {
-                            responses.channelID = content;
-                            i = 2;
-                        } else i = -1;
-                    } else if (i == 1) {
-                        const roles = content.trim().split(/ +/g);
-                        roles.forEach(role => {
-                            if (message.guild.roles.cache.has(role)) {
-                                responses.roleIDs.push(role);
-                            };
-                        });
-                        if (messages.first().mentions.roles.first()) {
-                            messages.first().mentions.roles.forEach(role => {
-                                if (message.guild.roles.cache.has(role.id) && !responses.roleIDs.includes(role.id)) responses.roleIDs.push(role.id);
-                            });
-                        };
-                        if (responses.roleIDs.length == 0) {
-                            i = 0;
-                        } else i = 5;
-                    } else if (i == 2) {
-                        if (messages.first().mentions.channels.first() && message.guild.channels.cache.has(messages.first().mentions.channels.first().id)) responses.channelID = messages.first().mentions.channels.first().id;
-                        else if (content && message.guild.channels.cache.filter(channel => channel.type == "text" || channel.type == "news").has(content)) responses.channelID = content;
-                        else i = -1;
-                    } else if (i == 3) {
-                        responses.title = content;
-                    } else if (i == 4) {
-                        responses.description = content;
-                    } else if (i == 5) {
-                        const roles = content.trim().split(/\s+/g);
-                        roles.forEach(role => {
-                            if (message.guild.roles.cache.has(role)) {
-                                responses.roleIDs.push(role);
-                            };
-                        });
-                        if (messages.first().mentions.roles.first()) {
-                            messages.first().mentions.roles.forEach(role => {
-                                if (message.guild.roles.cache.has(role.id) && !responses.roleIDs.includes(role.id)) responses.roleIDs.push(role.id);
-                            });
-                        };
-                        if (responses.roleIDs.length == 0) {
-                            i = 0;
-                        };
-                    } else if (i == 6) {
-                        if (content.toLowerCase() == "done") {
-                            if (messageEmoji.reactions.cache.size !=  responses.roleIDs.length) i = 5;
-                            messageEmoji.reactions.cache.forEach(reaction => responses.emojiIDs.push(reaction.emoji.createdTimestamp ? reaction.emoji.id : reaction.emoji.name.toString()));
-                        } else i = 5;
-                    };
+        client.util.prompts("🎭 Reaction Roles Setup", [{
+            title: "#1 Reaction Roles Channel",
+            description: "Please mention a channel or provide a channel ID! Type `create` to let me create one!",
+            errorText: "Invalid channel or channel ID!",
+            checkFunction: async (i, msg) => {
+                let channel: TextChannel | NewsChannel;
+                if (msg.content.toLowerCase() == "create") channel = await message.guild.channels.create("reaction-roles", {
+                    type: "text"
+                });
+                else {
+                    if (msg.mentions.channels.first() && message.guild.channels.cache.has(msg.mentions.channels.first().id)) channel = msg.mentions.channels.first();
+                    else if (message.guild.channels.cache.filter(channel => channel.type == "text" || channel.type == "news").has(msg.content)) channel = message.guild.channels.cache.get(msg.content) as TextChannel | NewsChannel;
                 };
-            });
-        };
-        if (cancel) return;
-        const msg = await (message.guild.channels.cache.get(responses.channelID) as TextChannel | NewsChannel).send(client.createEmbed()
-            .setTitle(responses.title)
-            .setDescription(responses.description));
-        responses.messageID = msg.id
-        responses.emojiIDs.forEach(async emojiID => await msg.react(emojiID));
-        const serverSettings = await client.cache.getGuild(message.guild.id);
-        const reactionRoles = serverSettings.reactionRoles || [];
-        for (let i = 0; i < responses.roleIDs.length; i++) {
-            reactionRoles.push({
+                if (channel) {
+                    responses.channelID = channel.id;
+                    return true;
+                } else return false;
+            }
+        }, {
+            title: "#2.1 Reaction Roles Table - Title",
+            description: "Please provide a title for the reaction roles table! Type `create` to let me generate a title!",
+            errorText: "Unknown error occurred!",
+            checkFunction: (i, msg) => {
+                responses.title = msg.content.toLowerCase() == "create" ? "Reaction Roles" : msg.content;
+                return true;
+            }
+        }, {
+            title: "#2.2 Reaction Roles Table - Description",
+            description: "Please provide a description for the table! Type `create` to let me auto-generate a useful description!",
+            errorText: "Unknown error occurred!",
+            checkFunction: (i, msg) => {
+                responses.description = msg.content.toLowerCase() == "create" ? "auto-generate" : msg.content;
+                return true;
+            }
+        }, {
+            title: "#3 Reaction Roles Roles",
+            description: "Please mention role(s) or provide role ID(s)! Trim each role (or role ID) with a space!",
+            errorText: "No role or role ID mentioned!",
+            checkFunction: (i, msg) => {
+                for (const roleID of msg.content.trim().split(/ +/g)) {
+                    if (message.guild.roles.cache.has(roleID)) responses.roleIDs.push(roleID);
+                    else if (message.guild.roles.cache.has(roleID.split("<@&")[1].split(">")[0])) responses.roleIDs.push(roleID.split("<@&")[1].split(">")[0]);
+                };
+                if (responses.roleIDs.length > 0) return true;
+                else return false;
+            }
+        }, {
+            title: "#4 Reaction Roles Emojis",
+            description: `Please react with the emojis! The emojis must be in the same order like the roles, you provided before!`,
+            errorText: "No reactions or too many reactions!",
+            beforeExecutionFunction: (i, reactionMessage) => {
+                return reactionMessage.createReactionCollector((reaction, user) => user.id == message.author.id, { time: 60000 }).on("end", (collected, reason) => {
+                    if (collected.size != 0) for (const reaction of collected.values()) responses.emojiIDs.push(reaction.emoji.id ? reaction.emoji.id : reaction.emoji.name);
+                });
+            },
+            checkFunction: async (i, msg, reactionMessage, collector: ReactionCollector) => {
+                if (msg.content.toLowerCase() == "done") {
+                    let bool: boolean = false;
+                    collector.stop();
+                    if (responses.emojiIDs.length > 0 && responses.emojiIDs.length == responses.roleIDs.length) bool = true;
+                    return bool;
+                } else {
+                    collector.stop();
+                    return false
+                };
+            }
+        }], message.channel, (m) => m.author.id == message.author.id, {
+            description: "Cancelled reaction roles setup!",
+            commandUsage: this.usage
+        }, async () => {
+            if (responses.description.toLowerCase() == "auto-generate") {
+                let text: string = "";
+                for (let i = 0; i < responses.roleIDs.length; i++) text += `${responses.emojiIDs[i]} > <@&${responses.roleIDs[i]}>\n`;
+                responses.description = text;
+            };
+            const msg = await (message.guild.channels.cache.get(responses.channelID) as TextChannel | NewsChannel).send(client.createEmbed()
+                .setTitle(responses.title)
+                .setDescription(responses.description));
+            responses.messageID = msg.id;
+            for (const emojiID of responses.emojiIDs) await msg.react(emojiID);
+            const serverSettings = await client.cache.getGuild(message.guild.id);
+            const reactionRoles = serverSettings.reactionRoles || [];
+            for (let i = 0; i < responses.roleIDs.length; i++) reactionRoles.push({
                 roleID: responses.roleIDs[i],
                 emojiID: responses.emojiIDs[i],
                 messageID: responses.messageID
             });
-        };
-        client.cache.guilds.set(message.guild.id, {
-            ...serverSettings,
-            reactionRoles: reactionRoles
-        });
+            await client.cache.updateGuild(message.guild.id, {
+                reactionRoles: reactionRoles
+            });
+            return client.createSuccess(message, { title: "🎭 Reaction Roles Setup", description: "Completed reaction roles setup!" });
+        }, true);
     };
 };

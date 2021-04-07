@@ -10,13 +10,10 @@ export interface Guild {
 	modLogChannelWebhookID?: string,
 	muteRoleID?: string,
 	memberRoleID?: string,
-	ticketCategoryID?: string,
-	ticketManagerRoleID?: string,
 	giveawayManagerRoleID?: string,
 	giveawayBlacklistedRoleID?: string,
 	giveawayByPassRoleID?: string,
 	serverManagerRoleID?: string,
-	suggestionChannelID?: string,
 	welcomeMessage?: string,
 	welcomeMessageType?: "embed" | "message",
 	welcomeChannelID?: string | "dm",
@@ -43,8 +40,34 @@ export interface Guild {
 			timer: number
 		}
 	},
-	suggestionManagerRoleID?: string,
-	chatBot?: Array<string>
+	chatBot?: Array<string>,
+	customCommands?: Array<CustomCommand>,
+	application?: {
+		questions: Array<string>,
+		logChannelID: string,
+		managerRoleID: string,
+		categoryID: string
+	},
+	ticket?: {
+		categoryID: string,
+		managerRoleID: string
+	},
+	suggestion?: {
+		managerRoleID: string,
+		channelID: string
+	}
+};
+
+export interface CustomCommand {
+    guildID: string,
+    name: string,
+    aliases: Array<string>,
+    allowedRoles: Array<string>,
+    notAllowedRoles: Array<string>,
+    allowedChannels: Array<string>,
+    notAllowedChannels: Array<string>,
+    answers: Array<string>,
+	random: boolean
 };
 
 //TODO: Everytime update the interfaces, when updating the schema
@@ -63,8 +86,6 @@ const guildSchema = new Schema({
 	modLogChannelWebhookID: SchemaTypes.String,
 	muteRoleID: SchemaTypes.String,
 	memberRoleID: SchemaTypes.String,
-	ticketCategoryID: SchemaTypes.String,
-	ticketManagerRoleID: SchemaTypes.String,
 	giveawayManagerRoleID: SchemaTypes.String,
 	giveawayBlacklistedRoleID: SchemaTypes.String,
 	giveawayByPassRoleID: SchemaTypes.String,
@@ -130,6 +151,74 @@ const guildSchema = new Schema({
 	chatBot: {
 		type: SchemaTypes.Array,
 		default: []
+	},
+	customCommands: {
+		type: [{
+			name: requiredString,
+			aliases: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			allowedRoles: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			notAllowedRoles: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			allowedChannels: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			notAllowedChannels: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			answers: {
+				type: SchemaTypes.Array,
+				default: []
+			},
+			random: {
+				type: SchemaTypes.Boolean,
+				default: false
+			}
+		}],
+		default: []
+	},
+	application: {
+		type: {
+			questions: SchemaTypes.Array,
+			logChannelID: SchemaTypes.String,
+			managerRoleID: SchemaTypes.String,
+			categoryID: SchemaTypes.String
+		},
+		default: {
+			questions: [],
+			logChannelID: null,
+			managerRoleID: null,
+			categoryID: null
+		}
+	},
+	ticket: {
+		type: {
+			categoryID: SchemaTypes.String,
+			managerRoleID: SchemaTypes.String
+		},
+		default: {
+			categoryID: null,
+			managerRoleID: null
+		}
+	},
+	suggestion: {
+		type: {
+			channelID: SchemaTypes.String,
+			managerRoleID: SchemaTypes.String
+		},
+		default: {
+			channelID: null,
+			managerRoleID: null
+		}
 	}
 });
 

@@ -1,0 +1,26 @@
+doctype
+html(lang='en')
+    head
+        include ../Includes/header
+
+        link(rel='stylesheet', href='/CSS/Dashboard/index.css')
+        link(rel='stylesheet', href='/CSS/sidebar.css')
+    body
+        include ../Includes/navbar
+        include ../Includes/sidebar
+        include ../Includes/mixins
+        #sidebarExtension
+            header.text-center.pt-4
+                .large-icon.round
+                    img.round(src=user.avatarUrl(128), alt=user.username)
+                h4.pt-2 #{user.username}
+                    span.text-muted #{'#' + user.discriminator.toString().padStart(4, '0')}
+            form(method="POST", action="/users/passive/" + user.id)
+                label.form-check-label(for="passive") Passive
+                .form-check.form-switch
+                    input.form-check-input(type="checkbox", name="passive", checked=client.cache.currency.get(user.id).passive)
+                +popUp("passive", "Do you really want to change the passive mode?")
+        .container.jumbotron.text-center.bg-transparent
+            h1.display-3 Dashboard
+            hr
+            p.lead Manage your servers with the #{client.user.username} dashboard.

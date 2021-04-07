@@ -1,0 +1,27 @@
+body {
+    overflow-x: hidden;
+    background-image: url("https://cdn.pixabay.com/photo/2016/06/12/09/43/space-1451654_960_720.png");
+    background-position: center;
+}
+
+span#navbarStats, 
+span#navbarCommands, 
+span#navbarSupport,
+span#navbarPremium,
+span#navbarUser,
+span#navbarLogin {
+    color: white;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c2f33;
+}

@@ -14,8 +14,11 @@ export default class ChannelDeleteEvent extends Event {
 		const guildSettings = await client.cache.getGuild(channel.guild.id);
 		if (channel.type == 'category') {
 			const ticketCategory = await client.cache.getGuild(channel.guild.id);
-			if (ticketCategory.ticketCategoryID == channel.id) await client.cache.updateGuild(channel.guild.id, {
-				ticketCategoryID: null
+			if (ticketCategory.ticket.categoryID == channel.id) await client.cache.updateGuild(channel.guild.id, {
+				ticket: {
+					...guildSettings.ticket,
+					categoryID: null
+				}
 			});
 		} else if (channel.type != 'voice') {
 			if (guildSettings.autoPublishChannels.includes(channel.id)) guildSettings.autoPublishChannels.splice(guildSettings.autoPublishChannels.indexOf(channel.id), 1);

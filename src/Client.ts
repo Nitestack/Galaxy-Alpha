@@ -61,7 +61,8 @@ export default class GalaxyAlpha extends Client {
 			disableMentions: "everyone",
 			shards: "auto",
 			shardCount: 1,
-			retryLimit: 0
+			retryLimit: 0,
+			restRequestTimeout: 60000
 		});
 		if (!this.config.ownerID) throw new Error("A bot owner has to be provided!");
 		if (!this.config.globalPrefix) throw new Error("A global prefix has to be provided!");
@@ -70,7 +71,69 @@ export default class GalaxyAlpha extends Client {
 		if (!this.config.eventsDir) throw new Error("The event directory has to be provided!");
 		if (!this.config.eventsDir) throw new Error("The feature directory has to be provided!");
 		if (!this.config.mongoDBUrl) throw new Error("The MongoDB url has to be provided!");
-		this.start();
+		this.start(true);
+		//READY EVENT\\
+		this.once("ready", async () => {
+			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth&scope=applications.commands%20bot`;
+			//GUILD\\
+			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
+			//SLASH COMMANDS\\
+			const commands: Array<any> = await this.getApp("783440776285651024").commands.get();
+			this.slashCommands.forEach(async slashCommand => {
+				const command = commands.find(command => command.name.toLowerCase() == slashCommand.name.toLowerCase());
+				if (command) await SlashCommand.editSlashCommand(command.id, slashCommand, "783440776285651024");
+				else await SlashCommand.createSlashCommand(slashCommand, "783440776285651024");
+			});
+			//CLIENT INFO\\
+			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
+			clientInfoTable.addRow('Presence Status', this.user.presence.status);
+			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
+			clientInfoTable.addRow('WS Status', this.ws.status);
+			clientInfoTable.addRow('API Ping', this.ms(this.ws.ping));
+			clientInfoTable.addRow('API Gateway', this.ws.gateway);
+			clientInfoTable.addRow('Servers', this.guilds.cache.size);
+			clientInfoTable.addRow('Members', this.users.cache.size);
+			clientInfoTable.addRow('Channels', this.channels.cache.size);
+			clientInfoTable.addRow('Client Status', '✅ Online!');
+			clientInfoTable.addRow('Author', 'HydraNhani#8303');
+			//TABLES\\
+			console.log(clientInfoTable.toString());
+			//FEATURE HANDLER\\
+			this.features.forEach(feature => feature.run(this));
+			//DATABASE FILTER\\
+			this.DBfilter(this.user.id == "761590139147124810" ? true : false);
+			this.secret = this.user.id == "761590139147124810" ? process.env.CLIENT_SECRET : process.env.CLIENT_BETA_SECRET;
+			await import("@web/server");
+			//ACTIVITY\\
+			const activityArray: Array<string> = [
+				`${this.globalPrefix}help | Support Server: gg/qvbFn6bXQX`,
+				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: gg/qvbFn6bXQX`,
+				`${this.users.cache.size.toLocaleString()} users | Support Server: gg/qvbFn6bXQX`,
+				`${this.channels.cache.size.toLocaleString()} channels | Support Server: gg/qvbFn6bXQX`,
+				`${this.users.cache.get(this.ownerID).tag} | Support Server: gg/qvbFn6bXQX`
+			];
+			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
+				"PLAYING",
+				"WATCHING",
+				"LISTENING"
+			];
+			let index: number = 0;
+			let typeIndex: number = 0;
+			setInterval(() => {
+				if (activityArray.length == index) index = 0;
+				if (typeArray.length == typeIndex) typeIndex = 0;
+				this.user.setPresence({
+					activity: {
+						name: activityArray[index],
+						type: typeArray[typeIndex]
+					},
+					status: "online"
+				});
+				index++;
+				typeIndex++;
+			}, 10000);
+			setInterval(async () => await this.cache.clearCacheAndSave(), 3600000);
+		});
 	};
 	//MANAGERS\\
 	public giveaways: GiveawayManager = new GiveawayManager(this);
@@ -154,89 +217,42 @@ export default class GalaxyAlpha extends Client {
 	public protectedEmojiID: string = this.getEmojiID(this.protectedEmoji);
 	public mongoDBConnection: Connection;
 	//METHODS\\
-	public async start() {
-		//LOGIN\\
-		this.login(this.config.token);
-		process.on('unhandledRejection', (reason, promise) => {
-			console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-		});
+	public async start(firstStart?: boolean) {
+		if (firstStart) {
+			//LOGIN\\
+			this.login(this.config.token);
+			process.on('unhandledRejection', (reason, promise) => {
+				console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+			});
+			//MONGO DB\\
+			await this.connectToMongoDB(this.config.mongoDBUrl, {
+				...this.config.mongoDBConnectionOptions,
+				dbName: "data"
+			});
+			this.mongoDBConnection = connection;
+			this.mongoDBConnection.on("open", () => {
+				console.log("[Global Cache => MongoDB Connection Manager] Connected to MongoDB database");
+			});
+			this.mongoDBConnection.on("close", () => {
+				console.log("[Global Cache => MongoDB Connection Manager] Closed MongoDB connection");
+			});
+		};
 		//READ COMMANDS, EVENTS, FEATURES, SLASH COMMANDS\\
+		this.commands.sweep(() => true);
+		this.aliases.sweep(() => true);
+		this.events.sweep(() => true);
+		this.slashCommands.sweep(() => true);
+		this.features.sweep(() => true);
 		const commands = await this.readCommands(this.config.commandsDir);
 		const events = await this.readEvents(this.config.eventsDir);
 		const features = await this.readFeatures(this.config.featuresDir);
 		const slashCommands = await this.readSlashCommands(this.config.slashCommandsDir);
-		clientInfoTable.addRow("Commands", commands);
-		clientInfoTable.addRow("Events", events);
-		clientInfoTable.addRow("Features", features);
-		clientInfoTable.addRow("Slash Commands", slashCommands);
-		//MONGO DB\\
-		await this.connectToMongoDB(this.config.mongoDBUrl, {
-			...this.config.mongoDBConnectionOptions,
-			dbName: "data"
-		});
-		this.mongoDBConnection = connection;
-		//READY EVENT\\
-		this.once("ready", async () => {
-			this.inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth&scope=applications.commands%20bot`;
-			//GUILD\\
-			if (this.config.supportGuildID) this.supportGuild = this.guilds.cache.get(this.supportGuildID);
-			//SLASH COMMANDS\\
-			const commands: Array<any> = await this.getApp("783440776285651024").commands.get();
-			this.slashCommands.forEach(async slashCommand => {
-				const command = commands.find(command => command.name.toLowerCase() == slashCommand.name.toLowerCase());
-				if (command) await SlashCommand.editSlashCommand(command.id, slashCommand, "783440776285651024");
-				else await SlashCommand.createSlashCommand(slashCommand, "783440776285651024");
-			});
-			//CLIENT INFO\\
-			clientInfoTable.addRow('Created At', this.util.dateFormatter(this.user.createdAt));
-			clientInfoTable.addRow('Presence Status', this.user.presence.status);
-			clientInfoTable.addRow('Uptime', this.ms(this.uptime));
-			clientInfoTable.addRow('WS Status', this.ws.status);
-			clientInfoTable.addRow('API Ping', this.ms(this.ws.ping));
-			clientInfoTable.addRow('API Gateway', this.ws.gateway);
-			clientInfoTable.addRow('Servers', this.guilds.cache.size);
-			clientInfoTable.addRow('Members', this.users.cache.size);
-			clientInfoTable.addRow('Channels', this.channels.cache.size);
-			clientInfoTable.addRow('Client Status', '✅ Online!');
-			clientInfoTable.addRow('Author', 'HydraNhani#8303');
-			//TABLES\\
-			console.log(clientInfoTable.toString());
-			//FEATURE HANDLER\\
-			this.features.forEach(feature => feature.run(this));
-			//DATABASE FILTER\\
-			this.DBfilter(this.user.id == "761590139147124810" ? true : false);
-			this.secret = this.user.id == "761590139147124810" ? process.env.CLIENT_SECRET : process.env.CLIENT_BETA_SECRET;
-			await import("@dashboard/server");
-			//ACTIVITY\\
-			const activityArray: Array<string> = [
-				`${this.globalPrefix}help | Support Server: gg/qvbFn6bXQX`,
-				`${this.guilds.cache.size.toLocaleString()} servers | Support Server: gg/qvbFn6bXQX`,
-				`${this.users.cache.size.toLocaleString()} users | Support Server: gg/qvbFn6bXQX`,
-				`${this.channels.cache.size.toLocaleString()} channels | Support Server: gg/qvbFn6bXQX`,
-				`${this.users.cache.get(this.ownerID).tag} | Support Server: gg/qvbFn6bXQX`
-			];
-			const typeArray: Array<number | "PLAYING" | "WATCHING" | "LISTENING" | "STREAMING" | "CUSTOM_STATUS" | "COMPETING"> = [
-				"PLAYING",
-				"WATCHING",
-				"LISTENING"
-			];
-			let index: number = 0;
-			let typeIndex: number = 0;
-			setInterval(() => {
-				if (activityArray.length == index) index = 0;
-				if (typeArray.length == typeIndex) typeIndex = 0;
-				this.user.setPresence({
-					activity: {
-						name: activityArray[index],
-						type: typeArray[typeIndex]
-					},
-					status: "online"
-				});
-				index++;
-				typeIndex++;
-			}, 10000);
-			setInterval(async () => await this.cache.clearCacheAndSave(), 3600000);
-		});
+		if (firstStart) {
+			clientInfoTable.addRow("Commands", commands);
+			clientInfoTable.addRow("Events", events);
+			clientInfoTable.addRow("Features", features);
+			clientInfoTable.addRow("Slash Commands", slashCommands);
+		};
 	};
 	/**
 	 * Reads all commands of the provided directory
@@ -578,7 +594,7 @@ export default class GalaxyAlpha extends Client {
 		if (guildID) app.guilds(guildID);
 		return app;
 	};
-	private async connectToMongoDB(url: string, options?: ConnectionOptions) {
+	public async connectToMongoDB(url: string, options?: ConnectionOptions) {
 		await connect(url, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
@@ -589,6 +605,7 @@ export default class GalaxyAlpha extends Client {
 		set('useNewUrlParser', true);
 		set('useFindAndModify', false);
 		set('useUnifiedTopology', true);
+		set('useCreateIndex', true);
 		return connection;
 	};
 };
