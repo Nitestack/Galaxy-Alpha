@@ -1,5 +1,5 @@
 import GalaxyAlpha from "@root/Client";
-import { Message } from "discord.js";
+import { Message, Snowflake, StreamDispatcher, User, VoiceChannel, VoiceConnection } from "discord.js";
 import Queue, { Song } from "@commands/Music/Queue";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
@@ -8,12 +8,12 @@ export default class Music {
     constructor(private client: GalaxyAlpha) { };
     /**
      * Plays an audio
-     * @param {Message} message The message sent from the guild 
+     * @param {string} guildID The ID of the guild 
      */
-    public async play(message: Message) {
-        const serverQueue = this.getServerQueue(message);
+    public async play(guildID: string, message?: Message) {
+        const serverQueue = this.getServerQueue(guildID);
         if (serverQueue.stream) serverQueue.stream.destroy();
-        const videoInfos = this.getQueue(message)[0];
+        const videoInfos = this.getQueue(guildID)[0];
         try {
             if (!serverQueue.connection) serverQueue.connection = await serverQueue.message.member.voice.channel.join();
             serverQueue.stream = ytdl(videoInfos.url, {
@@ -30,8 +30,8 @@ export default class Music {
             }).on("start", () => {
                 serverQueue.beginningToPlay = Date.now();
                 serverQueue.nowPlaying = true;
-                if (!this.getServerQueue(message).panel) message.channel.send(this.client.createEmbed()
-                    .setTitle(`🎧 Connected to \`${serverQueue.message.guild.me.voice.channel.name}\`!`)
+                if (message && !this.getServerQueue(guildID).panel) message.channel.send(this.client.createEmbed()
+                    .setTitle(`🎧 Connected to \`${message.guild.me.voice.channel.name}\`!`)
                     .setDescription(`**<:youtube:786675436733857793> [${videoInfos.title}](${videoInfos.url})**
                     *uploaded by [${videoInfos.author.name}](${videoInfos.author.url}) on ${videoInfos.uploadDate} (${videoInfos.ago})*
                     
@@ -61,62 +61,64 @@ export default class Music {
     };
     /**
      * Set's the loop mode
+     * @param {Snowflake} guildID The ID of the guild
      * @param {number} mode The mode (`0` = disabled, `1` = song loop, `2` = queue loop) 
      */
-    public setLoop(message: Message, mode: 0 | 1 | 2) {
-        return this.getServerQueue(message).loopMode = mode;
+    public setLoop(guildID: Snowflake, mode: 0 | 1 | 2) {
+        return this.getServerQueue(guildID).loopMode = mode;
     };
     /**
      * Returns the server queue
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      */
-    public getServerQueue(message: Message) {
-        if (!this.client.queue.has(message.guild.id)) this.client.queue.set(message.guild.id, new Queue(message));
-        return this.client.queue.get(message.guild.id);
+    public getServerQueue(guildID: Snowflake) {
+        if (!this.client.queue.has(guildID)) this.client.queue.set(guildID, new Queue(guildID));
+        return this.client.queue.get(guildID);
     };
     /**
      * Returns the server songs
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      */
-    public getQueue(message: Message) {
-        return this.getServerQueue(message).songs;
+    public getQueue(guildID: Snowflake) {
+        return this.getServerQueue(guildID).songs;
     };
     /**
      * Disconnects the client from the voice channel
-     * @param {Message} message The message sent from the guild
+     * @param {VoiceChannel | VoiceConnection} voiceChannel The voice channel of the client or the voice connection of the client
      */
-    public disconnect(message: Message) {
-        return message.guild.me.voice.channel.leave();
+    public disconnect(voiceChannel: VoiceChannel | VoiceConnection) {
+        if (voiceChannel instanceof VoiceChannel) voiceChannel.leave();
+        else if (voiceChannel instanceof VoiceConnection) voiceChannel.disconnect();
     };
     /**
      * Stops the dispatcher
-     * @param {Message} message The message sent from the guild
+     * @param {Snowflake} guildID The ID of the guild
      */
-    public stop(message: Message) {
-        return this.getServerQueue(message).dispatcher.pause();
+    public stop(guildID: Snowflake) {
+        return this.getServerQueue(guildID).dispatcher.pause();
     };
     /**
      * Resumes the dispatcher
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      */
-    public resume(message: Message) {
-        return this.getServerQueue(message).dispatcher.resume();
+    public resume(guildID: Snowflake) {
+        return this.getServerQueue(guildID).dispatcher.resume();
     };
     /**
      * Set's the volume of the dispatcher
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      * @param {number} volume The volume (`0` - `100`) 
      */
-    public setVolume(message: Message, volume: number) {
-        this.getServerQueue(message).volume = volume;
-        return this.getServerQueue(message).dispatcher.setVolume(volume / 100);
+    public setVolume(guildID: Snowflake, volume: number) {
+        this.getServerQueue(guildID).volume = volume;
+        return this.getServerQueue(guildID).dispatcher.setVolume(volume / 100);
     };
     /**
      * Returns a new shuffled queue
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      */
-    public shuffle(message: Message): Array<Song> {
-        const newShuffledQueue = this.getQueue(message);
+    public shuffle(guildID: Snowflake): Array<Song> {
+        const newShuffledQueue = this.getQueue(guildID);
         let newPos: number;
         let temp: Song;
         for (let i = newShuffledQueue.length - 1; i > 0; i--) {
@@ -125,36 +127,36 @@ export default class Music {
             newShuffledQueue[i] = newShuffledQueue[newPos];
             newShuffledQueue[newPos] = temp;
         };
-        return this.getServerQueue(message).songs = newShuffledQueue;
+        return this.getServerQueue(guildID).songs = newShuffledQueue;
     };
     /**
      * Set's the seek of the current track
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild 
      * @param {number} time The seek in milliseconds 
      */
-    public seek(message: Message, time: number) {
-        this.getServerQueue(message).beginAt = time;
-        return this.play(message);
+    public seek(guildID: string, time: number) {
+        this.getServerQueue(guildID).beginAt = time;
+        return this.play(guildID);
     };
     /**
      * Set's the auto play mode
-     * @param {Message} message The message sent from the guild
+     * @param {Snowflake} guildID The ID of the guild
      * @param {number} mode The number (`0` - disabled, `1` - enabled) 
      */
-    public setAutoPlay(message: Message, mode: 0 | 1) {
-        return this.getServerQueue(message).autoPlay = mode == 0 ? false : true;
+    public setAutoPlay(guildID: Snowflake, mode: 0 | 1) {
+        return this.getServerQueue(guildID).autoPlay = mode == 0 ? false : true;
     };
     /**
      * Adds a video related to the current track
-     * @param {Message} message 
+     * @param {Snowflake} guildID The ID of the guild 
      */
-    public async addRelatedVideo(message: Message) {
-        const queue = this.getQueue(message);
+    public async addRelatedVideo(guildID: Snowflake) {
+        const queue = this.getQueue(guildID);
         if (queue.length < 1) return;
         const song = queue[0];
         const relatedVideos = (await ytdl.getBasicInfo(song.url)).related_videos;
         if (relatedVideos.length == 0) return;
-        return this.addToQueue(message, relatedVideos[0].id);
+        return this.addToQueue(guildID, relatedVideos[0].id);
     };
     /**
      * Searches a video on YouTube
@@ -174,15 +176,16 @@ export default class Music {
     };
     /**
      * Adds a song to the queue
-     * @param {Message} message The message sent from the guild 
+     * @param {Snowflake} guildID The ID of the guild
      * @param {string} videoID The ID of the YouTube video 
+     * @param {User} user The user
      */
-    public async addToQueue(message: Message, videoID: string) {
+    public async addToQueue(guildID: Snowflake, videoID: string, user?: User) {
         const video = await ytSearch({ videoId: videoID }).catch(err => console.log(err));
         if (!video) return;
-        this.getQueue(message).push({
+        this.getQueue(guildID).push({
             ...video,
-            user: message.author
+            user: user
         });
     };
 };

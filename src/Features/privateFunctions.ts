@@ -11,6 +11,7 @@ export default class extends Feature {
             if (message.author.bot) return;
             //GAMMEL SERVER
             if (message.channel.type != "dm" && message.guild.id == "813437935465660467") {
+                if (message.author.id == "408557219735666688") await message.react("🏳️‍🌈");
                 if (message.attachments.first()) await message.react("✅");
                 if (message.attachments.first() && message.author.id == "358303166845943808") await message.react("🦦");
                 else if (message.attachments.first() && message.author.id == "686228650760339499") await message.react("🍴");

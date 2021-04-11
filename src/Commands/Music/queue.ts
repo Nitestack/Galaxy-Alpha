@@ -7,7 +7,7 @@ export interface Song extends VideoMetadataResult {
 };
 
 export default class Queue {
-    constructor(public message: Message) { };
+    constructor(public guildID: string) { };
     public songs: Array<Song> = [];
     public nowPlaying: boolean = false;
     public dispatcher: StreamDispatcher = null;

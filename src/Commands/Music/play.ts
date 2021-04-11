@@ -47,7 +47,7 @@ export default class PlayCommand extends Command {
                 **Genre:** ${client.util.toUpperCaseBeginning(video.genre)}`)
                 .setImage(video.image));
             client.music.addToQueue(message, video.videoId);
-            if (client.music.getQueue(message).length <= 1) await client.music.play(message);
+            if (client.music.getQueue(message).length <= 1) await client.music.play(message.guild.id);
         } else {
             const videoResults = (await client.music.videoFinder(query)) ? (await client.music.videoFinder(query)) : ((await client.music.playlistFinder(query)) ? (await client.music.playlistFinder(query)) : null);
             if (!videoResults) return message.channel.send(embed.setDescription(`Cannot find any results, that includes \`${query}\`! Please try again!`));
@@ -68,7 +68,7 @@ export default class PlayCommand extends Command {
                         .setTitle(`🎧 Music Manager`)
                         .setDescription(`**<:youtube:786675436733857793> [${playList.title}](${playList.url})**
                         *uploaded by [${playList.author.name}](${playList.author.url})*`));
-                    await client.music.play(message);
+                    await client.music.play(message.guild.id);
                 };
             } else {
                 const video = await ytSearch({ videoId: videoResults.videoId });
@@ -89,7 +89,7 @@ export default class PlayCommand extends Command {
                         .setImage(video.image));
                 };
                 await client.music.addToQueue(message, videoResults.videoId);
-                if (client.music.getQueue(message).length <= 1) await client.music.play(message);
+                if (client.music.getQueue(message).length <= 1) await client.music.play(message.guild.id);
             };
         };
     };

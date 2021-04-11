@@ -11,7 +11,7 @@ const betaToken: string = process.env.BETA_TOKEN;
 export default new GalaxyAlpha({
     ownerID: "700277649347575870",
     globalPrefix: process.env.GLOBAL_PREFIX,
-    token: betaToken,
+    token: token,
     commandsDir: "Commands",
     eventsDir: "Events",
     featuresDir: "Features",
