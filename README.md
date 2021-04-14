@@ -1,7 +1,7 @@
 # Galaxy-Alpha
 A bot created for multi purpose functionality!
 
-Create a .env file and declare this variables
+To contribute to this project, please contact HydraNhani#8303 on Discord!
 
-TOKEN=TOKEN_HERE
-MONGOPATH=MONGOPATH_HERE
+Best regards,
+HydraNhani
