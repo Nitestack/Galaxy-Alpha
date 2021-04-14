@@ -77,7 +77,7 @@
     "@data": "src/Data",
     "@routes": "src/Web/Routes",
     "@web": "src/Web",
-    "@modules": "src/Web/modules",
+    "@modules": "src/Web/Modules",
     "@views": "src/Web/Views",
     "@assets": "src/Web/Assets"
   },
