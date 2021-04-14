@@ -24,5 +24,5 @@ export default new GalaxyAlpha({
 });
 
 setInterval(async () => {
-    await axios.get("https://mixolydian-olive-salamander.glitch.me").then(() => console.log("Website is running!");
+    await axios.get("https://mixolydian-olive-salamander.glitch.me").then(() => console.log("Website is running!"));
 });
