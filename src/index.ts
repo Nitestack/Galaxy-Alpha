@@ -2,6 +2,7 @@ import 'module-alias/register';
 import dotenv from 'dotenv';
 import 'discord-reply'; 
 import GalaxyAlpha from '@root/Client';
+import axios from 'axios';
 
 //ENVIROMENT VARIABLES\\
 dotenv.config();
@@ -20,4 +21,8 @@ export default new GalaxyAlpha({
     supportGuildID: '783440776285651024',
     ignoreFiles: ['Giveaway.ts', 'Music.ts', 'Drop.ts', 'Ticket.ts', 'Constants.ts', 'Queue.ts', 'BrawlerData.ts'],
     slashCommandsDir: 'SlashCommands'
+});
+
+setInterval(async () => {
+    await axios.get("https://mixolydian-olive-salamander.glitch.me").then(() => console.log("Website is running!");
 });
